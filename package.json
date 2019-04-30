@@ -1,0 +1,32 @@
+{
+  "name": "@sveltejs/gl",
+  "version": "0.0.1",
+  "description": "A (very experimental) project to bring WebGL to Svelte",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node scripts/build-shaders.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rich-Harris/gl.git"
+  },
+  "keywords": [
+    "Svelte",
+    "WebGL"
+  ],
+  "author": "Rich Harris",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Rich-Harris/gl/issues"
+  },
+  "homepage": "https://github.com/Rich-Harris/gl#readme",
+  "devDependencies": {
+    "tiny-glob": "^0.2.6"
+  },
+  "dependencies": {
+    "angle-normals": "^1.0.0",
+    "gl-matrix": "^3.0.0",
+    "icosphere": "^1.0.0"
+  }
+}
