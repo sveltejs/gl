@@ -4,7 +4,7 @@
 	import Attribute from '../abstract/Attribute.mjs';
 
 	import icosphere from 'icosphere';
-	import normals from 'angle-normals';
+	import { faceNormals, vertexNormals } from 'normals';
 
 	export let subdivisions = 1;
 
@@ -15,8 +15,20 @@
 		size: 3
 	});
 
+	const vn = vertexNormals(cells, positions).flat();
+	const fn = faceNormals(cells, positions).flat();
+
+	const position_strings = new Set();
+	positions.forEach(pos => {
+		const str = pos.join(',');
+		if (position_strings.has(str)) {
+			throw new Error(`seen ${str}`);
+		}
+		position_strings.add(str);
+	});
+
 	const normal = new Attribute({
-		data: new Float32Array(normals(cells, positions).flat()),
+		data: new Float32Array(vertexNormals(cells, positions).flat()),
 		size: 3
 	});
 
