@@ -4,6 +4,7 @@ precision mediump float;
 // uniform vec3 light_direction;
 uniform vec4 light_color;
 
+uniform vec3 _ambient_light;
 uniform vec3 _directional_lights_direction[8];
 uniform vec4 _directional_lights_color[8];
 
@@ -34,7 +35,7 @@ void main () {
 
 	// gl_FragColor = vcolor;
 	gl_FragColor = _color;
-	gl_FragColor.rgb *= mix(vec3(0.3, 0.3, 0.3), vec3(1.0, 1.0, 1.0), light);
+	gl_FragColor.rgb *= mix(_ambient_light, vec3(1.0, 1.0, 1.0), light);
 
 	// gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

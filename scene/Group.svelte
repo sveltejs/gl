@@ -1,6 +1,6 @@
 <script>
 	import { writable, derived } from 'svelte/store';
-	import { get_renderer, get_parent, set_parent } from '../internal.mjs';
+	import { get_scene, get_parent, set_parent } from '../internal.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as quat from 'gl-matrix/quat';
 
@@ -8,7 +8,7 @@
 	export let rotation = [0, 0, 0];
 	export let scale = [1, 1, 1];
 
-	const renderer = get_renderer();
+	const scene = get_scene();
 	const parent = get_parent();
 
 	// TODO make it possible to set a quaternion as a prop?
@@ -23,7 +23,7 @@
 
 	$: quaternion = quat.fromEuler(quaternion || quat.create(), ...rotation);
 	$: $matrix = mat4.fromRotationTranslationScale(out, quaternion, location, scale);
-	$: ($ctm, renderer.invalidate());
+	$: ($ctm, scene.invalidate());
 
 	set_parent({ ctm });
 </script>

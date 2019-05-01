@@ -9,6 +9,7 @@ export { default as Group } from './scene/Group.svelte';
 export { default as Mesh } from './scene/Mesh.svelte';
 
 // lights
+export { default as AmbientLight } from './scene/lights/AmbientLight.svelte';
 export { default as DirectionalLight } from './scene/lights/DirectionalLight.svelte';
 
 // cameras

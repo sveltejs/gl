@@ -3,7 +3,7 @@ import { getContext, setContext } from 'svelte';
 export const RENDERER = {};
 export const PARENT = {};
 
-export function get_renderer() {
+export function get_scene() {
 	return getContext(RENDERER);
 }
 

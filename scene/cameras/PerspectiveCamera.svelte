@@ -1,5 +1,5 @@
 <script>
-	import { get_renderer, get_parent } from '../../internal.mjs';
+	import { get_scene, get_parent } from '../../internal.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 
 	export let location = [0, 0, 0];
@@ -9,7 +9,7 @@
 	export let near = 1;
 	export let far = 20000;
 
-	const { add_camera, invalidate, width, height } = get_renderer();
+	const { add_camera, invalidate, width, height } = get_scene();
 	const { ctm } = get_parent();
 
 	let camera = mat4.create();

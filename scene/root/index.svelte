@@ -25,9 +25,14 @@
 	const num_lights = 8;
 
 	const items = [];
+
+	// lights
 	const directional_lights = [];
 	const directional_lights_direction_array = new Float32Array(num_lights * 3);
 	const directional_lights_color_array = new Float32Array(num_lights * 4);
+
+	const ambient_lights = [];
+
 	let update_scheduled = false;
 
 	function invalidate() {
@@ -37,18 +42,20 @@
 		}
 	}
 
-	const context = {
-		add: fn => {
-			items.push(fn);
+	function add_to(array) {
+		return fn => {
+			array.push(fn);
 			invalidate();
 
 			onDestroy(() => {
-				const i = items.indexOf(fn);
-				if (~i) items.splice(i, 1);
+				const i = array.indexOf(fn);
+				if (~i) array.splice(i, 1);
 				invalidate();
 			});
-		},
+		}
+	}
 
+	const context = {
 		add_camera: fn => {
 			if (camera) {
 				throw new Error(`A scene can only have one camera`);
@@ -63,16 +70,9 @@
 			});
 		},
 
-		add_directional_light: fn => {
-			directional_lights.push(fn);
-			invalidate();
-
-			onDestroy(() => {
-				const i = items.indexOf(fn);
-				if (~i) items.splice(i, 1);
-				invalidate();
-			});
-		},
+		add: add_to(items),
+		add_directional_light: add_to(directional_lights),
+		add_ambient_light: add_to(ambient_lights),
 
 		invalidate,
 		width,
@@ -118,6 +118,7 @@
 			view: gl.getUniformLocation(program, '_view'),
 			view_inverse_transpose: gl.getUniformLocation(program, '_view_inverse_transpose'),
 			projection: gl.getUniformLocation(program, '_projection'),
+			ambient_light: gl.getUniformLocation(program, '_ambient_light'),
 			directional_lights_direction: gl.getUniformLocation(program, '_directional_lights_direction'),
 			directional_lights_color: gl.getUniformLocation(program, '_directional_lights_color'),
 			// reverse_light_direction: gl.getUniformLocation(program, '_reverse_light_direction'),
@@ -145,6 +146,18 @@
 			gl.uniformMatrix4fv(uniforms.projection, false, projection);
 
 			// update lights
+			const ambient_light = ambient_lights.reduce((total, light) => {
+				const { color } = light();
+
+				return [
+					Math.min(total[0] + color[0] * color[3], 1),
+					Math.min(total[1] + color[1] * color[3], 1),
+					Math.min(total[2] + color[2] * color[3], 1)
+				];
+			}, new Float32Array([0, 0, 0]));
+
+			gl.uniform3fv(uniforms.ambient_light, ambient_light);
+
 			for (let i = 0; i < num_lights; i += 1) {
 				const light = directional_lights[i];
 
