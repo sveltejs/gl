@@ -136,6 +136,9 @@
 			gl.enable(gl.CULL_FACE);
 			gl.enable(gl.DEPTH_TEST);
 
+			gl.enable(gl.BLEND);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
 			gl.useProgram(program);
 
 			// update matrixes
@@ -190,9 +193,9 @@
 			gl.uniform3fv(gl.getUniformLocation(program, 'light_direction'), directional_lights_direction_array);
 			gl.uniform4fv(gl.getUniformLocation(program, 'light_color'), directional_lights_color_array);
 
-			items.forEach(fn => {
-				const { matrix_world, geometry, material } = fn();
+			const transparent = [];
 
+			function render_item({ matrix_world, geometry, material }) {
 				// set uniforms
 				gl.uniformMatrix4fv(uniforms.model, false, matrix_world);
 
@@ -240,7 +243,22 @@
 					// var offset = 0;
 					// gl.drawArrays(primitiveType, offset, count);
 				}
+			}
+
+			gl.depthMask(true);
+			items.forEach(fn => {
+				const item = fn();
+
+				if (item.material.color[3] < 1) {
+					transparent.push(item);
+				} else {
+					render_item(item);
+				}
 			});
+
+			// TODO sort transparent items, furthest to closest
+			gl.depthMask(false);
+			transparent.forEach(render_item);
 		};
 	});
 

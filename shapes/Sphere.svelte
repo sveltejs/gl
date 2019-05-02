@@ -15,9 +15,6 @@
 		size: 3
 	});
 
-	const vn = vertexNormals(cells, positions).flat();
-	const fn = faceNormals(cells, positions).flat();
-
 	const position_strings = new Set();
 	positions.forEach(pos => {
 		const str = pos.join(',');
