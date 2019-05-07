@@ -24,7 +24,7 @@
 	const default_camera = () => ({});
 	const num_lights = 8;
 
-	const items = [];
+	const meshes = [];
 
 	// lights
 	const directional_lights = [];
@@ -70,7 +70,7 @@
 			});
 		},
 
-		add: add_to(items),
+		add: add_to(meshes),
 		add_directional_light: add_to(directional_lights),
 		add_ambient_light: add_to(ambient_lights),
 
@@ -195,7 +195,7 @@
 
 			const transparent = [];
 
-			function render_item({ matrix_world, geometry, material }) {
+			function render_mesh({ matrix_world, geometry, material }) {
 				// set uniforms
 				gl.uniformMatrix4fv(uniforms.model, false, matrix_world);
 
@@ -246,19 +246,17 @@
 			}
 
 			gl.depthMask(true);
-			items.forEach(fn => {
-				const item = fn();
-
-				if (item.material.color[3] < 1) {
-					transparent.push(item);
+			meshes.forEach(mesh => {
+				if (mesh.material.color[3] < 1) {
+					transparent.push(mesh);
 				} else {
-					render_item(item);
+					render_mesh(mesh);
 				}
 			});
 
-			// TODO sort transparent items, furthest to closest
+			// TODO sort transparent meshes, furthest to closest
 			gl.depthMask(false);
-			transparent.forEach(render_item);
+			transparent.forEach(render_mesh);
 		};
 	});
 

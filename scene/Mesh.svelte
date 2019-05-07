@@ -30,9 +30,10 @@
 	$: $matrix = mat4.fromRotationTranslationScale(out, quaternion, location, scale_array);
 	$: (geometry, material, $ctm, scene.invalidate());
 
-	scene.add(() => ({
-		matrix_world: $ctm,
-		geometry,
-		material
-	}));
+	const mesh = {};
+	$: mesh.matrix_world = $ctm;
+	$: mesh.geometry = geometry;
+	$: mesh.material = material;
+
+	scene.add(mesh);
 </script>
