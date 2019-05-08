@@ -1,4 +1,5 @@
 <script>
+	import { onDestroy } from 'svelte';
 	import { writable, derived } from 'svelte/store';
 	import { get_scene, get_parent, set_parent } from '../internal.mjs';
 	import Material from '../abstract/Material.mjs';
@@ -9,13 +10,14 @@
 	export let rotation = [0, 0, 0];
 	export let scale = 1;
 	export let geometry;
-	export let material = new Material({/*TODO*/});
+	export let material = new Material({
+		color: [Math.random(), Math.random(), Math.random(), 1]
+	});
 
 	const scene = get_scene();
 	const parent = get_parent();
 
 	// TODO make it possible to set a quaternion as a prop?
-	// TODO use rotors? http://marctenbosch.com/quaternions/
 	const out = mat4.create();
 
 	const matrix = writable(null);
@@ -34,6 +36,19 @@
 	$: mesh.matrix_world = $ctm;
 	$: mesh.geometry = geometry;
 	$: mesh.material = material;
+
+	let previous_program;
+	$: {
+		mesh.program = scene.create_program(material);
+		geometry.init(scene.gl, mesh.program.program);
+
+		if (previous_program) scene.delete_program(previous_program);
+		previous_program = mesh.program;
+	}
+
+	onDestroy(() => {
+		scene.delete_program(mesh.program);
+	});
 
 	scene.add(mesh);
 </script>

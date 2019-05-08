@@ -2,10 +2,17 @@
 	import { setContext, onMount, onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { RENDERER, PARENT, create_program } from '../../internal.mjs';
-	import vert from './vert.glsl.js';
-	import frag from './frag.glsl.js';
+	import { get_or_create_program } from './program.mjs';
+	import vert_builtin from '../../shaders/builtin/vert.glsl.mjs';
+	import frag_builtin from '../../shaders/builtin/frag.glsl.mjs';
+	import vert_default from '../../shaders/default/vert.glsl.mjs';
+	import frag_default from '../../shaders/default/frag.glsl.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as vec3 from 'gl-matrix/vec3';
+
+	// TEMP
+	const vert = vert_builtin + vert_default;
+	const frag = frag_builtin + frag_default;
 
 	export let background = [1, 1, 1, 1];
 
@@ -21,7 +28,7 @@
 	const width = writable(1);
 	const height = writable(1);
 
-	const default_camera = () => ({});
+	const default_camera = { /* TODO */ };
 	const num_lights = 8;
 
 	const meshes = [];
@@ -55,7 +62,7 @@
 		}
 	}
 
-	const context = {
+	const scene = {
 		add_camera: fn => {
 			if (camera) {
 				throw new Error(`A scene can only have one camera`);
@@ -74,12 +81,20 @@
 		add_directional_light: add_to(directional_lights),
 		add_ambient_light: add_to(ambient_lights),
 
+		create_program(material) {
+			return get_or_create_program(gl, material);
+		},
+
+		delete_program(program) {
+			//gl.deleteProgram(program.program);
+		},
+
 		invalidate,
 		width,
 		height
 	};
 
-	setContext(RENDERER, context);
+	setContext(RENDERER, scene);
 
 	const origin = mat4.identity(mat4.create());
 	const ctm = writable(origin);
@@ -89,41 +104,9 @@
 	});
 
 	onMount(() => {
-		gl = canvas.getContext('webgl');
+		gl = scene.gl = canvas.getContext('webgl');
 
 		const ext = gl.getExtension('OES_element_index_uint');
-
-		program = create_program(gl, {
-			vert,
-			frag
-		});
-
-		const num_attributes = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
-		const num_uniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
-
-		const attribute_packages = [];
-
-		for (let i = 0; i < num_attributes; i += 1) {
-			const { name } = gl.getActiveAttrib(program, i);
-
-			const loc = gl.getAttribLocation(program, name);
-			const buffer = gl.createBuffer();
-
-			const pkg = { name, loc, buffer };
-			attribute_packages.push(pkg);
-		}
-
-		const uniforms = {
-			model: gl.getUniformLocation(program, '_model'),
-			view: gl.getUniformLocation(program, '_view'),
-			view_inverse_transpose: gl.getUniformLocation(program, '_view_inverse_transpose'),
-			projection: gl.getUniformLocation(program, '_projection'),
-			ambient_light: gl.getUniformLocation(program, '_ambient_light'),
-			directional_lights_direction: gl.getUniformLocation(program, '_directional_lights_direction'),
-			directional_lights_color: gl.getUniformLocation(program, '_directional_lights_color'),
-			// reverse_light_direction: gl.getUniformLocation(program, '_reverse_light_direction'),
-			color: gl.getUniformLocation(program, '_color')
-		};
 
 		draw = () => {
 			if (!camera) return; // TODO make this `!ready` or something instead
@@ -141,14 +124,10 @@
 
 			gl.useProgram(program);
 
-			// update matrixes
-			const { projection, view, view_inverse_transpose } = (camera || default_camera)(canvas.width, canvas.height);
+			// calculate matrixes
+			const { projection, view, view_inverse_transpose } = camera || default_camera;
 
-			gl.uniformMatrix4fv(uniforms.view_inverse_transpose, false, view_inverse_transpose);
-			gl.uniformMatrix4fv(uniforms.view, false, view);
-			gl.uniformMatrix4fv(uniforms.projection, false, projection);
-
-			// update lights
+			// calculate lights
 			const ambient_light = ambient_lights.reduce((total, light) => {
 				const { color } = light();
 
@@ -158,8 +137,6 @@
 					Math.min(total[2] + color[2] * color[3], 1)
 				];
 			}, new Float32Array([0, 0, 0]));
-
-			gl.uniform3fv(uniforms.ambient_light, ambient_light);
 
 			for (let i = 0; i < num_lights; i += 1) {
 				const light = directional_lights[i];
@@ -187,51 +164,37 @@
 				}
 			}
 
-			gl.uniform3fv(uniforms.directional_lights_direction, directional_lights_direction_array);
-			gl.uniform4fv(uniforms.directional_lights_color, directional_lights_color_array);
-
-			gl.uniform3fv(gl.getUniformLocation(program, 'light_direction'), directional_lights_direction_array);
-			gl.uniform4fv(gl.getUniformLocation(program, 'light_color'), directional_lights_color_array);
-
 			const transparent = [];
+			let previous_program;
 
-			function render_mesh({ matrix_world, geometry, material }) {
-				// set uniforms
-				gl.uniformMatrix4fv(uniforms.model, false, matrix_world);
+			function render_mesh({ matrix_world, geometry, material, program }) {
+				if (program !== previous_program) {
+					gl.useProgram(program.program);
 
-				gl.uniform4fv(uniforms.color, material.color);
+					// set built-ins
+					gl.uniform3fv(program.uniform_locations.AMBIENT_LIGHT, ambient_light);
 
+					gl.uniform3fv(program.uniform_locations.DIRECTIONAL_LIGHTS_DIRECTION, directional_lights_direction_array);
+					gl.uniform4fv(program.uniform_locations.DIRECTIONAL_LIGHTS_COLOR, directional_lights_color_array);
+
+					gl.uniformMatrix4fv(program.uniform_locations.VIEW_INVERSE_TRANSPOSE, false, view_inverse_transpose);
+					gl.uniformMatrix4fv(program.uniform_locations.VIEW, false, view);
+					gl.uniformMatrix4fv(program.uniform_locations.PROJECTION, false, projection);
+
+					previous_program = program;
+				}
+
+				// set mesh-specific built-in uniforms
+				gl.uniformMatrix4fv(program.uniform_locations.MODEL, false, matrix_world);
+				gl.uniform4fv(program.uniform_locations.COLOR, material.color); // TODO should maybe be an attribute? not sure
 
 				// set attributes
-				attribute_packages.forEach(({ name, loc, buffer, attribute }) => {
-					const {
-						size = 3,
-						type = gl.FLOAT,
-						normalized = false,
-						stride = 0,
-						offset = 0,
-						dynamic,
-						data
-					} = geometry.get_attribute(name);
+				geometry.set_attributes(gl);
 
-					// Turn on the attribute
-					gl.enableVertexAttribArray(loc);
-
-					// Bind the position buffer.
-					gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-					gl.bufferData(gl.ARRAY_BUFFER, data, dynamic ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW); // TODO feels wrong adding the data here?
-
-					gl.vertexAttribPointer(
-						loc,
-						size,
-						type,
-						normalized,
-						stride,
-						offset
-					);
-				});
-
+				// draw
 				if (geometry.index) {
+					console.log('drawing');
+
 					const elements_buffer = gl.createBuffer();
 					gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elements_buffer);
 					gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, geometry.index, gl.STATIC_DRAW);
