@@ -3,16 +3,8 @@
 	import { writable } from 'svelte/store';
 	import { RENDERER, PARENT, create_program } from '../../internal.mjs';
 	import { get_or_create_program } from './program.mjs';
-	import vert_builtin from '../../shaders/builtin/vert.glsl.mjs';
-	import frag_builtin from '../../shaders/builtin/frag.glsl.mjs';
-	import vert_default from '../../shaders/default/vert.glsl.mjs';
-	import frag_default from '../../shaders/default/frag.glsl.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as vec3 from 'gl-matrix/vec3';
-
-	// TEMP
-	const vert = vert_builtin + vert_default;
-	const frag = frag_builtin + frag_default;
 
 	export let background = [1, 1, 1, 1];
 
@@ -186,15 +178,16 @@
 
 				// set mesh-specific built-in uniforms
 				gl.uniformMatrix4fv(program.uniform_locations.MODEL, false, matrix_world);
-				gl.uniform4fv(program.uniform_locations.COLOR, material.color); // TODO should maybe be an attribute? not sure
+				// gl.uniform4fv(program.uniform_locations.COLOR, material.uniforms.color); // TODO should maybe be an attribute? not sure
+
+				// set material-specific built-in uniforms
+				material.set_uniforms(gl, program.uniforms, program.uniform_locations);
 
 				// set attributes
 				geometry.set_attributes(gl);
 
 				// draw
 				if (geometry.index) {
-					console.log('drawing');
-
 					const elements_buffer = gl.createBuffer();
 					gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elements_buffer);
 					gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, geometry.index, gl.STATIC_DRAW);
@@ -210,7 +203,7 @@
 
 			gl.depthMask(true);
 			meshes.forEach(mesh => {
-				if (mesh.material.color[3] < 1) {
+				if (mesh.material.uniforms.color[3] < 1) {
 					transparent.push(mesh);
 				} else {
 					render_mesh(mesh);

@@ -10,8 +10,11 @@
 	export let rotation = [0, 0, 0];
 	export let scale = 1;
 	export let geometry;
+
 	export let material = new Material({
-		color: [Math.random(), Math.random(), Math.random(), 1]
+		uniforms: {
+			color: [Math.random(), Math.random(), Math.random(), 1]
+		}
 	});
 
 	const scene = get_scene();
