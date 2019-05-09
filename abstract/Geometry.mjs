@@ -16,11 +16,19 @@ export default class Geometry {
 		this.program = program;
 
 		for (const key in this.attributes) {
+			const attribute = this.attributes[key];
+
 			this.locations[key] = gl.getAttribLocation(program, builtins.has(key) ? key.toUpperCase() : key);
-			if (!this.buffers[key]) this.buffers[key] = gl.createBuffer();
+
+			const buffer = gl.createBuffer();
+			if (!this.buffers[key]) this.buffers[key] = buffer;
+
+			gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+			gl.bufferData(gl.ARRAY_BUFFER, attribute.data, attribute.dynamic ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
 		}
 	}
 
+	// TODO should this be a public method?
 	set_attributes(gl) {
 		for (const key in this.attributes) {
 			const attribute = this.attributes[key];
@@ -35,15 +43,15 @@ export default class Geometry {
 				data
 			} = attribute;
 
-			// Turn on the attribute
-			const loc = this.locations[key];
-			gl.enableVertexAttribArray(loc);
-
 			// Bind the position buffer.
 			const buffer = this.buffers[key];
 
 			gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-			gl.bufferData(gl.ARRAY_BUFFER, data, dynamic ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW); // TODO feels wrong adding the data here?
+			// gl.bufferData(gl.ARRAY_BUFFER, data, dynamic ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW); // TODO feels wrong adding the data here?
+
+			// Turn on the attribute
+			const loc = this.locations[key];
+			gl.enableVertexAttribArray(loc);
 
 			gl.vertexAttribPointer(
 				loc,

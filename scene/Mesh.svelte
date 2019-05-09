@@ -40,14 +40,21 @@
 	$: mesh.geometry = geometry;
 	$: mesh.material = material;
 
-	let previous_program;
-	$: {
-		mesh.program = scene.create_program(material);
-		geometry.init(scene.gl, mesh.program.program);
 
-		if (previous_program) scene.delete_program(previous_program);
-		previous_program = mesh.program;
+	let previous_program;
+	function update_program(material) {
+		const program = scene.create_program(material);
+
+		if (program !== previous_program) {
+			mesh.program = scene.create_program(material);
+			geometry.init(scene.gl, mesh.program.program);
+
+			if (previous_program) scene.delete_program(previous_program);
+			previous_program = mesh.program;
+		}
 	}
+
+	$: update_program(material);
 
 	onDestroy(() => {
 		scene.delete_program(mesh.program);
