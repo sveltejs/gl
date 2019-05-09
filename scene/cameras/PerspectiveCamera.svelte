@@ -21,7 +21,8 @@
 		mat4.targetTo(camera_matrix, location, target, up)
 	);
 
-	const camera = {};
+	// should be a const, pending https://github.com/sveltejs/svelte/issues/2728
+	let camera = {};
 
 	$: camera.view = mat4.invert(view, camera_matrix);
 

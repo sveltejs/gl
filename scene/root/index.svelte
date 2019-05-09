@@ -97,6 +97,10 @@
 		ctm: { subscribe: ctm.subscribe }
 	});
 
+	// TEMP
+	export let blend;
+	$: (blend, draw && invalidate());
+
 	onMount(() => {
 		gl = scene.gl = canvas.getContext('webgl');
 
@@ -115,6 +119,8 @@
 
 			gl.enable(gl.BLEND);
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+			// gl.blendFunc(gl[sfactor], gl[dfactor]);
+			// gl.blendFuncSeparate(gl.ZERO, gl.SRC_COLOR, gl.ZERO, gl.SRC_ALPHA);
 
 			gl.useProgram(program);
 
@@ -161,6 +167,13 @@
 			let previous_program;
 
 			function render_mesh({ matrix_world, geometry, material, program }) {
+				// TODO...
+				// if (material.blend === 'multiply') {
+				// 	gl.blendFuncSeparate(gl[blend.srgb], gl[blend.drgb], gl[blend.salpha], gl[blend.dalpha]);
+				// } else {
+					gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+				// }
+
 				if (program !== previous_program) {
 					gl.useProgram(program.program);
 
