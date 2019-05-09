@@ -1,7 +1,7 @@
 <script>
 	import { onDestroy } from 'svelte';
 	import { writable, derived } from 'svelte/store';
-	import { get_scene, get_parent, set_parent } from '../internal.mjs';
+	import { get_scene, get_layer, get_parent, set_parent } from '../internal.mjs';
 	import Material from '../abstract/Material.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as quat from 'gl-matrix/quat';
@@ -18,6 +18,7 @@
 	});
 
 	const scene = get_scene();
+	const layer = get_layer();
 	const parent = get_parent();
 
 	// TODO make it possible to set a quaternion as a prop?
@@ -60,5 +61,5 @@
 		scene.delete_program(mesh.program);
 	});
 
-	scene.add(mesh);
+	layer.add_mesh(mesh);
 </script>

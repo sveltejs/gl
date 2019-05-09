@@ -1,7 +1,7 @@
 <script>
 	import { setContext, onMount, onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
-	import { RENDERER, PARENT, create_program } from '../../internal.mjs';
+	import { RENDERER, LAYER, PARENT, create_layer } from '../../internal.mjs';
 	import { get_or_create_program } from './program.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as vec3 from 'gl-matrix/vec3';
@@ -19,6 +19,8 @@
 
 	const width = writable(1);
 	const height = writable(1);
+
+	const root_layer = create_layer(0, invalidate);
 
 	const default_camera = { /* TODO */ };
 	const num_lights = 8;
@@ -69,7 +71,6 @@
 			});
 		},
 
-		add: add_to(meshes),
 		add_directional_light: add_to(directional_lights),
 		add_ambient_light: add_to(ambient_lights),
 
@@ -87,6 +88,7 @@
 	};
 
 	setContext(RENDERER, scene);
+	setContext(LAYER, root_layer);
 
 	const origin = mat4.identity(mat4.create());
 	const ctm = writable(origin);
@@ -106,7 +108,7 @@
 			update_scheduled = false;
 
 			gl.clearColor(...background);
-			gl.clear(gl.COLOR_BUFFER_BIT);
+			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 			gl.enable(gl.CULL_FACE);
 			gl.enable(gl.DEPTH_TEST);
@@ -156,7 +158,6 @@
 				}
 			}
 
-			const transparent = [];
 			let previous_program;
 
 			function render_mesh({ matrix_world, geometry, material, program }) {
@@ -201,18 +202,38 @@
 				}
 			}
 
-			gl.depthMask(true);
-			meshes.forEach(mesh => {
-				if (mesh.material.uniforms.color[3] < 1) {
-					transparent.push(mesh);
-				} else {
-					render_mesh(mesh);
+			function render_layer(layer) {
+				if (layer.needs_sort) {
+					layer.child_layers.sort((a, b) => a.index - b.index);
+					layer.needs_sort = false;
 				}
-			});
 
-			// TODO sort transparent meshes, furthest to closest
-			gl.depthMask(false);
-			transparent.forEach(render_mesh);
+				gl.depthMask(true);
+				gl.clearDepth(1.0);
+				gl.clear(gl.DEPTH_BUFFER_BIT);
+
+				const transparent = [];
+
+				for (let i = 0; i < layer.meshes.length; i += 1) {
+					const mesh = layer.meshes[i];
+
+					if (mesh.material.uniforms.color[3] < 1) {
+						transparent.push(mesh);
+					} else {
+						render_mesh(mesh);
+					}
+				}
+
+				// TODO sort transparent meshes, furthest to closest
+				gl.depthMask(false);
+				transparent.forEach(render_mesh);
+
+				for (let i = 0; i < layer.child_layers.length; i += 1) {
+					render_layer(layer.child_layers[i]);
+				}
+			}
+
+			render_layer(root_layer);
 		};
 	});
 

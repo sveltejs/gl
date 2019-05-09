@@ -1,43 +1,74 @@
-import { getContext, setContext } from 'svelte';
+import { getContext, setContext, onDestroy } from 'svelte';
 
 export const RENDERER = {};
+export const LAYER = {};
 export const PARENT = {};
 
 export function get_scene() {
 	return getContext(RENDERER);
 }
 
+export function get_layer() {
+	return getContext(LAYER);
+}
+
 export function get_parent() {
 	return getContext(PARENT);
 }
 
+export function set_layer(layer) {
+	setContext(LAYER, layer);
+}
+
 export function set_parent(parent) {
-	return setContext(PARENT, parent);
+	setContext(PARENT, parent);
 }
 
-export function create_shader(gl, type, source) {
-	const shader = gl.createShader(type);
-	gl.shaderSource(shader, source);
-	gl.compileShader(shader);
-
-	if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-		return shader;
-	}
-
-	throw new Error(`Failed to compile shader:\n${gl.getShaderInfoLog(shader)}`);
+function remove_index(array, index) {
+	array[index] = array[array.length - 1];
+	array.pop();
 }
 
-export function create_program(gl, { vert, frag }) {
-	const program = gl.createProgram();
+function remove_item(array, item) {
+	const index = array.indexOf(item);
+	if (~index) remove_index(array, index);
+}
 
-	gl.attachShader(program, create_shader(gl, gl.VERTEX_SHADER, vert));
-	gl.attachShader(program, create_shader(gl, gl.FRAGMENT_SHADER, frag));
-	gl.linkProgram(program);
+export function create_layer(index, invalidate) {
+	let child_index = 0;
 
-	const success = gl.getProgramParameter(program, gl.LINK_STATUS);
-	if (!success) {
-		throw new Error(`Failed to compile shader:\n${gl.getProgramInfoLog(program)}`);
-	}
+	const meshes = [];
+	const child_layers = [];
 
-	return program;
+	const layer = {
+		index: 0,
+		meshes,
+		child_layers,
+		needs_sort: false,
+		add_mesh: mesh => {
+			meshes.push(mesh);
+
+			onDestroy(() => {
+				remove_item(meshes, mesh);
+				invalidate();
+			});
+		},
+		add_child: (index = child_index++) => {
+			const child_layer = create_layer(index, invalidate);
+			child_layers.push(child_layer);
+
+			layer.needs_sort = true;
+
+			onDestroy(() => {
+				remove_item(child_layers, child_layer);
+
+				layer.needs_sort = true;
+				invalidate();
+			});
+
+			return child_layer;
+		}
+	};
+
+	return layer;
 }
