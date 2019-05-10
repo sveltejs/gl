@@ -163,9 +163,9 @@
 				if (light) {
 					const { direction, color } = light();
 
-					directional_lights_direction_array[i * 3 + 0] = direction[0];
-					directional_lights_direction_array[i * 3 + 1] = direction[1];
-					directional_lights_direction_array[i * 3 + 2] = direction[2];
+					directional_lights_direction_array[i * 3 + 0] = -direction[0];
+					directional_lights_direction_array[i * 3 + 1] = -direction[1];
+					directional_lights_direction_array[i * 3 + 2] = -direction[2];
 
 					directional_lights_color_array[i * 4 + 0] = color[0];
 					directional_lights_color_array[i * 4 + 1] = color[1];
