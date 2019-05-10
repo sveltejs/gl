@@ -3,6 +3,7 @@ import { getContext, setContext, onDestroy } from 'svelte';
 export const RENDERER = {};
 export const LAYER = {};
 export const PARENT = {};
+export const CAMERA = {};
 
 export function get_scene() {
 	return getContext(RENDERER);
@@ -14,6 +15,10 @@ export function get_layer() {
 
 export function get_parent() {
 	return getContext(PARENT);
+}
+
+export function get_camera() {
+	return getContext(CAMERA);
 }
 
 export function set_layer(layer) {

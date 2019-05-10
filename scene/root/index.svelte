@@ -1,7 +1,7 @@
 <script>
 	import { setContext, onMount, onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
-	import { RENDERER, LAYER, PARENT, create_layer } from '../../internal.mjs';
+	import { RENDERER, LAYER, PARENT, CAMERA, create_layer } from '../../internal.mjs';
 	import { get_or_create_program } from './program.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as vec3 from 'gl-matrix/vec3';
@@ -16,6 +16,11 @@
 	let program; // for now, have a single master program
 	let draw;
 	let camera;
+	let camera_stores = {
+		view: writable(),
+		view_inverse_transpose: writable(),
+		projection: writable()
+	};
 
 	const width = writable(1);
 	const height = writable(1);
@@ -57,13 +62,18 @@
 	}
 
 	const scene = {
-		add_camera: fn => {
+		add_camera: _camera => {
 			if (camera) {
 				throw new Error(`A scene can only have one camera`);
 			}
 
-			camera = fn;
+			camera = _camera;
 			invalidate();
+
+			// TODO this is garbage
+			camera_stores.projection.set(camera.projection);
+			camera_stores.view_inverse_transpose.set(camera.view_inverse_transpose);
+			camera_stores.view.set(camera.view);
 
 			onDestroy(() => {
 				camera = null;
@@ -83,6 +93,10 @@
 		},
 
 		invalidate,
+
+		view: camera_stores.view,
+		view_inverse_transpose: camera_stores.view_inverse_transpose,
+		projection: camera_stores.projection,
 		width,
 		height
 	};
@@ -126,6 +140,11 @@
 
 			// calculate matrixes
 			const { projection, view, view_inverse_transpose } = camera || default_camera;
+
+			// for overlays
+			camera_stores.view.set(view);
+			camera_stores.view_inverse_transpose.set(view_inverse_transpose);
+			camera_stores.projection.set(projection);
 
 			// calculate lights
 			const ambient_light = ambient_lights.reduce((total, light) => {
@@ -262,6 +281,7 @@
 
 <style>
 	.container, canvas {
+		position: relative;
 		width: 100%;
 		height: 100%;
 	}
