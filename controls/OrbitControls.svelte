@@ -118,12 +118,30 @@
 		window.addEventListener('mouseup', handle_mouseup);
 	}
 
+	function handle_mousewheel(event) {
+		event.preventDefault();
 
+		let vx = location[0] - target[0];
+		let vy = location[1] - target[1];
+		let vz = location[2] - target[2];
+
+		const zoom = Math.pow(1.004, event.wheelDeltaY);
+
+		vx /= zoom;
+		vy /= zoom;
+		vz /= zoom;
+
+		location[0] = target[0] + vx;
+		location[1] = target[1] + vy;
+		location[2] = target[2] + vz;
+	}
 
 	scene.canvas.addEventListener('mousedown', handle_mousedown);
+	scene.canvas.addEventListener('mousewheel', handle_mousewheel);
 
 	onDestroy(() => {
 		scene.canvas.removeEventListener('mousedown', handle_mousedown);
+		scene.canvas.removeEventListener('mousewheel', handle_mousewheel);
 	});
 </script>
 
