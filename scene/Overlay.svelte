@@ -12,7 +12,7 @@
 	let x = 0;
 	let y = 0;
 
-	const { width, height, view, view_inverse_transpose, projection } = get_scene();
+	const { width, height, view, projection } = get_scene();
 	const { ctm } = get_parent();
 
 	// TODO make it possible to set a quaternion as a prop?
@@ -31,8 +31,8 @@
 	$: if ($projection && $view) mvp = mat4.multiply(mvp, $projection, mat4.multiply(mvp, $view, model));
 	$: if (mvp) position = vec3.transformMat4(position, [0, 0, 0], mvp);
 
-	$: console.log(rotation, $view_inverse_transpose);
-	$: if ($view_inverse_transpose) normal = vec3.normalize(normal, vec3.transformMat4(normal, rotation, $view_inverse_transpose));
+	// $: console.log(rotation, $model_inverse_transpose);
+	// $: if ($model_inverse_transpose) normal = vec3.normalize(normal, vec3.transformMat4(normal, rotation, $model_inverse_transpose));
 
 	$: x = position && $width * (position[0] + 1) / 2;
 	$: y = position && $height * (1 - (position[1] + 1) / 2);

@@ -28,6 +28,7 @@
 
 	// TODO make it possible to set a quaternion as a prop?
 	const out = mat4.create();
+	const out2 = mat4.create();
 
 	const matrix = writable(null);
 	const ctm = derived([parent.ctm, matrix], ([$ctm, $matrix]) => {
@@ -42,7 +43,11 @@
 	$: (geometry, material, $ctm, scene.invalidate());
 
 	const mesh = {};
-	$: mesh.matrix_world = $ctm;
+	$: mesh.model = $ctm; // TODO do we need to use a store here?
+	$: mesh.model_inverse_transpose = (
+		mat4.invert(out2, $ctm),
+		mat4.transpose(out2, out2)
+	);
 	$: mesh.geometry = geometry;
 	$: mesh.material = _material;
 

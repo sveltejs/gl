@@ -14,7 +14,6 @@
 
 	let camera_matrix = mat4.create();
 	let view = mat4.create();
-	let view_inverse_transpose = mat4.create();
 
 	$: camera_matrix = (
 		mat4.translate(camera_matrix, $ctm, location),
@@ -25,11 +24,6 @@
 	let camera = {};
 
 	$: camera.view = mat4.invert(view, camera_matrix);
-
-	$: camera.view_inverse_transpose = (
-		mat4.invert(view_inverse_transpose, view),
-		mat4.transpose(view_inverse_transpose, view_inverse_transpose)
-	);
 
 	$: camera.projection = mat4.perspective(
 		camera.projection || mat4.create(),

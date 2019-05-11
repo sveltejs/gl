@@ -18,7 +18,6 @@
 	let camera;
 	let camera_stores = {
 		view: writable(),
-		view_inverse_transpose: writable(),
 		projection: writable()
 	};
 
@@ -80,7 +79,6 @@
 
 			// TODO this is garbage
 			camera_stores.projection.set(camera.projection);
-			camera_stores.view_inverse_transpose.set(camera.view_inverse_transpose);
 			camera_stores.view.set(camera.view);
 
 			onDestroy(() => {
@@ -104,7 +102,6 @@
 		invalidate,
 
 		view: camera_stores.view,
-		view_inverse_transpose: camera_stores.view_inverse_transpose,
 		projection: camera_stores.projection,
 		width,
 		height
@@ -148,11 +145,10 @@
 			gl.useProgram(program);
 
 			// calculate matrixes
-			const { projection, view, view_inverse_transpose } = camera || default_camera;
+			const { projection, view } = camera || default_camera;
 
 			// for overlays
 			camera_stores.view.set(view);
-			camera_stores.view_inverse_transpose.set(view_inverse_transpose);
 			camera_stores.projection.set(projection);
 
 			// calculate lights
@@ -220,7 +216,7 @@
 
 			let previous_program;
 
-			function render_mesh({ matrix_world, geometry, material, program }) {
+			function render_mesh({ model, model_inverse_transpose, geometry, material, program }) {
 				// TODO...
 				// if (material.blend === 'multiply') {
 				// 	gl.blendFuncSeparate(gl[blend.srgb], gl[blend.drgb], gl[blend.salpha], gl[blend.dalpha]);
@@ -240,7 +236,6 @@
 					gl.uniform3fv(program.uniform_locations.POINT_LIGHTS_LOCATION, lights.point.location_data);
 					gl.uniform4fv(program.uniform_locations.POINT_LIGHTS_COLOR, lights.point.color_data);
 
-					gl.uniformMatrix4fv(program.uniform_locations.VIEW_INVERSE_TRANSPOSE, false, view_inverse_transpose);
 					gl.uniformMatrix4fv(program.uniform_locations.VIEW, false, view);
 					gl.uniformMatrix4fv(program.uniform_locations.PROJECTION, false, projection);
 
@@ -248,7 +243,8 @@
 				}
 
 				// set mesh-specific built-in uniforms
-				gl.uniformMatrix4fv(program.uniform_locations.MODEL, false, matrix_world);
+				gl.uniformMatrix4fv(program.uniform_locations.MODEL, false, model);
+				gl.uniformMatrix4fv(program.uniform_locations.MODEL_INVERSE_TRANSPOSE, false, model_inverse_transpose);
 				// gl.uniform4fv(program.uniform_locations.COLOR, material.uniforms.color); // TODO should maybe be an attribute? not sure
 
 				// set material-specific built-in uniforms
