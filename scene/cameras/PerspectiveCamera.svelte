@@ -1,5 +1,5 @@
 <script>
-	import { get_scene, get_parent } from '../../internal.mjs';
+	import { get_scene, get_parent } from '../../internal/index.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 
 	export let location = [0, 0, 0];

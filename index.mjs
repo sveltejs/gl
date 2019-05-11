@@ -13,9 +13,13 @@ export { default as Overlay } from './scene/Overlay.svelte';
 // lights
 export { default as AmbientLight } from './scene/lights/AmbientLight.svelte';
 export { default as DirectionalLight } from './scene/lights/DirectionalLight.svelte';
+export { default as PointLight } from './scene/lights/PointLight.svelte';
 
 // cameras
 export { default as PerspectiveCamera } from './scene/cameras/PerspectiveCamera.svelte';
 
 // shapes
+export { default as Cone } from './shapes/Cone.svelte';
+export { default as Cube } from './shapes/Cube.svelte';
+export { default as Plane } from './shapes/Plane.svelte';
 export { default as Sphere } from './shapes/Sphere.svelte';

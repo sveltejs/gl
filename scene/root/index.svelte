@@ -1,7 +1,7 @@
 <script>
 	import { setContext, onMount, onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
-	import { RENDERER, LAYER, PARENT, CAMERA, create_layer } from '../../internal.mjs';
+	import { RENDERER, LAYER, PARENT, CAMERA, create_layer } from '../../internal/index.mjs';
 	import { get_or_create_program } from './program.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as vec3 from 'gl-matrix/vec3';
@@ -33,11 +33,19 @@
 	const meshes = [];
 
 	// lights
-	const directional_lights = [];
-	const directional_lights_direction_array = new Float32Array(num_lights * 3);
-	const directional_lights_color_array = new Float32Array(num_lights * 4);
-
-	const ambient_lights = [];
+	const lights = {
+		ambient: [],
+		directional: {
+			items: [],
+			direction_data: new Float32Array(num_lights * 3),
+			color_data: new Float32Array(num_lights * 4)
+		},
+		point: {
+			items: [],
+			location_data: new Float32Array(num_lights * 3),
+			color_data: new Float32Array(num_lights * 4)
+		}
+	};
 
 	let update_scheduled = false;
 
@@ -81,8 +89,9 @@
 			});
 		},
 
-		add_directional_light: add_to(directional_lights),
-		add_ambient_light: add_to(ambient_lights),
+		add_directional_light: add_to(lights.directional.items),
+		add_point_light: add_to(lights.point.items),
+		add_ambient_light: add_to(lights.ambient),
 
 		create_program(material) {
 			return get_or_create_program(gl, material);
@@ -147,7 +156,7 @@
 			camera_stores.projection.set(projection);
 
 			// calculate lights
-			const ambient_light = ambient_lights.reduce((total, light) => {
+			const ambient_light = lights.ambient.reduce((total, light) => {
 				const { color } = light();
 
 				return [
@@ -158,28 +167,54 @@
 			}, new Float32Array([0, 0, 0]));
 
 			for (let i = 0; i < num_lights; i += 1) {
-				const light = directional_lights[i];
+				const light = lights.directional.items[i];
 
 				if (light) {
 					const { direction, color } = light();
 
-					directional_lights_direction_array[i * 3 + 0] = -direction[0];
-					directional_lights_direction_array[i * 3 + 1] = -direction[1];
-					directional_lights_direction_array[i * 3 + 2] = -direction[2];
+					lights.directional.direction_data[i * 3 + 0] = -direction[0];
+					lights.directional.direction_data[i * 3 + 1] = -direction[1];
+					lights.directional.direction_data[i * 3 + 2] = -direction[2];
 
-					directional_lights_color_array[i * 4 + 0] = color[0];
-					directional_lights_color_array[i * 4 + 1] = color[1];
-					directional_lights_color_array[i * 4 + 2] = color[2];
-					directional_lights_color_array[i * 4 + 3] = color[3];
+					lights.directional.color_data[i * 4 + 0] = color[0];
+					lights.directional.color_data[i * 4 + 1] = color[1];
+					lights.directional.color_data[i * 4 + 2] = color[2];
+					lights.directional.color_data[i * 4 + 3] = color[3];
 				} else {
-					directional_lights_direction_array[i * 3 + 0] = 0;
-					directional_lights_direction_array[i * 3 + 1] = 0;
-					directional_lights_direction_array[i * 3 + 2] = 0;
+					lights.directional.direction_data[i * 3 + 0] = 0;
+					lights.directional.direction_data[i * 3 + 1] = 0;
+					lights.directional.direction_data[i * 3 + 2] = 0;
 
-					directional_lights_color_array[i * 4 + 0] = 0;
-					directional_lights_color_array[i * 4 + 1] = 0;
-					directional_lights_color_array[i * 4 + 2] = 0;
-					directional_lights_color_array[i * 4 + 3] = 0;
+					lights.directional.color_data[i * 4 + 0] = 0;
+					lights.directional.color_data[i * 4 + 1] = 0;
+					lights.directional.color_data[i * 4 + 2] = 0;
+					lights.directional.color_data[i * 4 + 3] = 0;
+				}
+			}
+
+			for (let i = 0; i < num_lights; i += 1) {
+				const light = lights.point.items[i];
+
+				if (light) {
+					const { location, color } = light();
+
+					lights.point.location_data[i * 3 + 0] = location[0];
+					lights.point.location_data[i * 3 + 1] = location[1];
+					lights.point.location_data[i * 3 + 2] = location[2];
+
+					lights.point.color_data[i * 4 + 0] = color[0];
+					lights.point.color_data[i * 4 + 1] = color[1];
+					lights.point.color_data[i * 4 + 2] = color[2];
+					lights.point.color_data[i * 4 + 3] = color[3];
+				} else {
+					lights.point.location_data[i * 3 + 0] = 0;
+					lights.point.location_data[i * 3 + 1] = 0;
+					lights.point.location_data[i * 3 + 2] = 0;
+
+					lights.point.color_data[i * 4 + 0] = 0;
+					lights.point.color_data[i * 4 + 1] = 0;
+					lights.point.color_data[i * 4 + 2] = 0;
+					lights.point.color_data[i * 4 + 3] = 0;
 				}
 			}
 
@@ -199,8 +234,11 @@
 					// set built-ins
 					gl.uniform3fv(program.uniform_locations.AMBIENT_LIGHT, ambient_light);
 
-					gl.uniform3fv(program.uniform_locations.DIRECTIONAL_LIGHTS_DIRECTION, directional_lights_direction_array);
-					gl.uniform4fv(program.uniform_locations.DIRECTIONAL_LIGHTS_COLOR, directional_lights_color_array);
+					gl.uniform3fv(program.uniform_locations.DIRECTIONAL_LIGHTS_DIRECTION, lights.directional.direction_data);
+					gl.uniform4fv(program.uniform_locations.DIRECTIONAL_LIGHTS_COLOR, lights.directional.color_data);
+
+					gl.uniform3fv(program.uniform_locations.POINT_LIGHTS_LOCATION, lights.point.location_data);
+					gl.uniform4fv(program.uniform_locations.POINT_LIGHTS_COLOR, lights.point.color_data);
 
 					gl.uniformMatrix4fv(program.uniform_locations.VIEW_INVERSE_TRANSPOSE, false, view_inverse_transpose);
 					gl.uniformMatrix4fv(program.uniform_locations.VIEW, false, view);
@@ -227,10 +265,11 @@
 
 					gl.drawElements(gl[geometry.primitive], geometry.index.length, gl.UNSIGNED_INT, 0);
 				} else {
-					throw new Error(`not implemented: geometry without an index`);
-					// var primitiveType = gl.TRIANGLES;
-					// var offset = 0;
-					// gl.drawArrays(primitiveType, offset, count);
+					const primitiveType = gl.TRIANGLES;
+					const offset = 0;
+					const position = geometry.get_attribute('position');
+					const count = position.data.length / position.size;
+					gl.drawArrays(primitiveType, offset, count);
 				}
 			}
 
@@ -284,6 +323,7 @@
 		position: relative;
 		width: 100%;
 		height: 100%;
+		display: block;
 	}
 </style>
 

@@ -3,6 +3,8 @@
 	import Geometry from '../abstract/Geometry.mjs';
 	import Attribute from '../abstract/Attribute.mjs';
 
+	// TODO reimplement using a flat array,
+	// with diameter (not radius) of 1
 	import icosphere from 'icosphere';
 	import { faceNormals, vertexNormals } from 'normals';
 
@@ -13,15 +15,6 @@
 	const position = new Attribute({
 		data: new Float32Array(positions.flat()),
 		size: 3
-	});
-
-	const position_strings = new Set();
-	positions.forEach(pos => {
-		const str = pos.join(',');
-		if (position_strings.has(str)) {
-			throw new Error(`seen ${str}`);
-		}
-		position_strings.add(str);
 	});
 
 	const normal = new Attribute({

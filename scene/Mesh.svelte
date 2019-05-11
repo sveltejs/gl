@@ -1,7 +1,8 @@
 <script>
 	import { onDestroy } from 'svelte';
 	import { writable, derived } from 'svelte/store';
-	import { get_scene, get_layer, get_parent } from '../internal.mjs';
+	import { get_scene, get_layer, get_parent } from '../internal/index.mjs';
+	import { process_color } from '../internal/utils.mjs';
 	import Material from '../abstract/Material.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as quat from 'gl-matrix/quat';
@@ -11,9 +12,13 @@
 	export let scale = 1;
 	export let geometry;
 
-	export let material = new Material({
+	export let material;
+	export let color = [Math.random(), Math.random(), Math.random(), 1];
+
+
+	$: _material = material || new Material({
 		uniforms: {
-			color: [Math.random(), Math.random(), Math.random(), 1]
+			color: process_color(color)
 		}
 	});
 
@@ -39,7 +44,7 @@
 	const mesh = {};
 	$: mesh.matrix_world = $ctm;
 	$: mesh.geometry = geometry;
-	$: mesh.material = material;
+	$: mesh.material = _material;
 
 
 	let previous_program;
@@ -55,7 +60,7 @@
 		}
 	}
 
-	$: update_program(material);
+	$: update_program(_material);
 
 	onDestroy(() => {
 		scene.delete_program(mesh.program);

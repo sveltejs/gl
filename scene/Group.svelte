@@ -1,6 +1,6 @@
 <script>
 	import { writable, derived } from 'svelte/store';
-	import { get_scene, get_parent, set_parent } from '../internal.mjs';
+	import { get_scene, get_parent, set_parent } from '../internal/index.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as quat from 'gl-matrix/quat';
 

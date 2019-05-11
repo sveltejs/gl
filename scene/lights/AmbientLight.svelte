@@ -1,5 +1,5 @@
 <script>
-	import { get_scene } from '../../internal.mjs';
+	import { get_scene } from '../../internal/index.mjs';
 
 	export let color = [1, 1, 1, 0.2];
 

@@ -1,5 +1,5 @@
 <script>
-	import { get_layer, set_layer } from '../internal.mjs';
+	import { get_layer, set_layer } from '../internal/index.mjs';
 
 	export let index = undefined;
 
