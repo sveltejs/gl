@@ -15,6 +15,9 @@ export { default as AmbientLight } from './scene/lights/AmbientLight.svelte';
 export { default as DirectionalLight } from './scene/lights/DirectionalLight.svelte';
 export { default as PointLight } from './scene/lights/PointLight.svelte';
 
+// controls
+export { default as OrbitControls } from './controls/OrbitControls.svelte';
+
 // cameras
 export { default as PerspectiveCamera } from './scene/cameras/PerspectiveCamera.svelte';
 

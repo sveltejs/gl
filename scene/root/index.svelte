@@ -116,6 +116,7 @@
 	$: (blend, draw && invalidate());
 
 	onMount(() => {
+		scene.canvas = canvas;
 		gl = scene.gl = canvas.getContext('webgl');
 
 		const ext = gl.getExtension('OES_element_index_uint');

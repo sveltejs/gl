@@ -13,3 +13,14 @@ export function process_color(color) {
 
 	return color;
 }
+
+export function normalize(vector) {
+	let total = 0;
+	for (let i = 0; i < vector.length; i += 1) {
+		total += vector[i] * vector[i];
+	}
+
+	const mag = Math.sqrt(total);
+
+	return vector.map(v => v / mag);
+}
