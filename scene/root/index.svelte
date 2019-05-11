@@ -35,11 +35,7 @@
 	const lights = {
 		ambient: [],
 		directional: [],
-		point: {
-			items: [],
-			location_data: new Float32Array(num_lights * 3),
-			color_data: new Float32Array(num_lights * 4)
-		}
+		point: []
 	};
 
 	let update_scheduled = false;
@@ -181,8 +177,16 @@
 						gl.uniform1f(program.uniform_locations.DIRECTIONAL_LIGHTS[i].intensity, light.intensity);
 					}
 
-					// gl.uniform3fv(program.uniform_locations.POINT_LIGHTS_LOCATION, lights.point.location_data);
-					// gl.uniform4fv(program.uniform_locations.POINT_LIGHTS_COLOR, lights.point.color_data);
+					for (let i = 0; i < num_lights; i += 1) {
+						const light = lights.point[i];
+						if (!light) break;
+
+						console.log(light);
+
+						gl.uniform3fv(program.uniform_locations.POINT_LIGHTS[i].location, light.location);
+						gl.uniform3fv(program.uniform_locations.POINT_LIGHTS[i].color, light.color);
+						gl.uniform1f(program.uniform_locations.POINT_LIGHTS[i].intensity, light.intensity);
+					}
 
 					gl.uniformMatrix4fv(program.uniform_locations.VIEW, false, view);
 					gl.uniformMatrix4fv(program.uniform_locations.PROJECTION, false, projection);

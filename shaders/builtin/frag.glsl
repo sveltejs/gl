@@ -10,7 +10,13 @@ struct DirectionalLight {
 
 uniform DirectionalLight DIRECTIONAL_LIGHTS[8];
 
-uniform vec3 POINT_LIGHTS_LOCATION[8];
-uniform vec4 POINT_LIGHTS_COLOR[8];
+struct PointLight {
+	vec3 location;
+	vec3 color;
+	float intensity;
+	// TODO fall-off etc
+};
+
+uniform PointLight POINT_LIGHTS[8];
 
 uniform vec3 COLOR;

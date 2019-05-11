@@ -11,7 +11,7 @@
 	const scene = get_scene();
 	const { ctm } = get_parent();
 
-	const light = {
+	let light = { // TODO change to a const once bug is fixed
 		location: vec3.create(),
 		color: null,
 		intensity: null

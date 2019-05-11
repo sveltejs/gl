@@ -14,7 +14,7 @@
 	$: multiplied = vec3.transformMat4(multiplied || vec3.create(), direction, $ctm);
 
 	const light = {};
-	$: light.direction = vec3.normalize(light.direction || vec3.create(), multiplied); // TODO at some point, direction needs to be reversed
+	$: light.direction = vec3.normalize(light.direction || vec3.create(), multiplied);
 	$: light.color = process_color(color);
 	$: light.intensity = intensity;
 
