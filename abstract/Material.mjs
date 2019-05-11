@@ -3,6 +3,7 @@ import frag from '../shaders/default/frag.glsl.mjs';
 
 const methods = {
 	[5126]: 'uniform1f',
+	[35665]: 'uniform3fv',
 	[35666]: 'uniform4fv',
 
 	[35676]: ''

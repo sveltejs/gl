@@ -4,8 +4,9 @@
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as vec3 from 'gl-matrix/vec3';
 
-	export let direction = [-1, -1, -1];
-	export let color = [1, 1, 1, 1]; // TODO separate color from intensity
+	export let direction = new Float32Array([-1, -1, -1]);
+	export let color = new Float32Array([1, 1, 1]);
+	export let intensity = 1;
 
 	const scene = get_scene();
 	const { ctm } = get_parent();
@@ -15,6 +16,7 @@
 	const light = {};
 	$: light.direction = vec3.normalize(light.direction || vec3.create(), multiplied); // TODO at some point, direction needs to be reversed
 	$: light.color = process_color(color);
+	$: light.intensity = intensity;
 
 	scene.add_directional_light(light);
 

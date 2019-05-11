@@ -13,8 +13,8 @@
 	export let geometry;
 
 	export let material;
-	export let color = [Math.random(), Math.random(), Math.random(), 1];
-
+	export let color = [Math.random(), Math.random(), Math.random()];
+	export let alpha = 1; // TODO use this
 
 	$: _material = material || new Material({
 		uniforms: {

@@ -148,41 +148,13 @@
 			camera_stores.projection.set(projection);
 
 			// calculate total ambient light
-			const ambient_light = lights.ambient.reduce((total, light) => {
-				const { color } = light();
-
+			const ambient_light = lights.ambient.reduce((total, { color, intensity }) => {
 				return [
-					Math.min(total[0] + color[0] * color[3], 1),
-					Math.min(total[1] + color[1] * color[3], 1),
-					Math.min(total[2] + color[2] * color[3], 1)
+					Math.min(total[0] + color[0] * intensity, 1),
+					Math.min(total[1] + color[1] * intensity, 1),
+					Math.min(total[2] + color[2] * intensity, 1)
 				];
 			}, new Float32Array([0, 0, 0]));
-
-			for (let i = 0; i < num_lights; i += 1) {
-				const light = lights.point.items[i];
-
-				if (light) {
-					const { location, color } = light();
-
-					lights.point.location_data[i * 3 + 0] = location[0];
-					lights.point.location_data[i * 3 + 1] = location[1];
-					lights.point.location_data[i * 3 + 2] = location[2];
-
-					lights.point.color_data[i * 4 + 0] = color[0];
-					lights.point.color_data[i * 4 + 1] = color[1];
-					lights.point.color_data[i * 4 + 2] = color[2];
-					lights.point.color_data[i * 4 + 3] = color[3];
-				} else {
-					lights.point.location_data[i * 3 + 0] = 0;
-					lights.point.location_data[i * 3 + 1] = 0;
-					lights.point.location_data[i * 3 + 2] = 0;
-
-					lights.point.color_data[i * 4 + 0] = 0;
-					lights.point.color_data[i * 4 + 1] = 0;
-					lights.point.color_data[i * 4 + 2] = 0;
-					lights.point.color_data[i * 4 + 3] = 0;
-				}
-			}
 
 			let previous_program;
 
@@ -205,7 +177,8 @@
 						if (!light) break;
 
 						gl.uniform3fv(program.uniform_locations.DIRECTIONAL_LIGHTS[i].direction, light.direction);
-						gl.uniform4fv(program.uniform_locations.DIRECTIONAL_LIGHTS[i].color, light.color);
+						gl.uniform3fv(program.uniform_locations.DIRECTIONAL_LIGHTS[i].color, light.color);
+						gl.uniform1f(program.uniform_locations.DIRECTIONAL_LIGHTS[i].intensity, light.intensity);
 					}
 
 					// gl.uniform3fv(program.uniform_locations.POINT_LIGHTS_LOCATION, lights.point.location_data);
@@ -259,7 +232,7 @@
 				for (let i = 0; i < layer.meshes.length; i += 1) {
 					const mesh = layer.meshes[i];
 
-					if (mesh.material.uniforms.color[3] < 1) {
+					if (mesh.material.uniforms.alpha < 1) {
 						transparent.push(mesh);
 					} else {
 						render_mesh(mesh);

@@ -8,7 +8,7 @@ void main () {
 		DirectionalLight light = DIRECTIONAL_LIGHTS[i];
 
 		float multiplier = clamp(dot(vnormal, -light.direction), 0.0, 1.0);
-		lighting += multiplier * light.color.rgb * light.color.a;
+		lighting += multiplier * light.color.rgb * light.intensity;
 	}
 
 	// point lights
@@ -20,6 +20,6 @@ void main () {
 		lighting += multiplier * color.rgb * color.a;
 	}
 
-	gl_FragColor = COLOR;
+	gl_FragColor = vec4(COLOR, 1.0);
 	gl_FragColor.rgb *= mix(AMBIENT_LIGHT, vec3(1.0, 1.0, 1.0), lighting);
 }
