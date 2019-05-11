@@ -1,5 +1,6 @@
 varying vec3 vnormal;
 varying vec3 vsurface_to_light[8];
+varying vec3 vsurface_to_view[8];
 
 void main() {
 	vec4 pos = vec4(POSITION, 1.0);
@@ -11,6 +12,7 @@ void main() {
 
 		vec3 surface_world_position = (MODEL * pos).xyz;
 		vsurface_to_light[i] = light.location - surface_world_position;
+		vsurface_to_view[i] = CAMERA_WORLD_POSITION - surface_world_position;
 	}
 
 	gl_Position = PROJECTION * VIEW * MODEL * pos;

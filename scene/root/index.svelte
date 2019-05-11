@@ -15,7 +15,6 @@
 	let gl;
 	let program; // for now, have a single master program
 	let draw;
-	let camera;
 	let camera_stores = {
 		view: writable(),
 		projection: writable()
@@ -27,6 +26,7 @@
 	const root_layer = create_layer(0, invalidate);
 
 	const default_camera = { /* TODO */ };
+	let camera = default_camera;
 	const num_lights = 8;
 
 	const meshes = [];
@@ -62,7 +62,7 @@
 
 	const scene = {
 		add_camera: _camera => {
-			if (camera) {
+			if (camera && camera !== default_camera) {
 				throw new Error(`A scene can only have one camera`);
 			}
 
@@ -74,7 +74,7 @@
 			camera_stores.view.set(camera.view);
 
 			onDestroy(() => {
-				camera = null;
+				camera = default_camera;
 				invalidate();
 			});
 		},
@@ -136,12 +136,9 @@
 
 			gl.useProgram(program);
 
-			// calculate matrixes
-			const { projection, view } = camera || default_camera;
-
 			// for overlays
-			camera_stores.view.set(view);
-			camera_stores.projection.set(projection);
+			camera_stores.view.set(camera.view);
+			camera_stores.projection.set(camera.projection);
 
 			// calculate total ambient light
 			const ambient_light = lights.ambient.reduce((total, { color, intensity }) => {
@@ -181,15 +178,14 @@
 						const light = lights.point[i];
 						if (!light) break;
 
-						console.log(light);
-
 						gl.uniform3fv(program.uniform_locations.POINT_LIGHTS[i].location, light.location);
 						gl.uniform3fv(program.uniform_locations.POINT_LIGHTS[i].color, light.color);
 						gl.uniform1f(program.uniform_locations.POINT_LIGHTS[i].intensity, light.intensity);
 					}
 
-					gl.uniformMatrix4fv(program.uniform_locations.VIEW, false, view);
-					gl.uniformMatrix4fv(program.uniform_locations.PROJECTION, false, projection);
+					gl.uniform3fv(program.uniform_locations.CAMERA_WORLD_POSITION, camera.world_position);
+					gl.uniformMatrix4fv(program.uniform_locations.VIEW, false, camera.view);
+					gl.uniformMatrix4fv(program.uniform_locations.PROJECTION, false, camera.projection);
 
 					previous_program = program;
 				}

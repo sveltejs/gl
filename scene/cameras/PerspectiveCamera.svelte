@@ -12,28 +12,33 @@
 	const { add_camera, invalidate, width, height } = get_scene();
 	const { ctm } = get_parent();
 
-	let camera_matrix = mat4.create();
-	let view = mat4.create();
-
-	$: camera_matrix = (
-		mat4.translate(camera_matrix, $ctm, location),
-		mat4.targetTo(camera_matrix, location, target, up)
-	);
+	const matrix = mat4.create();
+	const world_position = new Float32Array(matrix.buffer, 12 * 4, 3);
 
 	// should be a const, pending https://github.com/sveltejs/svelte/issues/2728
-	let camera = {};
+	let camera = {
+		matrix,
+		world_position,
+		view: mat4.create(),
+		projection: mat4.create()
+	};
 
-	$: camera.view = mat4.invert(view, camera_matrix);
+	$: camera.matrix = (
+		mat4.translate(camera.matrix, $ctm, location),
+		mat4.targetTo(camera.matrix, location, target, up)
+	);
+
+	$: camera.view = mat4.invert(camera.view, camera.matrix);
 
 	$: camera.projection = mat4.perspective(
-		camera.projection || mat4.create(),
+		camera.projection,
 		fov / 180 * Math.PI,
 		$width / $height,
 		near,
 		far
 	);
 
-	add_camera(camera);
-
 	$: (camera, invalidate());
+
+	add_camera(camera);
 </script>
