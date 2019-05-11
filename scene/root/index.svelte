@@ -34,11 +34,7 @@
 	// lights
 	const lights = {
 		ambient: [],
-		directional: {
-			items: [],
-			direction_data: new Float32Array(num_lights * 3),
-			color_data: new Float32Array(num_lights * 4)
-		},
+		directional: [],
 		point: {
 			items: [],
 			location_data: new Float32Array(num_lights * 3),
@@ -87,8 +83,8 @@
 			});
 		},
 
-		add_directional_light: add_to(lights.directional.items),
-		add_point_light: add_to(lights.point.items),
+		add_directional_light: add_to(lights.directional),
+		add_point_light: add_to(lights.point),
 		add_ambient_light: add_to(lights.ambient),
 
 		create_program(material) {
@@ -151,7 +147,7 @@
 			camera_stores.view.set(view);
 			camera_stores.projection.set(projection);
 
-			// calculate lights
+			// calculate total ambient light
 			const ambient_light = lights.ambient.reduce((total, light) => {
 				const { color } = light();
 
@@ -161,32 +157,6 @@
 					Math.min(total[2] + color[2] * color[3], 1)
 				];
 			}, new Float32Array([0, 0, 0]));
-
-			for (let i = 0; i < num_lights; i += 1) {
-				const light = lights.directional.items[i];
-
-				if (light) {
-					const { direction, color } = light();
-
-					lights.directional.direction_data[i * 3 + 0] = -direction[0];
-					lights.directional.direction_data[i * 3 + 1] = -direction[1];
-					lights.directional.direction_data[i * 3 + 2] = -direction[2];
-
-					lights.directional.color_data[i * 4 + 0] = color[0];
-					lights.directional.color_data[i * 4 + 1] = color[1];
-					lights.directional.color_data[i * 4 + 2] = color[2];
-					lights.directional.color_data[i * 4 + 3] = color[3];
-				} else {
-					lights.directional.direction_data[i * 3 + 0] = 0;
-					lights.directional.direction_data[i * 3 + 1] = 0;
-					lights.directional.direction_data[i * 3 + 2] = 0;
-
-					lights.directional.color_data[i * 4 + 0] = 0;
-					lights.directional.color_data[i * 4 + 1] = 0;
-					lights.directional.color_data[i * 4 + 2] = 0;
-					lights.directional.color_data[i * 4 + 3] = 0;
-				}
-			}
 
 			for (let i = 0; i < num_lights; i += 1) {
 				const light = lights.point.items[i];
@@ -230,11 +200,16 @@
 					// set built-ins
 					gl.uniform3fv(program.uniform_locations.AMBIENT_LIGHT, ambient_light);
 
-					gl.uniform3fv(program.uniform_locations.DIRECTIONAL_LIGHTS_DIRECTION, lights.directional.direction_data);
-					gl.uniform4fv(program.uniform_locations.DIRECTIONAL_LIGHTS_COLOR, lights.directional.color_data);
+					for (let i = 0; i < num_lights; i += 1) {
+						const light = lights.directional[i];
+						if (!light) break;
 
-					gl.uniform3fv(program.uniform_locations.POINT_LIGHTS_LOCATION, lights.point.location_data);
-					gl.uniform4fv(program.uniform_locations.POINT_LIGHTS_COLOR, lights.point.color_data);
+						gl.uniform3fv(program.uniform_locations.DIRECTIONAL_LIGHTS[i].direction, light.direction);
+						gl.uniform4fv(program.uniform_locations.DIRECTIONAL_LIGHTS[i].color, light.color);
+					}
+
+					// gl.uniform3fv(program.uniform_locations.POINT_LIGHTS_LOCATION, lights.point.location_data);
+					// gl.uniform4fv(program.uniform_locations.POINT_LIGHTS_COLOR, lights.point.color_data);
 
 					gl.uniformMatrix4fv(program.uniform_locations.VIEW, false, view);
 					gl.uniformMatrix4fv(program.uniform_locations.PROJECTION, false, projection);

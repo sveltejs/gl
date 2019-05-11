@@ -1,15 +1,14 @@
 varying vec3 vnormal;
 
 void main () {
-	vec3 light = vec3(0.0, 0.0, 0.0);
+	vec3 lighting = vec3(0.0, 0.0, 0.0);
 
 	// directional lights
 	for (int i = 0; i < 8; i += 1) {
-		vec3 direction = DIRECTIONAL_LIGHTS_DIRECTION[i];
-		vec4 color = DIRECTIONAL_LIGHTS_COLOR[i];
+		DirectionalLight light = DIRECTIONAL_LIGHTS[i];
 
-		float multiplier = clamp(dot(vnormal, direction), 0.0, 1.0);
-		light += multiplier * color.rgb * color.a;
+		float multiplier = clamp(dot(vnormal, -light.direction), 0.0, 1.0);
+		lighting += multiplier * light.color.rgb * light.color.a;
 	}
 
 	// point lights
@@ -18,9 +17,9 @@ void main () {
 		vec4 color = POINT_LIGHTS_COLOR[i];
 
 		float multiplier = clamp(dot(vnormal, direction), 0.0, 1.0);
-		light += multiplier * color.rgb * color.a;
+		lighting += multiplier * color.rgb * color.a;
 	}
 
 	gl_FragColor = COLOR;
-	gl_FragColor.rgb *= mix(AMBIENT_LIGHT, vec3(1.0, 1.0, 1.0), light);
+	gl_FragColor.rgb *= mix(AMBIENT_LIGHT, vec3(1.0, 1.0, 1.0), lighting);
 }
