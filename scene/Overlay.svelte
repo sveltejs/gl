@@ -6,36 +6,45 @@
 	import * as quat from 'gl-matrix/quat';
 
 	export let location = [0, 0, 0];
-	export let rotation = [0, 0, 0];
-	export let scale = 1;
+	export let direction = [0, 0, 0];
 
 	let x = 0;
 	let y = 0;
 
-	const { width, height, view, projection } = get_scene();
+	const { width, height, camera_matrix, view, projection } = get_scene();
 	const { ctm } = get_parent();
 
-	// TODO make it possible to set a quaternion as a prop?
-	let matrix = mat4.create();
-	let model = mat4.create();
-	let mvp = mat4.create();
-	let position = vec3.create();
-	let normal = vec3.create();
+	let projected = new Float32Array(3);
+	let normal = new Float32Array(3);
 
-	$: scale_array = typeof scale === 'number' ? [scale, scale, scale] : scale;
+	$: world_position = vec3.transformMat4(world_position || vec3.create(), location, $ctm);
+	$: model_view_projection = mat4.multiply(mat4.create(), mat4.multiply(mat4.create(), $projection, $view), $ctm);
+	$: projected = vec3.transformMat4(projected, location, model_view_projection);
 
-	$: quaternion = quat.fromEuler(quaternion || quat.create(), ...rotation);
-	$: matrix = mat4.fromRotationTranslationScale(matrix, quaternion, location, scale_array);
-	$: model = mat4.multiply(mat4.create(), $ctm, matrix);
+	$: {
+		// TODO there must be an easier way to do this. Brain fail
+		const a_model = location;
+		const b_model = [location[0] + direction[0], location[1] + direction[1], location[2] + direction[2]];
 
-	$: if ($projection && $view) mvp = mat4.multiply(mvp, $projection, mat4.multiply(mvp, $view, model));
-	$: if (mvp) position = vec3.transformMat4(position, [0, 0, 0], mvp);
+		const a_world = world_position;
+		const b_world = vec3.transformMat4(normal, b_model, $ctm);
 
-	// $: console.log(rotation, $model_inverse_transpose);
-	// $: if ($model_inverse_transpose) normal = vec3.normalize(normal, vec3.transformMat4(normal, rotation, $model_inverse_transpose));
+		const a_view = vec3.transformMat4(vec3.create(), a_world, $view);
+		const b_view = vec3.transformMat4(vec3.create(), b_world, $view);
 
-	$: x = position && $width * (position[0] + 1) / 2;
-	$: y = position && $height * (1 - (position[1] + 1) / 2);
+		normal[0] = b_view[0] - a_view[0];
+		normal[1] = b_view[1] - a_view[1];
+		normal[2] = b_view[2] - a_view[2];
+
+		const mag = Math.sqrt(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
+
+		normal[0] /= mag;
+		normal[1] /= mag;
+		normal[2] /= mag;
+	}
+
+	$: x = $width * (projected[0] + 1) / 2;
+	$: y = $height * (1 - (projected[1] + 1) / 2);
 </script>
 
 <style>

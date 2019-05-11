@@ -16,6 +16,7 @@
 	let program; // for now, have a single master program
 	let draw;
 	let camera_stores = {
+		matrix: writable(),
 		view: writable(),
 		projection: writable()
 	};
@@ -93,6 +94,7 @@
 
 		invalidate,
 
+		camera_matrix: camera_stores.matrix,
 		view: camera_stores.view,
 		projection: camera_stores.projection,
 		width,
@@ -137,6 +139,7 @@
 			gl.useProgram(program);
 
 			// for overlays
+			camera_stores.matrix.set(camera.matrix);
 			camera_stores.view.set(camera.view);
 			camera_stores.projection.set(camera.projection);
 
