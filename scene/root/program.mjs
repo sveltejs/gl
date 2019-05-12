@@ -28,7 +28,7 @@ export function get_or_create_program(gl, material) {
 
 	if (!cache.has(material.hash)) {
 		const defines = [
-			`NUM_LIGHTS 8`, // TODO make this parameterisable
+			`NUM_LIGHTS 2`, // TODO make this parameterisable
 			material.map && `USES_TEXTURE true`,
 			material.alpha < 1 && `USES_ALPHA true`
 		].filter(Boolean).map(x => `#define ${x}`).join('\n') + '\n\n';
