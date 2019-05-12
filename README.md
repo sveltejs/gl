@@ -2,6 +2,7 @@
 
 Declarative WebGL scene graphs inside [Svelte](https://svelte.dev).
 
+<img width="1118" alt="screenshot" src="screenshot.png">
 
 ## Here be dragons
 
