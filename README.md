@@ -10,7 +10,7 @@ Declarative WebGL scene graphs inside [Svelte](https://svelte.dev).
 
 This is not even *close* to production-ready. It's missing many essential features, and isn't optimised. The API is certain to change in substantial ways. You have been warned.
 
-If you're phased by that sort of thing, and would like to help figure out how to make this all work, contributions are very welcome.
+If you're not fazed by that sort of thing, and would like to help figure out how to make this all work, contributions are very welcome.
 
 
 ## Why are you doing this?
