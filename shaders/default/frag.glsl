@@ -1,8 +1,11 @@
 varying vec3 vnormal;
-varying vec2 vuv;
 
-varying vec3 vsurface_to_light[8];
-varying vec3 vsurface_to_view[8];
+#ifdef USES_TEXTURE
+varying vec2 vuv;
+#endif
+
+varying vec3 vsurface_to_light[NUM_LIGHTS];
+varying vec3 vsurface_to_view[NUM_LIGHTS];
 
 void main () {
 	vec3 normal = normalize(vnormal);
@@ -11,7 +14,7 @@ void main () {
 	vec3 specularity = vec3(0.0);
 
 	// directional lights
-	for (int i = 0; i < 8; i += 1) {
+	for (int i = 0; i < NUM_LIGHTS; i += 1) {
 		DirectionalLight light = DIRECTIONAL_LIGHTS[i];
 
 		float multiplier = clamp(dot(normal, -light.direction), 0.0, 1.0);
@@ -19,7 +22,7 @@ void main () {
 	}
 
 	// point lights
-	for (int i = 0; i < 8; i += 1) {
+	for (int i = 0; i < NUM_LIGHTS; i += 1) {
 		PointLight light = POINT_LIGHTS[i];
 
 		vec3 surface_to_light = normalize(vsurface_to_light[i]);
@@ -33,7 +36,12 @@ void main () {
 		specularity += specular * light.color * light.intensity;
 	}
 
+	#ifdef USES_TEXTURE
 	vec4 color = texture2D(TEXTURE, vuv);
+	#else
+	vec4 color = vec4(COLOR, 1.0);
+	#endif
+
 	gl_FragColor = color;
 
 	// gl_FragColor = vec4(COLOR, 1.0);

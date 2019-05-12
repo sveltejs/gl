@@ -33,6 +33,9 @@ export default class Geometry {
 		for (const key in this.attributes) {
 			const attribute = this.attributes[key];
 
+			const loc = this.locations[key];
+			if (loc < 0) continue; // attribute is unused by current program
+
 			const {
 				size = 3,
 				type = gl.FLOAT,
@@ -47,7 +50,6 @@ export default class Geometry {
 			gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 
 			// Turn on the attribute
-			const loc = this.locations[key];
 			gl.enableVertexAttribArray(loc);
 
 			gl.vertexAttribPointer(

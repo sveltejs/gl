@@ -26,8 +26,13 @@ export function get_or_create_program(gl, material) {
 	const cache = caches.get(gl);
 
 	if (!cache.has(material.hash)) {
-		const vert = vert_builtin + (material.vert || vert_default);
-		const frag = frag_builtin + (material.frag || frag_default);
+		const defines = [
+			`#define NUM_LIGHTS 8`, // TODO make this parameterisable
+			material.uniforms.texture && `#define USES_TEXTURE true`
+		].filter(Boolean).join('\n') + '\n\n';
+
+		const vert = defines + vert_builtin + '\n\n' + (material.vert || vert_default);
+		const frag = defines + frag_builtin + '\n\n' + (material.frag || frag_default);
 
 		const program = create_program(gl, vert, frag);
 		const uniforms = get_uniforms(gl, program);

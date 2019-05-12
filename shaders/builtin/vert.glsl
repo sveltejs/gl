@@ -1,3 +1,4 @@
+/* start builtins */
 precision mediump float;
 
 uniform mat4 MODEL;
@@ -9,7 +10,10 @@ uniform vec3 CAMERA_WORLD_POSITION;
 
 attribute vec3 POSITION;
 attribute vec3 NORMAL;
+
+#ifdef USES_TEXTURE
 attribute vec2 UV;
+#endif
 
 struct PointLight {
 	vec3 location;
@@ -18,4 +22,5 @@ struct PointLight {
 	// TODO fall-off etc
 };
 
-uniform PointLight POINT_LIGHTS[8];
+uniform PointLight POINT_LIGHTS[NUM_LIGHTS];
+/* end builtins */

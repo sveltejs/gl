@@ -1,16 +1,22 @@
 varying vec3 vnormal;
-varying vec2 vuv;
 
-varying vec3 vsurface_to_light[8];
-varying vec3 vsurface_to_view[8];
+#ifdef USES_TEXTURE
+varying vec2 vuv;
+#endif
+
+varying vec3 vsurface_to_light[NUM_LIGHTS];
+varying vec3 vsurface_to_view[NUM_LIGHTS];
 
 void main() {
 	vec4 pos = vec4(POSITION, 1.0);
 
 	vnormal = (MODEL_INVERSE_TRANSPOSE * vec4(NORMAL, 0.0)).xyz;
-	vuv = UV;
 
-	for (int i = 0; i < 8; i += 1) {
+	#ifdef USES_TEXTURE
+	vuv = UV;
+	#endif
+
+	for (int i = 0; i < NUM_LIGHTS; i += 1) {
 		PointLight light = POINT_LIGHTS[i];
 
 		vec3 surface_world_position = (MODEL * pos).xyz;

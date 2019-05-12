@@ -1,8 +1,11 @@
+/* start builtins */
 precision mediump float;
 
 uniform vec3 AMBIENT_LIGHT;
 
+#ifdef USES_TEXTURE
 uniform sampler2D TEXTURE;
+#endif
 
 struct DirectionalLight {
 	vec3 direction;
@@ -10,7 +13,7 @@ struct DirectionalLight {
 	float intensity;
 };
 
-uniform DirectionalLight DIRECTIONAL_LIGHTS[8];
+uniform DirectionalLight DIRECTIONAL_LIGHTS[NUM_LIGHTS];
 
 struct PointLight {
 	vec3 location;
@@ -19,6 +22,7 @@ struct PointLight {
 	// TODO fall-off etc
 };
 
-uniform PointLight POINT_LIGHTS[8];
+uniform PointLight POINT_LIGHTS[NUM_LIGHTS];
 
 uniform vec3 COLOR;
+/* end builtins */
