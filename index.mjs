@@ -2,7 +2,6 @@
 export { default as Attribute } from './abstract/Attribute.mjs';
 export { default as Geometry } from './abstract/Geometry.mjs';
 export { default as Material } from './abstract/Material.mjs';
-export { default as Texture } from './abstract/Texture.mjs';
 
 // scene
 export { default as Scene } from './scene/root/index.svelte';

@@ -44,7 +44,10 @@ void main () {
 
 	gl_FragColor = color;
 
-	// gl_FragColor = vec4(COLOR, 1.0);
+	#ifdef USES_ALPHA
+	gl_FragColor.a = ALPHA;
+	#endif
+
 	gl_FragColor.rgb *= mix(AMBIENT_LIGHT, vec3(1.0, 1.0, 1.0), lighting);
 	gl_FragColor.rgb += specularity;
 }

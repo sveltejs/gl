@@ -197,7 +197,6 @@
 				// set mesh-specific built-in uniforms
 				gl.uniformMatrix4fv(program.uniform_locations.MODEL, false, model);
 				gl.uniformMatrix4fv(program.uniform_locations.MODEL_INVERSE_TRANSPOSE, false, model_inverse_transpose);
-				// gl.uniform4fv(program.uniform_locations.COLOR, material.uniforms.color); // TODO should maybe be an attribute? not sure
 
 				// set material-specific built-in uniforms
 				material.set_uniforms(gl, program.uniforms, program.uniform_locations);
@@ -237,7 +236,7 @@
 				for (let i = 0; i < layer.meshes.length; i += 1) {
 					const mesh = layer.meshes[i];
 
-					if (mesh.material.uniforms.alpha < 1) {
+					if (mesh.material.alpha < 1) {
 						transparent.push(mesh);
 					} else {
 						render_mesh(mesh);

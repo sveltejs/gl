@@ -1,11 +1,19 @@
 /* start builtins */
 precision mediump float;
 
-uniform vec3 AMBIENT_LIGHT;
-
+// mesh uniforms
 #ifdef USES_TEXTURE
 uniform sampler2D TEXTURE;
 #endif
+
+uniform vec3 COLOR;
+
+#ifdef USES_ALPHA
+uniform float ALPHA;
+#endif
+
+// lights
+uniform vec3 AMBIENT_LIGHT;
 
 struct DirectionalLight {
 	vec3 direction;
@@ -23,6 +31,4 @@ struct PointLight {
 };
 
 uniform PointLight POINT_LIGHTS[NUM_LIGHTS];
-
-uniform vec3 COLOR;
 /* end builtins */

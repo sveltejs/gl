@@ -14,12 +14,26 @@
 
 	export let material;
 	export let color = [Math.random(), Math.random(), Math.random()];
-	export let alpha = 1; // TODO use this
+	export let map = undefined;
+	export let alpha = 1;
+
+	// internal
+	let _map;
+	let _material;
+
+	$: if (typeof map === 'string') {
+		const img = new Image();
+		img.onload = () => {
+			console.log('loaded', img);
+			_map = img;
+		}
+		img.src = map;
+	}
 
 	$: _material = material || new Material({
-		uniforms: {
-			color: process_color(color)
-		}
+		color: process_color(color), // TODO process color in the material itself?
+		alpha,
+		map: _map
 	});
 
 	const scene = get_scene();
@@ -64,7 +78,7 @@
 			previous_program = mesh.program;
 		}
 
-		material.init(scene.gl);
+		material._link(scene.gl);
 	}
 
 	$: update_program(_material);

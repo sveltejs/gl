@@ -42,6 +42,7 @@
 
 		let phi = Math.acos(yootils.clamp(vy / radius, -1, 1));
 		phi = yootils.clamp(phi - dy * 0.005, EPSILON, Math.PI - EPSILON);
+		phi = yootils.clamp(phi, minPolarAngle, maxPolarAngle);
 
 		const sin_phi_radius = Math.sin(phi) * radius;
 

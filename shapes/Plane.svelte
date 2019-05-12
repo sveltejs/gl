@@ -15,10 +15,10 @@
 
 	const normal = new Attribute({
 		data: new Float32Array([
-			0, 0, -1,
-			0, 0, -1,
-			0, 0, -1,
-			0, 0, -1
+			0, 0, 1,
+			0, 0, 1,
+			0, 0, 1,
+			0, 0, 1
 		]),
 		size: 3
 	});

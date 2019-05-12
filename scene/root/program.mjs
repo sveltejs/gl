@@ -21,15 +21,17 @@ function deep_set(obj, path, value) {
 	obj[parts[0]] = value;
 }
 
+// TODO this logic belong with Material?
 export function get_or_create_program(gl, material) {
 	if (!caches.get(gl)) caches.set(gl, new Map());
 	const cache = caches.get(gl);
 
 	if (!cache.has(material.hash)) {
 		const defines = [
-			`#define NUM_LIGHTS 8`, // TODO make this parameterisable
-			material.uniforms.texture && `#define USES_TEXTURE true`
-		].filter(Boolean).join('\n') + '\n\n';
+			`NUM_LIGHTS 8`, // TODO make this parameterisable
+			material.map && `USES_TEXTURE true`,
+			material.alpha < 1 && `USES_ALPHA true`
+		].filter(Boolean).map(x => `#define ${x}`).join('\n') + '\n\n';
 
 		const vert = defines + vert_builtin + '\n\n' + (material.vert || vert_default);
 		const frag = defines + frag_builtin + '\n\n' + (material.frag || frag_default);
