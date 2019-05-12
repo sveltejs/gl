@@ -1,5 +1,6 @@
 <script>
 	import * as yootils from 'yootils';
+	import { debounce } from './debounce.js';
 	import { onDestroy } from 'svelte';
 	import { get_scene } from '../internal/index.mjs';
 	import { normalize } from '../internal/utils.mjs';
@@ -93,7 +94,7 @@
 		let last_x = event.clientX;
 		let last_y = event.clientY;
 
-		function handle_mousemove(event) {
+		const handle_mousemove = debounce(event => {
 			const x = event.clientX;
 			const y = event.clientY;
 
@@ -108,7 +109,7 @@
 
 			last_x = x;
 			last_y = y;
-		}
+		});
 
 		function handle_mouseup(event) {
 			window.removeEventListener('mousemove', handle_mousemove);
@@ -119,9 +120,7 @@
 		window.addEventListener('mouseup', handle_mouseup);
 	}
 
-	function handle_mousewheel(event) {
-		event.preventDefault();
-
+	const mousewheel_zoom = debounce(event => {
 		let vx = location[0] - target[0];
 		let vy = location[1] - target[1];
 		let vz = location[2] - target[2];
@@ -135,6 +134,11 @@
 		location[0] = target[0] + vx;
 		location[1] = target[1] + vy;
 		location[2] = target[2] + vz;
+	});
+
+	function handle_mousewheel(event) {
+		event.preventDefault();
+		mousewheel_zoom(event);
 	}
 
 	scene.canvas.addEventListener('mousedown', handle_mousedown);
