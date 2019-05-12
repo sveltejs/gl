@@ -40,11 +40,12 @@
 	};
 
 	let update_scheduled = false;
+	let resolved = Promise.resolve();
 
 	function invalidate() {
 		if (!update_scheduled) {
 			update_scheduled = true;
-			requestAnimationFrame(draw);
+			resolved.then(draw);
 		}
 	}
 
