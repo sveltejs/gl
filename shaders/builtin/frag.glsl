@@ -2,6 +2,8 @@ precision mediump float;
 
 uniform vec3 AMBIENT_LIGHT;
 
+uniform sampler2D TEXTURE;
+
 struct DirectionalLight {
 	vec3 direction;
 	vec3 color;

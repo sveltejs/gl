@@ -1,4 +1,6 @@
 varying vec3 vnormal;
+varying vec2 vuv;
+
 varying vec3 vsurface_to_light[8];
 varying vec3 vsurface_to_view[8];
 
@@ -6,6 +8,7 @@ void main() {
 	vec4 pos = vec4(POSITION, 1.0);
 
 	vnormal = (MODEL_INVERSE_TRANSPOSE * vec4(NORMAL, 0.0)).xyz;
+	vuv = UV;
 
 	for (int i = 0; i < 8; i += 1) {
 		PointLight light = POINT_LIGHTS[i];

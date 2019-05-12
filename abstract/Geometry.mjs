@@ -38,16 +38,13 @@ export default class Geometry {
 				type = gl.FLOAT,
 				normalized = false,
 				stride = 0,
-				offset = 0,
-				dynamic,
-				data
+				offset = 0
 			} = attribute;
 
 			// Bind the position buffer.
 			const buffer = this.buffers[key];
 
 			gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-			// gl.bufferData(gl.ARRAY_BUFFER, data, dynamic ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW); // TODO feels wrong adding the data here?
 
 			// Turn on the attribute
 			const loc = this.locations[key];

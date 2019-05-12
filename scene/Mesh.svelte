@@ -63,6 +63,8 @@
 			if (previous_program) scene.delete_program(previous_program);
 			previous_program = mesh.program;
 		}
+
+		material.init(scene.gl);
 	}
 
 	$: update_program(_material);

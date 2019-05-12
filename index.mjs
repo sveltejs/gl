@@ -2,6 +2,7 @@
 export { default as Attribute } from './abstract/Attribute.mjs';
 export { default as Geometry } from './abstract/Geometry.mjs';
 export { default as Material } from './abstract/Material.mjs';
+export { default as Texture } from './abstract/Texture.mjs';
 
 // scene
 export { default as Scene } from './scene/root/index.svelte';
@@ -22,7 +23,7 @@ export { default as OrbitControls } from './controls/OrbitControls.svelte';
 export { default as PerspectiveCamera } from './scene/cameras/PerspectiveCamera.svelte';
 
 // shapes
+export { default as Box } from './shapes/Box.svelte';
 export { default as Cone } from './shapes/Cone.svelte';
-export { default as Cube } from './shapes/Cube.svelte';
 export { default as Plane } from './shapes/Plane.svelte';
 export { default as Sphere } from './shapes/Sphere.svelte';

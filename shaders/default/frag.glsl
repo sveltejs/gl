@@ -1,4 +1,6 @@
 varying vec3 vnormal;
+varying vec2 vuv;
+
 varying vec3 vsurface_to_light[8];
 varying vec3 vsurface_to_view[8];
 
@@ -31,7 +33,10 @@ void main () {
 		specularity += specular * light.color * light.intensity;
 	}
 
-	gl_FragColor = vec4(COLOR, 1.0);
+	vec4 color = texture2D(TEXTURE, vuv);
+	gl_FragColor = color;
+
+	// gl_FragColor = vec4(COLOR, 1.0);
 	gl_FragColor.rgb *= mix(AMBIENT_LIGHT, vec3(1.0, 1.0, 1.0), lighting);
 	gl_FragColor.rgb += specularity;
 }

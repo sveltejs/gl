@@ -6,7 +6,7 @@ const methods = {
 	[35665]: 'uniform3fv',
 	[35666]: 'uniform4fv',
 
-	[35676]: ''
+	// [35678]: 'texImage2D'
 };
 
 export default class Material {
@@ -23,18 +23,33 @@ export default class Material {
 		this.hash = this.vert + this.frag;
 	}
 
+	init(gl) {
+		// TODO this feels a bit weird, maybe there's a
+		// better place for this work?
+		if (this.uniforms.texture) {
+			this.uniforms.texture.init(gl);
+		}
+	}
+
 	set_uniforms(gl, uniforms, locations) {
 		uniforms.forEach(uniform => {
 			const data = this.uniforms[uniform.name.toLowerCase()];
 			if (!data) return;
+
+			const loc = locations[uniform.name];
+
+			if (uniform.type === gl.SAMPLER_2D) {
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, data.texture);
+				gl.uniform1i(loc, 0);
+				return;
+			}
 
 			const method = methods[uniform.type];
 			if (!method) {
 				console.log(uniform);
 				throw new Error(`TODO implement figure out method for ${uniform.type}`)
 			}
-
-			const loc = locations[uniform.name];
 
 			gl[method](loc, data);
 		});

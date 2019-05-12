@@ -9,6 +9,7 @@ uniform vec3 CAMERA_WORLD_POSITION;
 
 attribute vec3 POSITION;
 attribute vec3 NORMAL;
+attribute vec2 UV;
 
 struct PointLight {
 	vec3 location;

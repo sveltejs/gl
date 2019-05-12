@@ -50,10 +50,10 @@
 	const normal = new Attribute({
 		data: new Float32Array([
 			// front
-			 0, 0, 1,
-			 0, 0, 1,
-			 0, 0, 1,
-			 0, 0, 1,
+			0, 0, 1,
+			0, 0, 1,
+			0, 0, 1,
+			0, 0, 1,
 
 			// left
 			-1, 0, 0,
@@ -88,6 +88,47 @@
 		size: 3
 	});
 
+	const uv = new Attribute({
+		data: new Float32Array([
+			// front
+			2/4, 1/4,
+			1/4, 1/4,
+			2/4, 2/4,
+			1/4, 2/4,
+
+			// left
+			1/4, 1/4,
+			0/4, 1/4,
+			1/4, 2/4,
+			0/4, 2/4,
+
+			// back
+			4/4, 1/4,
+			3/4, 1/4,
+			4/4, 2/4,
+			3/4, 2/4,
+
+			// right
+			3/4, 1/4,
+			2/4, 1/4,
+			3/4, 2/4,
+			2/4, 2/4,
+
+			// top
+			1/4, 0/4,
+			1/4, 1/4,
+			2/4, 0/4,
+			2/4, 1/4,
+
+			// bottom
+			1/4, 2/4,
+			1/4, 3/4,
+			2/4, 2/4,
+			2/4, 3/4
+		]),
+		size: 2
+	});
+
 	const index = new Uint32Array([
 		// front
 		0, 1, 2,
@@ -114,7 +155,7 @@
 		23, 22, 21
 	]);
 
-	const geometry = new Geometry({ position, normal }, { index });
+	const geometry = new Geometry({ position, normal, uv }, { index });
 </script>
 
 <Mesh {...$$props} {geometry}/>

@@ -112,7 +112,7 @@
 	});
 
 	// TEMP
-	export let blend;
+	export let blend = undefined;
 	$: (blend, draw && invalidate());
 
 	onMount(() => {
@@ -207,6 +207,7 @@
 
 				// draw
 				if (geometry.index) {
+					// TODO this shouldn't be happening every frame, surely
 					const elements_buffer = gl.createBuffer();
 					gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elements_buffer);
 					gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, geometry.index, gl.STATIC_DRAW);
@@ -216,7 +217,7 @@
 					const primitiveType = gl.TRIANGLES;
 					const offset = 0;
 					const position = geometry.get_attribute('position');
-					const count = position.data.length / position.size;
+					const count = position.count;
 					gl.drawArrays(primitiveType, offset, count);
 				}
 			}
