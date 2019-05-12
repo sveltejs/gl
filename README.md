@@ -31,7 +31,7 @@ Meanwhile, [A-Frame](https://aframe.io/) — which is a web component wrapper ar
 
 ## How can I use it?
 
-Check out [this demo](TKTK) to get started. There's not much point writing docs until things are a bit more settled.
+Check out [this demo](https://svelte-gl-demo.surge.sh) to get started. There's not much point writing docs until things are a bit more settled.
 
 
 ## Ideas for future development
@@ -43,6 +43,7 @@ Some of these may be a bit pie-in-the-sky:
 * WebVR (this would require Svelte to be able to use the VR display's `requestAnimationFrame` instead of the default one, since the refresh rate on VR devices can be 90 or 120fps)
 * Interactivity (i.e. raycasting)
 * Physics
+* Interleaving DOM and GL content (i.e. part of the scene renders behind the DOM, some in front)
 * What's the analog of server-side rendering for a GL scene — precomputing high fidelity global illumination maps etc?
 
 
