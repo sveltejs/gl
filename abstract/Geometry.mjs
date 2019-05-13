@@ -26,6 +26,13 @@ export default class Geometry {
 			gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 			gl.bufferData(gl.ARRAY_BUFFER, attribute.data, attribute.dynamic ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
 		}
+
+		if (this.index) {
+			const buffer = gl.createBuffer();
+			this.buffers.__index = buffer;
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
+			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.index, gl.STATIC_DRAW);
+		}
 	}
 
 	// TODO should this be a public method?

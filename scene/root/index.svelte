@@ -207,11 +207,7 @@
 
 				// draw
 				if (geometry.index) {
-					// TODO this shouldn't be happening every frame, surely
-					const elements_buffer = gl.createBuffer();
-					gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elements_buffer);
-					gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, geometry.index, gl.STATIC_DRAW);
-
+					gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, geometry.buffers.__index);
 					gl.drawElements(gl[geometry.primitive], geometry.index.length, gl.UNSIGNED_INT, 0);
 				} else {
 					const primitiveType = gl.TRIANGLES;
