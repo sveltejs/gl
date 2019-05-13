@@ -94,6 +94,14 @@
 		let vy = location[1] - target[1];
 		let vz = location[2] - target[2];
 
+		const mag = Math.sqrt(vx * vx + vy * vy + vz * vz);
+
+		amount = yootils.clamp(
+			amount,
+			(mag / maxDistance),
+			minDistance ? (mag / minDistance) : Infinity
+		);
+
 		vx /= amount;
 		vy /= amount;
 		vz /= amount;
