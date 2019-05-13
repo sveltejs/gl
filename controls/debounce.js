@@ -10,7 +10,7 @@ export function debounce(fn) {
 	return function(e) {
 		if (!scheduled) {
 			requestAnimationFrame(release);
-			scheduled = false;
+			scheduled = true;
 		}
 
 		event = e;
