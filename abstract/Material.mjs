@@ -22,6 +22,9 @@ export default class Material {
 		this.vert = opts.vert || vert;
 		this.frag = opts.frag || frag;
 
+		// custom uniforms
+		this.uniforms = opts.uniforms;
+
 		this.color = opts.color;
 		this.alpha = opts.alpha;
 		this._map = opts.map;
@@ -86,6 +89,23 @@ export default class Material {
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, this._textures.map);
 			gl.uniform1i(locations.TEXTURE, 0);
+		}
+
+		// custom uniforms
+		if (this.uniforms) {
+			uniforms.forEach(uniform => {
+				if (uniform.name in this.uniforms) {
+					const data = this.uniforms[uniform.name];
+
+					const method = methods[uniform.type];
+					if (!method) {
+						console.log(uniform.name, data, uniform);
+						throw new Error(`not implemented ${uniform.type}`);
+					}
+
+					gl[method](locations[uniform.name], data);
+				}
+			});
 		}
 	}
 }
