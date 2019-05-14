@@ -16,7 +16,8 @@
 	export let material = undefined;
 	export let color = [Math.random(), Math.random(), Math.random()];
 	export let map = undefined;
-	export let specularityMap = undefined;
+	export let specMap = undefined;
+	export let bumpMap = undefined;
 	export let alpha = 1;
 
 	// internal
@@ -28,7 +29,8 @@
 	$: if (!material && color) _material.color = process_color(color);
 	$: if (!material && alpha) _material.alpha = alpha;
 	$: if (!material && map) load_texture('map', map);
-	$: if (!material && specularityMap) load_texture('specularityMap', specularityMap);
+	$: if (!material && specMap) load_texture('specMap', specMap);
+	$: if (!material && bumpMap) load_texture('bumpMap', bumpMap);
 
 	function load_texture(id, src) {
 		const img = new Image();
@@ -65,14 +67,13 @@
 	$: mesh.geometry = geometry;
 	$: mesh.material = _material;
 
-
 	let previous_program_info;
 	function update_program(material) {
 		const info = material._compile(scene.gl);
 
 		if (info !== previous_program_info) {
 			mesh.program_info = info;
-			geometry.init(scene.gl, info.program); // TODO do we need to tear down anything?
+			geometry._init(scene.gl, info.program, material); // TODO do we need to tear down anything?
 
 			if (previous_program_info) remove_program(previous_program_info);
 			previous_program_info = mesh.program_info;

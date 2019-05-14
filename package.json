@@ -26,8 +26,6 @@
   },
   "dependencies": {
     "gl-matrix": "^3.0.0",
-    "icosphere": "^1.0.0",
-    "normals": "^1.1.0",
     "yootils": "0.0.15"
   }
 }
