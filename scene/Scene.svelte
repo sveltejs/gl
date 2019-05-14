@@ -1,8 +1,8 @@
 <script>
 	import { setContext, onMount, onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
-	import { RENDERER, LAYER, PARENT, CAMERA, create_layer } from '../../internal/index.mjs';
-	import { get_or_create_program } from './program.mjs';
+	import { RENDERER, LAYER, PARENT, CAMERA, create_layer } from '../internal/index.mjs';
+	import { get_or_create_program } from '../abstract/Material/program.mjs'; // TODO remove
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as vec3 from 'gl-matrix/vec3';
 

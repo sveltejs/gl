@@ -1,9 +1,5 @@
-import vert_builtin from '../../shaders/builtin/vert.glsl.mjs';
-import frag_builtin from '../../shaders/builtin/frag.glsl.mjs';
-
-// TODO remove this, have it be on the material
-import vert_default from '../../shaders/default/vert.glsl.mjs';
-import frag_default from '../../shaders/default/frag.glsl.mjs';
+import vert_builtin from './shaders/builtin/vert.glsl.mjs';
+import frag_builtin from './shaders/builtin/frag.glsl.mjs';
 
 const caches = new Map();
 
@@ -33,8 +29,8 @@ export function get_or_create_program(gl, material) {
 			material.alpha < 1 && `USES_ALPHA true`
 		].filter(Boolean).map(x => `#define ${x}`).join('\n') + '\n\n';
 
-		const vert = defines + vert_builtin + '\n\n' + (material.vert || vert_default);
-		const frag = defines + frag_builtin + '\n\n' + (material.frag || frag_default);
+		const vert = defines + vert_builtin + '\n\n' + material.vert;
+		const frag = defines + frag_builtin + '\n\n' + material.frag;
 
 		const program = create_program(gl, vert, frag);
 		const uniforms = get_uniforms(gl, program);

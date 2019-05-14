@@ -3,7 +3,7 @@
 	import { writable, derived } from 'svelte/store';
 	import { get_scene, get_layer, get_parent } from '../internal/index.mjs';
 	import { process_color } from '../internal/utils.mjs';
-	import Material from '../abstract/Material.mjs';
+	import Material from '../abstract/Material/index.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as quat from 'gl-matrix/quat';
 
