@@ -24,7 +24,6 @@
 	$: if (typeof map === 'string') {
 		const img = new Image();
 		img.onload = () => {
-			console.log('loaded', img);
 			_map = img;
 		}
 		img.src = map;

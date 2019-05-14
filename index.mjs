@@ -25,4 +25,5 @@ export { default as PerspectiveCamera } from './scene/cameras/PerspectiveCamera.
 export { default as Box } from './shapes/Box.svelte';
 export { default as Cone } from './shapes/Cone.svelte';
 export { default as Plane } from './shapes/Plane.svelte';
+export { default as IcoSphere } from './shapes/IcoSphere.svelte';
 export { default as Sphere } from './shapes/Sphere.svelte';

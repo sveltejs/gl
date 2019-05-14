@@ -1,187 +1,99 @@
-<script context="module">
-	import Geometry from '../abstract/Geometry.mjs';
+<script>
 	import Attribute from '../abstract/Attribute.mjs';
-	import { normalize } from '../internal/utils.mjs';
+	import Geometry from '../abstract/Geometry.mjs';
+	import Mesh from '../scene/Mesh.svelte';
 
-	const p = 0.85065080835204;
-	const q = 0.5257311121191336;
+	export let turns = 8;
+	export let bands = 6;
+	export let shading = 'smooth';
 
-	const position = new Float32Array([
-		-q, +p,  0,
-		+q, +p,  0,
-		-q, -p,  0,
-		+q, -p,  0,
-		 0, -q, +p,
-		 0, +q, +p,
-		 0, -q, -p,
-		 0, +q, -p,
-		+p,  0, -q,
-		+p,  0, +q,
-		-p,  0, -q,
-		-p,  0, +q
-	]);
+	const PI = Math.PI;
+	const PI2 = PI * 2;
 
-	const index = new Uint16Array([
-		0, 11, 5,
-		0, 5, 1,
-		0, 1, 7,
-		0, 7, 10,
-		0, 10, 11,
-		1, 5, 9,
-		5, 11, 4,
-		11, 10, 2,
-		10, 7, 6,
-		7, 1, 8,
-		3, 9, 4,
-		3, 4, 2,
-		3, 2, 6,
-		3, 6, 8,
-		3, 8, 9,
-		4, 9, 5,
-		2, 4, 11,
-		6, 2, 10,
-		8, 6, 7,
-		9, 8, 1
-	]);
+	function create_smooth_geometry(turns, bands) {
+		const num_vertices = (turns + 1) * (bands + 1);
+		const num_faces_per_turn = 2 * bands - 1;
+		const num_faces = num_faces_per_turn * turns;
 
-	function calculate_uv(position) {
-		const uv = new Float32Array(2 * position.length / 3);
-		let p = 0;
+		const position = new Float32Array(num_vertices * 3); // doubles as normal
+		const uv = new Float32Array(num_vertices * 2);
+		const index = new Uint32Array(num_faces * 3);
 
-		const m = 0.5 / Math.PI;
+		let position_index = 0;
+		let uv_index = 0;
 
-		for (let i = 0; i < position.length; i += 3) {
-			uv[p++] = m * Math.atan2(position[i], position[i + 2]);
-			uv[p++] = position[i + 1];
+		for (let i = 0; i <= turns; i += 1) {
+			const u = i / turns;
+			const theta = u * PI2;
+
+			for (let j = 0; j <= bands; j += 1) {
+				const v = j / bands;
+
+				const x = -Math.cos(u * PI2) * Math.sin(v * PI);
+				const y = Math.cos(v * PI);
+				const z = Math.sin(u * PI2) * Math.sin(v * PI);
+
+				const mag = Math.sqrt(x * x + y * y + z * z);
+
+				position[position_index++] = x;
+				position[position_index++] = y;
+				position[position_index++] = z;
+
+				uv[uv_index++] = u;
+				uv[uv_index++] = v;
+			}
 		}
 
-		return uv;
-	}
+		let face_index = 0;
 
-	function compute_flat_geometry(subdivisions) {
-		throw new Error(`TODO implement flat sphere geometry`);
-	}
+		for (let i = 0; i < turns; i += 1) {
+			const offset = i * (bands + 1);
 
-	const smooth_geometry = [
-		new Geometry({
-			position: new Attribute({ data: position, size: 3 }),
-			normal: new Attribute({ data: position, size: 3 }),
-			uv: new Attribute({ data: calculate_uv(position), size: 2 })
-		}, { index })
-	];
+			// north pole face
+			index[face_index++] = offset + 0;
+			index[face_index++] = offset + 1;
+			index[face_index++] = offset + bands + 2;
 
-	function subdivide(geometry) {
-		const index = new Uint32Array(geometry.index.length * 4);
+			for (let j = 1; j < bands - 1; j += 1) {
+				index[face_index++] = offset + j;
+				index[face_index++] = offset + j + 1;
+				index[face_index++] = offset + j + bands + 1;
 
-		const old_position = geometry.attributes.position.data;
-		const new_positions = [];
-		const lookup = new Map();
-
-		function get_index(point) {
-			const hash = `${point[0].toPrecision(6)},${point[1].toPrecision(6)},${point[2].toPrecision(6)}`;
-
-			if (lookup.has(hash)) {
-				return lookup.get(hash);
+				index[face_index++] = offset + j + bands + 1;
+				index[face_index++] = offset + j + 1;
+				index[face_index++] = offset + j + bands + 2;
 			}
 
-			const index = new_positions.length;
-			lookup.set(hash, index);
-			new_positions[index] = point;
-			return index;
-		}
-
-		function mid(a, b) {
-			return get_index([
-				(a[0] + b[0]) / 2,
-				(a[1] + b[1]) / 2,
-				(a[2] + b[2]) / 2
-			]);
-		}
-
-		for (let i = 0; i < geometry.index.length; i += 3) {
-			const c0 = geometry.index[i + 0];
-			const c1 = geometry.index[i + 1];
-			const c2 = geometry.index[i + 2];
-
-			const v0 = [
-				old_position[c0 * 3 + 0],
-				old_position[c0 * 3 + 1],
-				old_position[c0 * 3 + 2]
-			];
-
-			const v1 = [
-				old_position[c1 * 3 + 0],
-				old_position[c1 * 3 + 1],
-				old_position[c1 * 3 + 2]
-			];
-
-			const v2 = [
-				old_position[c2 * 3 + 0],
-				old_position[c2 * 3 + 1],
-				old_position[c2 * 3 + 2]
-			];
-
-			const a = mid(v0, v1);
-			const b = mid(v1, v2);
-			const c = mid(v2, v0);
-
-			// four new faces
-			const j = i * 4;
-
-			index[j + 0] = get_index(v0);
-			index[j + 1] = a;
-			index[j + 2] = c;
-
-			index[j + 3] = get_index(v1);
-			index[j + 4] = b;
-			index[j + 5] = a;
-
-			index[j + 6] = get_index(v2);
-			index[j + 7] = c;
-			index[j + 8] = b;
-
-			index[j + 9] = a
-			index[j + 10] = b;
-			index[j + 11] = c;
-		}
-
-		const position = new Float32Array(new_positions.length * 3);
-		for (let i = 0; i < new_positions.length; i += 1) {
-			const vector = normalize(new_positions[i]);
-
-			position[i * 3 + 0] = vector[0];
-			position[i * 3 + 1] = vector[1];
-			position[i * 3 + 2] = vector[2];
+			index[face_index++] = offset + bands - 1;
+			index[face_index++] = offset + bands;
+			index[face_index++] = offset + bands * 2;
 		}
 
 		return new Geometry({
-			position: new Attribute({ data: position, size: 3 }),
-			normal: new Attribute({ data: position, size: 3 }),
-			uv: new Attribute({ data: calculate_uv(position), size: 2 })
-		}, { index })
+			position: new Attribute({
+				data: position,
+				size: 3
+			}),
+			normal: new Attribute({
+				data: position,
+				size: 3
+			}),
+			uv: new Attribute({
+				data: uv,
+				size: 2
+			})
+		}, {
+			index
+		})
 	}
 
-	function compute_smooth_geometry(subdivisions = 0) {
-		if (!smooth_geometry[subdivisions]) {
-			const geometry = compute_smooth_geometry(subdivisions - 1);
-			smooth_geometry[subdivisions] = subdivide(geometry);
-		}
-
-		return smooth_geometry[subdivisions];
+	function create_flat_geometry(turns, bands) {
+		throw new Error('TODO implement flat geometry');
 	}
-</script>
-
-<script>
-	import Mesh from '../scene/Mesh.svelte';
-
-	export let subdivisions = 1;
-	export let shading = 'smooth';
 
 	$: geometry = shading === 'smooth'
-		? compute_smooth_geometry(subdivisions)
-		: compute_flat_geometry(subdivisions);
-
-	$: console.log(geometry);
+		? create_smooth_geometry(turns, bands)
+		: create_flat_geometry(turns, bands);
 </script>
 
 <Mesh {...$$props} {geometry}/>
