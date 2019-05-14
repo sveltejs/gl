@@ -170,22 +170,26 @@
 					// set built-ins
 					gl.uniform3fv(program.uniform_locations.AMBIENT_LIGHT, ambient_light);
 
-					for (let i = 0; i < num_lights; i += 1) {
-						const light = lights.directional[i];
-						if (!light) break;
+					if (program.uniform_locations.DIRECTIONAL_LIGHTS) {
+						for (let i = 0; i < num_lights; i += 1) {
+							const light = lights.directional[i];
+							if (!light) break;
 
-						gl.uniform3fv(program.uniform_locations.DIRECTIONAL_LIGHTS[i].direction, light.direction);
-						gl.uniform3fv(program.uniform_locations.DIRECTIONAL_LIGHTS[i].color, light.color);
-						gl.uniform1f(program.uniform_locations.DIRECTIONAL_LIGHTS[i].intensity, light.intensity);
+							gl.uniform3fv(program.uniform_locations.DIRECTIONAL_LIGHTS[i].direction, light.direction);
+							gl.uniform3fv(program.uniform_locations.DIRECTIONAL_LIGHTS[i].color, light.color);
+							gl.uniform1f(program.uniform_locations.DIRECTIONAL_LIGHTS[i].intensity, light.intensity);
+						}
 					}
 
-					for (let i = 0; i < num_lights; i += 1) {
-						const light = lights.point[i];
-						if (!light) break;
+					if (program.uniform_locations.POINT_LIGHTS) {
+						for (let i = 0; i < num_lights; i += 1) {
+							const light = lights.point[i];
+							if (!light) break;
 
-						gl.uniform3fv(program.uniform_locations.POINT_LIGHTS[i].location, light.location);
-						gl.uniform3fv(program.uniform_locations.POINT_LIGHTS[i].color, light.color);
-						gl.uniform1f(program.uniform_locations.POINT_LIGHTS[i].intensity, light.intensity);
+							gl.uniform3fv(program.uniform_locations.POINT_LIGHTS[i].location, light.location);
+							gl.uniform3fv(program.uniform_locations.POINT_LIGHTS[i].color, light.color);
+							gl.uniform1f(program.uniform_locations.POINT_LIGHTS[i].intensity, light.intensity);
+						}
 					}
 
 					gl.uniform3fv(program.uniform_locations.CAMERA_WORLD_POSITION, camera.world_position);
