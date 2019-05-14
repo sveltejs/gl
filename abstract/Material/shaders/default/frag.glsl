@@ -1,6 +1,6 @@
 varying vec3 vnormal;
 
-#ifdef USES_TEXTURE
+#ifdef USES_TEXTURES
 varying vec2 vuv;
 #endif
 
@@ -33,11 +33,16 @@ void main () {
 		vec3 surface_to_view = normalize(vsurface_to_view[i]);
 		vec3 half_vector = normalize(surface_to_light + surface_to_view);
 		float specular = clamp(dot(normal, half_vector), 0.0, 1.0);
+
+		#ifdef USES_SPECULARITY_MAP
+		specular *= texture2D(SPECULARITY_MAP, vuv).r;
+		#endif
+
 		specularity += specular * light.color * light.intensity;
 	}
 
-	#ifdef USES_TEXTURE
-	vec4 color = texture2D(TEXTURE, vuv);
+	#ifdef USES_COLOR_MAP
+	vec4 color = texture2D(COLOR_MAP, vuv);
 	#else
 	vec4 color = vec4(COLOR, 1.0);
 	#endif

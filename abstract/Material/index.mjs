@@ -29,6 +29,7 @@ export default class Material {
 		this.color = opts.color;
 		this.alpha = opts.alpha;
 		this._map = opts.map;
+		this._specularityMap = opts.specularityMap;
 
 		this._textures = {};
 
@@ -49,10 +50,6 @@ export default class Material {
 
 	_compile(gl) {
 		this.gl = gl;
-
-		// TODO this feels a bit weird, maybe there's a
-		// better place for this work?
-		if (this._map) this._bind_texture('map', this._map);
 
 		return get_program(gl, this);
 	}
@@ -83,6 +80,16 @@ export default class Material {
 		this._bind_texture('map', img);
 	}
 
+	get specularityMap() {
+		return this._specularityMap;
+	}
+
+	set specularityMap(img) {
+		this._specularityMap = img;
+		this._update_hash();
+		this._bind_texture('specularityMap', img);
+	}
+
 	set_uniforms(gl, uniforms, locations) {
 		if (this.color) {
 			gl.uniform3fv(locations.COLOR, this.color);
@@ -95,7 +102,13 @@ export default class Material {
 		if (this._map) {
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, this._textures.map);
-			gl.uniform1i(locations.TEXTURE, 0);
+			gl.uniform1i(locations.COLOR_MAP, 0);
+		}
+
+		if (this._specularityMap) {
+			gl.activeTexture(gl.TEXTURE1);
+			gl.bindTexture(gl.TEXTURE_2D, this._textures.specularityMap);
+			gl.uniform1i(locations.SPECULARITY_MAP, 1);
 		}
 
 		// custom uniforms

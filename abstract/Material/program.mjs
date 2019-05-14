@@ -24,7 +24,9 @@ export function get_program(gl, material) {
 	if (!cache.has(material.hash)) {
 		const defines = [
 			`NUM_LIGHTS 2`, // TODO make this parameterisable
-			material.map && `USES_TEXTURE true`,
+			(material.map || material.specularityMap) && `USES_TEXTURES true`,
+			material.map && `USES_COLOR_MAP true`,
+			material.specularityMap && `USES_SPECULARITY_MAP true`,
 			material.alpha < 1 && `USES_ALPHA true`
 		].filter(Boolean).map(x => `#define ${x}`).join('\n') + '\n\n';
 

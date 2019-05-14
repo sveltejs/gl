@@ -1,6 +1,6 @@
 varying vec3 vnormal;
 
-#ifdef USES_TEXTURE
+#ifdef USES_TEXTURES
 varying vec2 vuv;
 #endif
 
@@ -12,7 +12,7 @@ void main() {
 
 	vnormal = (MODEL_INVERSE_TRANSPOSE * vec4(NORMAL, 0.0)).xyz;
 
-	#ifdef USES_TEXTURE
+	#ifdef USES_TEXTURES
 	vuv = UV;
 	#endif
 

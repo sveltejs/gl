@@ -2,8 +2,12 @@
 precision mediump float;
 
 // mesh uniforms
-#ifdef USES_TEXTURE
-uniform sampler2D TEXTURE;
+#ifdef USES_COLOR_MAP
+uniform sampler2D COLOR_MAP;
+#endif
+
+#ifdef USES_SPECULARITY_MAP
+uniform sampler2D SPECULARITY_MAP;
 #endif
 
 uniform vec3 COLOR;

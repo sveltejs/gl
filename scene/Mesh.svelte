@@ -13,28 +13,28 @@
 	export let scale = 1;
 	export let geometry;
 
-	export let material;
+	export let material = undefined;
 	export let color = [Math.random(), Math.random(), Math.random()];
 	export let map = undefined;
+	export let specularityMap = undefined;
 	export let alpha = 1;
 
 	// internal
-	let _map;
-	let _material;
+	let _material = material || new Material();
 
-	$: if (typeof map === 'string') {
+	// TODO why tf does this run multiple times?
+	// $: console.log('>>>!!material', !!material)
+
+	$: if (!material && color) _material.color = process_color(color);
+	$: if (!material && alpha) _material.alpha = alpha;
+	$: if (!material && map) load_texture('map', map);
+	$: if (!material && specularityMap) load_texture('specularityMap', specularityMap);
+
+	function load_texture(id, src) {
 		const img = new Image();
-		img.onload = () => {
-			_map = img;
-		}
-		img.src = map;
+		img.onload = () => _material[id] = img;
+		img.src = src;
 	}
-
-	$: _material = material || new Material({
-		color: process_color(color), // TODO process color in the material itself?
-		alpha,
-		map: _map
-	});
 
 	const scene = get_scene();
 	const layer = get_layer();
@@ -54,7 +54,7 @@
 
 	$: quaternion = quat.fromEuler(quaternion || quat.create(), ...rotation);
 	$: $matrix = mat4.fromRotationTranslationScale(out, quaternion, location, scale_array);
-	$: (geometry, material, $ctm, scene.invalidate());
+	$: (geometry, _material, $ctm, scene.invalidate());
 
 	const mesh = {};
 	$: mesh.model = $ctm; // TODO do we need to use a store here?
