@@ -117,8 +117,8 @@
 
 		extensions.forEach(name => {
 			const ext = gl.getExtension(name);
-			if (!gl.getExtension(ext)) {
-				throw new Error(`Unsupported extension: ${ext}`);
+			if (!ext) {
+				throw new Error(`Unsupported extension: ${name}`);
 			}
 		});
 
