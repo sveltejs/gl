@@ -1,5 +1,5 @@
-import vert from './shaders/default/vert.glsl.mjs';
-import frag from './shaders/default/frag.glsl.mjs';
+import vert from './shaders/default/vert.glsl';
+import frag from './shaders/default/frag.glsl';
 import { get_program } from './program.mjs';
 
 const methods = {

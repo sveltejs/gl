@@ -53,22 +53,18 @@ void main () {
 	}
 
 	// temp
-	#ifdef USES_BUMP_MAP
-		gl_FragColor = vec4(normal, 1.0);
+	#ifdef USES_COLOR_MAP
+	vec4 color = texture2D(COLOR_MAP, v_uv);
 	#else
-		#ifdef USES_COLOR_MAP
-		vec4 color = texture2D(COLOR_MAP, v_uv);
-		#else
-		vec4 color = vec4(COLOR, 1.0);
-		#endif
-
-		gl_FragColor = color;
-
-		#ifdef USES_ALPHA
-		gl_FragColor.a = ALPHA;
-		#endif
-
-		gl_FragColor.rgb *= mix(AMBIENT_LIGHT, vec3(1.0, 1.0, 1.0), lighting);
-		gl_FragColor.rgb += specularity;
+	vec4 color = vec4(COLOR, 1.0);
 	#endif
+
+	gl_FragColor = color;
+
+	#ifdef USES_ALPHA
+	gl_FragColor.a = ALPHA;
+	#endif
+
+	gl_FragColor.rgb *= mix(AMBIENT_LIGHT, vec3(1.0, 1.0, 1.0), lighting);
+	gl_FragColor.rgb += specularity;
 }

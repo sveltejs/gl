@@ -34,7 +34,9 @@
 
 	function load_texture(id, src) {
 		const img = new Image();
-		img.onload = () => _material[id] = img;
+		img.onload = () => {
+			_material[id] = img;
+		}
 		img.src = src;
 	}
 
