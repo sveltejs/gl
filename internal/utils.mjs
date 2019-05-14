@@ -14,7 +14,7 @@ export function process_color(color) {
 	return color;
 }
 
-export function normalize(vector) {
+export function normalize(out, vector = out) {
 	let total = 0;
 	for (let i = 0; i < vector.length; i += 1) {
 		total += vector[i] * vector[i];
@@ -22,5 +22,9 @@ export function normalize(vector) {
 
 	const mag = Math.sqrt(total);
 
-	return vector.map(v => v / mag);
+	out[0] = vector[0] / mag;
+	out[1] = vector[1] / mag;
+	out[2] = vector[2] / mag;
+
+	return out;
 }
