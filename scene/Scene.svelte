@@ -2,7 +2,6 @@
 	import { setContext, onMount, onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { RENDERER, LAYER, PARENT, CAMERA, create_layer } from '../internal/index.mjs';
-	import { get_or_create_program } from '../abstract/Material/program.mjs'; // TODO remove
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as vec3 from 'gl-matrix/vec3';
 
@@ -13,7 +12,6 @@
 	let h;
 
 	let gl;
-	let program; // for now, have a single master program
 	let draw;
 	let camera_stores = {
 		matrix: writable(),
@@ -85,14 +83,6 @@
 		add_point_light: add_to(lights.point),
 		add_ambient_light: add_to(lights.ambient),
 
-		create_program(material) {
-			return get_or_create_program(gl, material);
-		},
-
-		delete_program(program) {
-			//gl.deleteProgram(program.program);
-		},
-
 		invalidate,
 
 		camera_matrix: camera_stores.matrix,
@@ -138,8 +128,6 @@
 			// gl.blendFunc(gl[sfactor], gl[dfactor]);
 			// gl.blendFuncSeparate(gl.ZERO, gl.SRC_COLOR, gl.ZERO, gl.SRC_ALPHA);
 
-			gl.useProgram(program);
-
 			// for overlays
 			camera_stores.matrix.set(camera.matrix);
 			camera_stores.view.set(camera.view);
@@ -154,9 +142,9 @@
 				];
 			}, new Float32Array([0, 0, 0]));
 
-			let previous_program;
+			let previous_program_info;
 
-			function render_mesh({ model, model_inverse_transpose, geometry, material, program }) {
+			function render_mesh({ model, model_inverse_transpose, geometry, material, program_info }) {
 				// TODO...
 				// if (material.blend === 'multiply') {
 				// 	gl.blendFuncSeparate(gl[blend.srgb], gl[blend.drgb], gl[blend.salpha], gl[blend.dalpha]);
@@ -164,47 +152,47 @@
 					gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 				// }
 
-				if (program !== previous_program) {
-					gl.useProgram(program.program);
+				if (program_info !== previous_program_info) {
+					gl.useProgram(program_info.program);
 
 					// set built-ins
-					gl.uniform3fv(program.uniform_locations.AMBIENT_LIGHT, ambient_light);
+					gl.uniform3fv(program_info.uniform_locations.AMBIENT_LIGHT, ambient_light);
 
-					if (program.uniform_locations.DIRECTIONAL_LIGHTS) {
+					if (program_info.uniform_locations.DIRECTIONAL_LIGHTS) {
 						for (let i = 0; i < num_lights; i += 1) {
 							const light = lights.directional[i];
 							if (!light) break;
 
-							gl.uniform3fv(program.uniform_locations.DIRECTIONAL_LIGHTS[i].direction, light.direction);
-							gl.uniform3fv(program.uniform_locations.DIRECTIONAL_LIGHTS[i].color, light.color);
-							gl.uniform1f(program.uniform_locations.DIRECTIONAL_LIGHTS[i].intensity, light.intensity);
+							gl.uniform3fv(program_info.uniform_locations.DIRECTIONAL_LIGHTS[i].direction, light.direction);
+							gl.uniform3fv(program_info.uniform_locations.DIRECTIONAL_LIGHTS[i].color, light.color);
+							gl.uniform1f(program_info.uniform_locations.DIRECTIONAL_LIGHTS[i].intensity, light.intensity);
 						}
 					}
 
-					if (program.uniform_locations.POINT_LIGHTS) {
+					if (program_info.uniform_locations.POINT_LIGHTS) {
 						for (let i = 0; i < num_lights; i += 1) {
 							const light = lights.point[i];
 							if (!light) break;
 
-							gl.uniform3fv(program.uniform_locations.POINT_LIGHTS[i].location, light.location);
-							gl.uniform3fv(program.uniform_locations.POINT_LIGHTS[i].color, light.color);
-							gl.uniform1f(program.uniform_locations.POINT_LIGHTS[i].intensity, light.intensity);
+							gl.uniform3fv(program_info.uniform_locations.POINT_LIGHTS[i].location, light.location);
+							gl.uniform3fv(program_info.uniform_locations.POINT_LIGHTS[i].color, light.color);
+							gl.uniform1f(program_info.uniform_locations.POINT_LIGHTS[i].intensity, light.intensity);
 						}
 					}
 
-					gl.uniform3fv(program.uniform_locations.CAMERA_WORLD_POSITION, camera.world_position);
-					gl.uniformMatrix4fv(program.uniform_locations.VIEW, false, camera.view);
-					gl.uniformMatrix4fv(program.uniform_locations.PROJECTION, false, camera.projection);
+					gl.uniform3fv(program_info.uniform_locations.CAMERA_WORLD_POSITION, camera.world_position);
+					gl.uniformMatrix4fv(program_info.uniform_locations.VIEW, false, camera.view);
+					gl.uniformMatrix4fv(program_info.uniform_locations.PROJECTION, false, camera.projection);
 
-					previous_program = program;
+					previous_program_info = program_info;
 				}
 
 				// set mesh-specific built-in uniforms
-				gl.uniformMatrix4fv(program.uniform_locations.MODEL, false, model);
-				gl.uniformMatrix4fv(program.uniform_locations.MODEL_INVERSE_TRANSPOSE, false, model_inverse_transpose);
+				gl.uniformMatrix4fv(program_info.uniform_locations.MODEL, false, model);
+				gl.uniformMatrix4fv(program_info.uniform_locations.MODEL_INVERSE_TRANSPOSE, false, model_inverse_transpose);
 
 				// set material-specific built-in uniforms
-				material.set_uniforms(gl, program.uniforms, program.uniform_locations);
+				material.set_uniforms(gl, program_info.uniforms, program_info.uniform_locations);
 
 				// set attributes
 				geometry.set_attributes(gl);

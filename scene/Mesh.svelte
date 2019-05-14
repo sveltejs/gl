@@ -4,6 +4,7 @@
 	import { get_scene, get_layer, get_parent } from '../internal/index.mjs';
 	import { process_color } from '../internal/utils.mjs';
 	import Material from '../abstract/Material/index.mjs';
+	import { remove_program } from '../abstract/Material/program.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as quat from 'gl-matrix/quat';
 
@@ -65,25 +66,23 @@
 	$: mesh.material = _material;
 
 
-	let previous_program;
+	let previous_program_info;
 	function update_program(material) {
-		const program = scene.create_program(material);
+		const info = material._compile(scene.gl);
 
-		if (program !== previous_program) {
-			mesh.program = scene.create_program(material);
-			geometry.init(scene.gl, mesh.program.program);
+		if (info !== previous_program_info) {
+			mesh.program_info = info;
+			geometry.init(scene.gl, info.program); // TODO do we need to tear down anything?
 
-			if (previous_program) scene.delete_program(previous_program);
-			previous_program = mesh.program;
+			if (previous_program_info) remove_program(previous_program_info);
+			previous_program_info = mesh.program_info;
 		}
-
-		material._link(scene.gl);
 	}
 
 	$: update_program(_material);
 
 	onDestroy(() => {
-		scene.delete_program(mesh.program);
+		remove_program(mesh.program_info);
 	});
 
 	layer.add_mesh(mesh);

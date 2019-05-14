@@ -1,5 +1,6 @@
 import vert from './shaders/default/vert.glsl.mjs';
 import frag from './shaders/default/frag.glsl.mjs';
+import { get_program } from './program.mjs';
 
 const methods = {
 	[5126]: 'uniform1f',
@@ -46,12 +47,14 @@ export default class Material {
 		]) + this.vert + this.frag;
 	}
 
-	_link(gl) {
+	_compile(gl) {
 		this.gl = gl;
 
 		// TODO this feels a bit weird, maybe there's a
 		// better place for this work?
 		if (this._map) this._bind_texture('map', this._map);
+
+		return get_program(gl, this);
 	}
 
 	_bind_texture(id, img) {

@@ -17,8 +17,7 @@ function deep_set(obj, path, value) {
 	obj[parts[0]] = value;
 }
 
-// TODO this logic belong with Material?
-export function get_or_create_program(gl, material) {
+export function get_program(gl, material) {
 	if (!caches.get(gl)) caches.set(gl, new Map());
 	const cache = caches.get(gl);
 
@@ -47,6 +46,9 @@ export function get_or_create_program(gl, material) {
 		});
 
 		cache.set(material.hash, {
+			users: 0,
+			hash: material.hash,
+			gl,
 			program,
 			uniforms,
 			attributes,
@@ -55,7 +57,19 @@ export function get_or_create_program(gl, material) {
 		});
 	}
 
-	return cache.get(material.hash);
+	const info = cache.get(material.hash);
+	info.users += 1;
+
+	return info;
+}
+
+export function remove_program(info) {
+	const cache = caches.get(info.gl);
+
+	if (--info.users === 0) {
+		info.gl.deleteProgram(info.program);
+		cache.delete(info.hash);
+	}
 }
 
 function pad(num, len = 4) {
