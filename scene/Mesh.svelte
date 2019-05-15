@@ -18,6 +18,7 @@
 	export let map = undefined;
 	export let specMap = undefined;
 	export let bumpMap = undefined;
+	export let normalMap = undefined;
 	export let alpha = 1;
 
 	// internal
@@ -31,11 +32,15 @@
 	$: if (!material && map) load_texture('map', map);
 	$: if (!material && specMap) load_texture('specMap', specMap);
 	$: if (!material && bumpMap) load_texture('bumpMap', bumpMap);
+	$: if (!material && normalMap) load_texture('normalMap', normalMap);
 
+	// TODO put this logic inside the material class?
 	function load_texture(id, src) {
 		const img = new Image();
 		img.onload = () => {
-			_material[id] = img;
+			_material.set_image(id, img);
+			update_program(_material);
+			scene.invalidate();
 		}
 		img.src = src;
 	}
@@ -67,10 +72,13 @@
 		mat4.transpose(out2, out2)
 	);
 	$: mesh.geometry = geometry;
-	$: mesh.material = _material;
+
+	// TODO take this back out of update_program, pending https://github.com/sveltejs/svelte/issues/2768
+	// $: mesh.material = _material;
 
 	let previous_program_info;
 	function update_program(material) {
+		mesh.material = _material;
 		const info = material._compile(scene.gl);
 
 		if (info !== previous_program_info) {

@@ -55,6 +55,10 @@ vec3 perturbNormalArb(vec3 surf_pos, vec3 surf_norm, vec2 dHdxy) {
 }
 #endif
 
+#ifdef USES_NORMAL_MAP
+uniform sampler2D NORMAL_MAP;
+#endif
+
 uniform vec3 COLOR;
 
 #ifdef USES_ALPHA

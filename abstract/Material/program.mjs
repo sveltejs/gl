@@ -24,12 +24,15 @@ export function get_program(gl, material) {
 	if (!cache.has(material.hash)) {
 		const defines = [
 			`NUM_LIGHTS 2`, // TODO make this parameterisable
-			(material._map || material._specMap || material._bumpMap) && `USES_TEXTURES true`,
-			material._map && `USES_COLOR_MAP true`,
-			material._specMap && `USES_SPEC_MAP true`,
-			material._bumpMap && `USES_BUMP_MAP true`,
+			(material._textures.map || material._textures.specMap || material._textures.bumpMap || material._textures.normalMap) && `USES_TEXTURES true`,
+			material._textures.map && `USES_COLOR_MAP true`,
+			material._textures.specMap && `USES_SPEC_MAP true`,
+			material._textures.bumpMap && `USES_BUMP_MAP true`,
+			material._textures.normalMap && `USES_NORMAL_MAP true`,
 			material.alpha < 1 && `USES_ALPHA true`
 		].filter(Boolean).map(x => `#define ${x}`).join('\n') + '\n\n';
+
+		console.log(defines);
 
 		const vert = defines + vert_builtin + '\n\n' + material.vert;
 		const frag = defines + frag_builtin + '\n\n' + material.frag;

@@ -39,55 +39,7 @@ export default class Material {
 		this._update_hash();
 	}
 
-	get map() {
-		return this._map;
-	}
-
-	set map(img) {
-		this._map = img;
-		this._update_hash();
-		this._bind_texture('map', img);
-	}
-
-	get specMap() {
-		return this._specMap;
-	}
-
-	set specMap(img) {
-		this._specMap = img;
-		this._update_hash();
-		this._bind_texture('specMap', img);
-	}
-
-	get bumpMap() {
-		return this._specMap;
-	}
-
-	set bumpMap(img) {
-		this._bumpMap = img;
-		this._update_hash();
-		this._bind_texture('bumpMap', img);
-	}
-
-	_update_hash() {
-		// TODO make this real — https://github.com/mrdoob/three.js/blob/f186b20983e07564d62fb0c067726931c28d92f6/src/renderers/webgl/WebGLPrograms.js#L218
-		// this.hash = Math.random().toString(36).slice(2);
-
-		this.hash = bitmask([
-			this.alpha < 1,
-			!!this._map,
-			!!this._specMap,
-			!!this._bumpMap
-		]) + this.vert + this.frag;
-	}
-
-	_compile(gl) {
-		this.gl = gl;
-
-		return get_program(gl, this);
-	}
-
-	_bind_texture(id, img) {
+	set_image(id, img) {
 		const { gl } = this;
 
 		const texture = gl.createTexture();
@@ -101,6 +53,27 @@ export default class Material {
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
 		this._textures[id] = texture;
+
+		this._update_hash();
+	}
+
+	_update_hash() {
+		// TODO make this real — https://github.com/mrdoob/three.js/blob/f186b20983e07564d62fb0c067726931c28d92f6/src/renderers/webgl/WebGLPrograms.js#L218
+		// this.hash = Math.random().toString(36).slice(2);
+
+		this.hash = bitmask([
+			this.alpha < 1,
+			!!this._textures.map,
+			!!this._textures.specMap,
+			!!this._textures.bumpMap,
+			!!this._textures.normalMap
+		]) + this.vert + this.frag;
+	}
+
+	_compile(gl) {
+		this.gl = gl;
+
+		return get_program(gl, this);
 	}
 
 	_set_uniforms(gl, uniforms, locations) {
@@ -112,16 +85,28 @@ export default class Material {
 			gl.uniform1f(locations.ALPHA, this.alpha);
 		}
 
-		if (this._map) {
+		if (this._textures.map) {
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, this._textures.map);
 			gl.uniform1i(locations.COLOR_MAP, 0);
 		}
 
-		if (this._specMap) {
+		if (this._textures.specMap) {
 			gl.activeTexture(gl.TEXTURE1);
 			gl.bindTexture(gl.TEXTURE_2D, this._textures.specMap);
 			gl.uniform1i(locations.SPEC_MAP, 1);
+		}
+
+		if (this._textures.bumpMap) {
+			gl.activeTexture(gl.TEXTURE2);
+			gl.bindTexture(gl.TEXTURE_2D, this._textures.bumpMap);
+			gl.uniform1i(locations.BUMP_MAP, 2);
+		}
+
+		if (this._textures.normalMap) {
+			gl.activeTexture(gl.TEXTURE3);
+			gl.bindTexture(gl.TEXTURE_2D, this._textures.normalMap);
+			gl.uniform1i(locations.NORMAL_MAP, 3);
 		}
 
 		// custom uniforms
