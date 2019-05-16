@@ -134,9 +134,6 @@
 			gl.enable(gl.DEPTH_TEST);
 
 			gl.enable(gl.BLEND);
-			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			// gl.blendFunc(gl[sfactor], gl[dfactor]);
-			// gl.blendFuncSeparate(gl.ZERO, gl.SRC_COLOR, gl.ZERO, gl.SRC_ALPHA);
 
 			// for overlays
 			camera_stores.matrix.set(camera.matrix);
@@ -156,11 +153,12 @@
 
 			function render_mesh({ model, model_inverse_transpose, geometry, material, program_info }) {
 				// TODO...
-				// if (material.blend === 'multiply') {
-				// 	gl.blendFuncSeparate(gl[blend.srgb], gl[blend.drgb], gl[blend.salpha], gl[blend.dalpha]);
-				// } else {
+				if (material.blend === 'multiply') {
+					// gl.blendFuncSeparate(gl[blend.srgb], gl[blend.drgb], gl[blend.salpha], gl[blend.dalpha]);
+					gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+				} else {
 					gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-				// }
+				}
 
 				if (program_info !== previous_program_info) {
 					gl.useProgram(program_info.program);
@@ -271,6 +269,7 @@
 		width: 100%;
 		height: 100%;
 		display: block;
+		overflow: hidden;
 	}
 </style>
 

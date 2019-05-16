@@ -63,7 +63,7 @@
 
 	$: quaternion = quat.fromEuler(quaternion || quat.create(), ...rotation);
 	$: $matrix = mat4.fromRotationTranslationScale(out, quaternion, location, scale_array);
-	$: (geometry, _material, $ctm, scene.invalidate());
+	$: (geometry, material, _material, $ctm, scene.invalidate());
 
 	const mesh = {};
 	$: mesh.model = $ctm; // TODO do we need to use a store here?
