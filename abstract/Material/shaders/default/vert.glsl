@@ -4,12 +4,11 @@ varying vec3 v_normal;
 varying vec2 v_uv;
 #endif
 
-#ifdef USES_BUMP_MAP
-varying vec3 v_view_position;
-#endif
-
 varying vec3 v_surface_to_light[NUM_LIGHTS];
+
+#ifdef USES_SPECULARITY
 varying vec3 v_surface_to_view[NUM_LIGHTS];
+#endif
 
 void main() {
 	vec4 pos = vec4(POSITION, 1.0);
@@ -21,17 +20,15 @@ void main() {
 	v_uv = UV;
 	#endif
 
-	// TODO
-	#ifdef USES_BUMPMAP
-		v_view_position = -model_view_pos.xyz;
-	#endif
-
 	for (int i = 0; i < NUM_LIGHTS; i += 1) {
 		PointLight light = POINT_LIGHTS[i];
 
 		vec3 surface_world_position = (MODEL * pos).xyz;
 		v_surface_to_light[i] = light.location - surface_world_position;
-		v_surface_to_view[i] = CAMERA_WORLD_POSITION - surface_world_position;
+
+		#ifdef USES_SPECULARITY
+			v_surface_to_view[i] = CAMERA_WORLD_POSITION - surface_world_position;
+		#endif
 	}
 
 	gl_Position = PROJECTION * model_view_pos;

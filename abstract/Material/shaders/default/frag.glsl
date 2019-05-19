@@ -1,9 +1,5 @@
 varying vec3 v_normal;
 
-#ifdef USES_BUMP_MAP
-varying vec3 v_view_position;
-#endif
-
 // TODO had to move this to the top of builtins...
 // need a better approach
 // #ifdef USES_TEXTURES
@@ -19,11 +15,6 @@ void main () {
 	#ifdef USES_NORMAL_MAP
 		// TODO transform from tangent to object space
 		normal = normalize(texture2D(NORMAL_MAP, v_uv).xyz);
-	#else
-		#ifdef USES_BUMP_MAP
-		// TODO this returns 0.0,0.0,0.0. Why?
-		normal = perturbNormalArb(-v_view_position, normal, dHdxy_fwd());
-		#endif
 	#endif
 
 	vec3 lighting = vec3(0.0);
@@ -46,43 +37,31 @@ void main () {
 		float multiplier = clamp(dot(normal, surface_to_light), 0.0, 1.0); // TODO is clamp necessary?
 		lighting += multiplier * light.color * light.intensity;
 
-		vec3 surface_to_view = normalize(v_surface_to_view[i]);
-		vec3 half_vector = normalize(surface_to_light + surface_to_view);
-		float spec = clamp(dot(normal, half_vector), 0.0, 1.0);
+		#ifdef USES_SPECULARITY
+			vec3 surface_to_view = normalize(v_surface_to_view[i]);
+			vec3 half_vector = normalize(surface_to_light + surface_to_view);
+			float spec = clamp(dot(normal, half_vector), 0.0, 1.0);
 
-		#ifdef USES_SPEC_MAP
-		spec *= texture2D(SPEC_MAP, v_uv).r;
+			#ifdef USES_SPEC_MAP
+			spec *= texture2D(SPEC_MAP, v_uv).r;
+			#endif
+
+			specularity += spec * light.color * light.intensity;
 		#endif
-
-		specularity += spec * light.color * light.intensity;
 	}
 
-	// #ifdef USES_BUMP_MAP
-	// 	// gl_FragColor = vec4(normal, 1.0);
-	// 	vec3 tmp = normalize(v_view_position);
-	// 	gl_FragColor = vec4(
-	// 		abs(tmp.x),
-	// 		abs(tmp.y),
-	// 		abs(tmp.z),
-	// 		// 1.0,
-	// 		// 0.0,
-	// 		// 0.0,
-	// 		1.0
-	// 	);
-	// #else
-		#ifdef USES_COLOR_MAP
-		vec4 color = texture2D(COLOR_MAP, v_uv);
-		#else
-		vec4 color = vec4(COLOR, 1.0);
-		#endif
+	#ifdef USES_COLOR_MAP
+	vec4 color = texture2D(COLOR_MAP, v_uv);
+	#else
+	vec4 color = vec4(COLOR, 1.0);
+	#endif
 
-		gl_FragColor = color;
+	gl_FragColor = color;
 
-		#ifdef USES_ALPHA
-		gl_FragColor.a = ALPHA;
-		#endif
+	#ifdef USES_ALPHA
+	gl_FragColor.a = ALPHA;
+	#endif
 
-		gl_FragColor.rgb *= mix(AMBIENT_LIGHT, vec3(1.0, 1.0, 1.0), lighting);
-		gl_FragColor.rgb += specularity;
-	// #endif
+	gl_FragColor.rgb *= mix(AMBIENT_LIGHT, vec3(1.0, 1.0, 1.0), lighting);
+	gl_FragColor.rgb += specularity;
 }

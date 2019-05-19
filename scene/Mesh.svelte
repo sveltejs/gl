@@ -17,7 +17,6 @@
 	export let color = [Math.random(), Math.random(), Math.random()];
 	export let map = undefined;
 	export let specMap = undefined;
-	export let bumpMap = undefined;
 	export let normalMap = undefined;
 	export let alpha = 1;
 
@@ -31,7 +30,6 @@
 	$: if (!material && alpha) _material.alpha = alpha;
 	$: if (!material && map) load_texture('map', map);
 	$: if (!material && specMap) load_texture('specMap', specMap);
-	$: if (!material && bumpMap) load_texture('bumpMap', bumpMap);
 	$: if (!material && normalMap) load_texture('normalMap', normalMap);
 
 	// TODO put this logic inside the material class?

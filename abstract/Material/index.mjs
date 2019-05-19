@@ -28,9 +28,7 @@ export default class Material {
 
 		this.color = opts.color;
 		this.alpha = opts.alpha;
-		this._map = opts.map;
-		this._specMap = opts.specMap;
-		this._bumpMap = opts.bumpMap;
+		this.specularity = opts.specularity;
 
 		this._textures = {};
 
@@ -62,10 +60,10 @@ export default class Material {
 		// this.hash = Math.random().toString(36).slice(2);
 
 		this.hash = bitmask([
-			this.alpha < 1,
+			this.alpha !== undefined,
+			this.specularity !== undefined,
 			!!this._textures.map,
 			!!this._textures.specMap,
-			!!this._textures.bumpMap,
 			!!this._textures.normalMap
 		]) + this.vert + this.frag;
 	}
@@ -81,9 +79,8 @@ export default class Material {
 			gl.uniform3fv(locations.COLOR, this.color);
 		}
 
-		if (this.alpha < 1) {
-			gl.uniform1f(locations.ALPHA, this.alpha);
-		}
+		gl.uniform1f(locations.ALPHA, this.alpha === undefined ? 1 : this.alpha);
+		gl.uniform1f(locations.SPECULARITY, this.specularity === undefined ? 1 : this.specularity);
 
 		if (this._textures.map) {
 			gl.activeTexture(gl.TEXTURE0);
@@ -95,12 +92,6 @@ export default class Material {
 			gl.activeTexture(gl.TEXTURE1);
 			gl.bindTexture(gl.TEXTURE_2D, this._textures.specMap);
 			gl.uniform1i(locations.SPEC_MAP, 1);
-		}
-
-		if (this._textures.bumpMap) {
-			gl.activeTexture(gl.TEXTURE2);
-			gl.bindTexture(gl.TEXTURE_2D, this._textures.bumpMap);
-			gl.uniform1i(locations.BUMP_MAP, 2);
 		}
 
 		if (this._textures.normalMap) {
