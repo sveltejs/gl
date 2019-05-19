@@ -12,7 +12,7 @@
 
 	function create_smooth_geometry(turns, bands) {
 		const num_vertices = (turns + 1) * (bands + 1);
-		const num_faces_per_turn = 2 * bands - 1;
+		const num_faces_per_turn = 2 * (bands - 1);
 		const num_faces = num_faces_per_turn * turns;
 
 		const position = new Float32Array(num_vertices * 3); // doubles as normal
@@ -84,7 +84,7 @@
 			})
 		}, {
 			index
-		})
+		});
 	}
 
 	function create_flat_geometry(turns, bands) {

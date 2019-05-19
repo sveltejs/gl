@@ -30,7 +30,7 @@ export default class Geometry {
 	_init(gl, program, material) {
 		this.program = program;
 
-		if (material._normalMap) {
+		if (material._textures.normalMap) {
 			this._compute_tangents();
 		}
 
@@ -65,7 +65,7 @@ export default class Geometry {
 			throw new Error(`Could not compute tangents — must have position, normal and uv attributes, plus an index`);
 		}
 
-		var num_vertices = position.data.length / 3;
+		const num_vertices = position.data.length / 3;
 
 		const tangent = this.attributes.tangent = new Attribute({
 			data: new Float32Array(4 * num_vertices),
@@ -137,8 +137,6 @@ export default class Geometry {
 		for (let i = 0; i < index.length; i += 3) {
 			handle_triangle(index[i + 0], index[i + 1], index[i + 2]);
 		}
-
-		console.log(tan1, tan2);
 
 		const tmp = vec3.create();
 		const tmp2 = vec3.create();
