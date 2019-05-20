@@ -1,5 +1,10 @@
 # @sveltejs/gl changelog
 
+## 0.0.4
+
+* Bump mapping
+* New `Sphere` implementation
+
 ## 0.0.3
 
 * Don't reinitialise element buffers unnecessarily
