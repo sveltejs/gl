@@ -4,7 +4,7 @@ varying vec3 v_normal;
 varying vec2 v_uv;
 #endif
 
-#ifdef USES_NORMAL_MAP
+#if defined(USES_NORMAL_MAP) || defined(USES_BUMP_MAP)
 varying vec3 v_view_position;
 #endif
 
@@ -24,7 +24,7 @@ void main() {
 	v_uv = UV;
 	#endif
 
-	#ifdef USES_NORMAL_MAP
+	#if defined(USES_NORMAL_MAP) || defined(USES_BUMP_MAP)
 	v_view_position = model_view_pos.xyz;
 	#endif
 

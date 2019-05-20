@@ -6,7 +6,7 @@ varying vec3 v_normal;
 // varying vec2 v_uv;
 // #endif
 
-#ifdef USES_NORMAL_MAP
+#if defined(USES_NORMAL_MAP) || defined(USES_BUMP_MAP)
 varying vec3 v_view_position;
 #endif
 
@@ -16,7 +16,9 @@ varying vec3 v_surface_to_view[NUM_LIGHTS];
 void main () {
 	vec3 normal = normalize(v_normal);
 
-	#ifdef USES_NORMAL_MAP
+	#ifdef USES_BUMP_MAP
+		normal = perturbNormalArb(-v_view_position, normal, dHdxy_fwd());
+	#elif defined(USES_NORMAL_MAP)
 		normal = perturbNormal2Arb(-v_view_position, normal);
 	#endif
 

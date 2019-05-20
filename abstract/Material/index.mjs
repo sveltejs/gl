@@ -56,14 +56,13 @@ export default class Material {
 	}
 
 	_update_hash() {
-		// TODO make this real — https://github.com/mrdoob/three.js/blob/f186b20983e07564d62fb0c067726931c28d92f6/src/renderers/webgl/WebGLPrograms.js#L218
-		// this.hash = Math.random().toString(36).slice(2);
-
+		// TODO can we combine this logic with defines?
 		this.hash = bitmask([
 			this.alpha !== undefined,
 			this.specularity !== undefined,
 			!!this._textures.map,
 			!!this._textures.specMap,
+			!!this._textures.bumpMap,
 			!!this._textures.normalMap
 		]) + this.vert + this.frag;
 	}
@@ -92,6 +91,14 @@ export default class Material {
 			gl.activeTexture(gl.TEXTURE1);
 			gl.bindTexture(gl.TEXTURE_2D, this._textures.specMap);
 			gl.uniform1i(locations.SPEC_MAP, 1);
+		}
+
+		if (this._textures.bumpMap) {
+			gl.uniform1f(locations.BUMP_SCALE, this.bumpScale === undefined ? 1 : this.bumpScale);
+
+			gl.activeTexture(gl.TEXTURE2);
+			gl.bindTexture(gl.TEXTURE_2D, this._textures.bumpMap);
+			gl.uniform1i(locations.BUMP_MAP, 2);
 		}
 
 		if (this._textures.normalMap) {

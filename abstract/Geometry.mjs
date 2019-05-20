@@ -2,7 +2,7 @@ import Attribute from './Attribute.mjs';
 import * as vec2 from 'gl-matrix/vec2';
 import * as vec3 from 'gl-matrix/vec3';
 
-const builtins = new Set(['position', 'normal', 'uv', 'tangent']);
+const builtins = new Set(['position', 'normal', 'uv']);
 
 function copy3(to, from, offset = 0) {
 	to[0] = from[offset + 0];
