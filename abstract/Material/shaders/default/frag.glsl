@@ -7,7 +7,7 @@ varying vec3 v_normal;
 // #endif
 
 #ifdef USES_NORMAL_MAP
-vec3 v_view_position;
+varying vec3 v_view_position;
 #endif
 
 varying vec3 v_surface_to_light[NUM_LIGHTS];
@@ -21,6 +21,9 @@ void main () {
 		// normal = normalize(texture2D(NORMAL_MAP, v_uv).xyz);
 
 		normal = perturbNormal2Arb(-v_view_position, normal);
+
+		// gl_FragColor = vec4(normal, 1.0);
+		// return;
 	#endif
 
 	vec3 lighting = vec3(0.0);

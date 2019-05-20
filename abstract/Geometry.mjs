@@ -54,6 +54,8 @@ export default class Geometry {
 		}
 	}
 
+	// TODO apparently this is unnecessary, we should just
+	// use derivative functions?
 	_compute_tangents() {
 		// adapted from https://github.com/mrdoob/three.js/blob/master/examples/js/utils/BufferGeometryUtils.js
 		// https://raw.githubusercontent.com/mrdoob/three.js/dev/LICENSE
