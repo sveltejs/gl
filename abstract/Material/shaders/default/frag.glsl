@@ -17,13 +17,7 @@ void main () {
 	vec3 normal = normalize(v_normal);
 
 	#ifdef USES_NORMAL_MAP
-		// TODO transform from tangent to object space
-		// normal = normalize(texture2D(NORMAL_MAP, v_uv).xyz);
-
 		normal = perturbNormal2Arb(-v_view_position, normal);
-
-		// gl_FragColor = vec4(normal, 1.0);
-		// return;
 	#endif
 
 	vec3 lighting = vec3(0.0);
