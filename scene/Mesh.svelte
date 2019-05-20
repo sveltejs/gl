@@ -16,7 +16,10 @@
 	export let material = undefined;
 	export let color = [Math.random(), Math.random(), Math.random()];
 	export let map = undefined;
-	export let specularityMap = undefined;
+	export let specMap = undefined;
+	export let bumpMap = undefined;
+	export let bumpScale = undefined;
+	export let normalMap = undefined;
 	export let alpha = 1;
 
 	// internal
@@ -27,12 +30,20 @@
 
 	$: if (!material && color) _material.color = process_color(color);
 	$: if (!material && alpha) _material.alpha = alpha;
+	$: if (!material && bumpScale !== undefined) _material.bumpScale = bumpScale;
 	$: if (!material && map) load_texture('map', map);
-	$: if (!material && specularityMap) load_texture('specularityMap', specularityMap);
+	$: if (!material && specMap) load_texture('specMap', specMap);
+	$: if (!material && bumpMap) load_texture('bumpMap', bumpMap);
+	$: if (!material && normalMap) load_texture('normalMap', normalMap);
 
+	// TODO put this logic inside the material class?
 	function load_texture(id, src) {
 		const img = new Image();
-		img.onload = () => _material[id] = img;
+		img.onload = () => {
+			_material.set_image(id, img);
+			update_program(_material);
+			scene.invalidate();
+		}
 		img.src = src;
 	}
 
@@ -54,7 +65,7 @@
 
 	$: quaternion = quat.fromEuler(quaternion || quat.create(), ...rotation);
 	$: $matrix = mat4.fromRotationTranslationScale(out, quaternion, location, scale_array);
-	$: (geometry, _material, $ctm, scene.invalidate());
+	$: (geometry, material, _material, $ctm, scene.invalidate());
 
 	const mesh = {};
 	$: mesh.model = $ctm; // TODO do we need to use a store here?
@@ -63,16 +74,18 @@
 		mat4.transpose(out2, out2)
 	);
 	$: mesh.geometry = geometry;
-	$: mesh.material = _material;
 
+	// TODO take this back out of update_program, pending https://github.com/sveltejs/svelte/issues/2768
+	// $: mesh.material = _material;
 
 	let previous_program_info;
 	function update_program(material) {
+		mesh.material = _material;
 		const info = material._compile(scene.gl);
 
 		if (info !== previous_program_info) {
 			mesh.program_info = info;
-			geometry.init(scene.gl, info.program); // TODO do we need to tear down anything?
+			geometry._init(scene.gl, info.program, material); // TODO do we need to tear down anything?
 
 			if (previous_program_info) remove_program(previous_program_info);
 			previous_program_info = mesh.program_info;

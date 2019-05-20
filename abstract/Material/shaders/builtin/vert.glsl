@@ -15,6 +15,10 @@ attribute vec3 NORMAL;
 attribute vec2 UV;
 #endif
 
+#ifdef USES_NORMAL_MAP
+attribute vec4 TANGENT;
+#endif
+
 struct PointLight {
 	vec3 location;
 	vec3 color;

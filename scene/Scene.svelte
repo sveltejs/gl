@@ -110,7 +110,17 @@
 		scene.canvas = canvas;
 		gl = scene.gl = canvas.getContext('webgl');
 
-		const ext = gl.getExtension('OES_element_index_uint');
+		const extensions = [
+			'OES_element_index_uint',
+			'OES_standard_derivatives'
+		];
+
+		extensions.forEach(name => {
+			const ext = gl.getExtension(name);
+			if (!ext) {
+				throw new Error(`Unsupported extension: ${name}`);
+			}
+		});
 
 		draw = () => {
 			if (!camera) return; // TODO make this `!ready` or something instead
@@ -124,9 +134,6 @@
 			gl.enable(gl.DEPTH_TEST);
 
 			gl.enable(gl.BLEND);
-			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-			// gl.blendFunc(gl[sfactor], gl[dfactor]);
-			// gl.blendFuncSeparate(gl.ZERO, gl.SRC_COLOR, gl.ZERO, gl.SRC_ALPHA);
 
 			// for overlays
 			camera_stores.matrix.set(camera.matrix);
@@ -146,11 +153,12 @@
 
 			function render_mesh({ model, model_inverse_transpose, geometry, material, program_info }) {
 				// TODO...
-				// if (material.blend === 'multiply') {
-				// 	gl.blendFuncSeparate(gl[blend.srgb], gl[blend.drgb], gl[blend.salpha], gl[blend.dalpha]);
-				// } else {
+				if (material.blend === 'multiply') {
+					// gl.blendFuncSeparate(gl[blend.srgb], gl[blend.drgb], gl[blend.salpha], gl[blend.dalpha]);
+					gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+				} else {
 					gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-				// }
+				}
 
 				if (program_info !== previous_program_info) {
 					gl.useProgram(program_info.program);
@@ -192,10 +200,10 @@
 				gl.uniformMatrix4fv(program_info.uniform_locations.MODEL_INVERSE_TRANSPOSE, false, model_inverse_transpose);
 
 				// set material-specific built-in uniforms
-				material.set_uniforms(gl, program_info.uniforms, program_info.uniform_locations);
+				material._set_uniforms(gl, program_info.uniforms, program_info.uniform_locations);
 
 				// set attributes
-				geometry.set_attributes(gl);
+				geometry._set_attributes(gl);
 
 				// draw
 				if (geometry.index) {
@@ -204,7 +212,7 @@
 				} else {
 					const primitiveType = gl.TRIANGLES;
 					const offset = 0;
-					const position = geometry.get_attribute('position');
+					const { position } = geometry.attributes;
 					const count = position.count;
 					gl.drawArrays(primitiveType, offset, count);
 				}
@@ -261,6 +269,7 @@
 		width: 100%;
 		height: 100%;
 		display: block;
+		overflow: hidden;
 	}
 </style>
 

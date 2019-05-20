@@ -1,28 +1,43 @@
-varying vec3 vnormal;
+varying vec3 v_normal;
 
 #ifdef USES_TEXTURES
-varying vec2 vuv;
+varying vec2 v_uv;
 #endif
 
-varying vec3 vsurface_to_light[NUM_LIGHTS];
-varying vec3 vsurface_to_view[NUM_LIGHTS];
+#if defined(USES_NORMAL_MAP) || defined(USES_BUMP_MAP)
+varying vec3 v_view_position;
+#endif
+
+varying vec3 v_surface_to_light[NUM_LIGHTS];
+
+#ifdef USES_SPECULARITY
+varying vec3 v_surface_to_view[NUM_LIGHTS];
+#endif
 
 void main() {
 	vec4 pos = vec4(POSITION, 1.0);
+	vec4 model_view_pos = VIEW * MODEL * pos;
 
-	vnormal = (MODEL_INVERSE_TRANSPOSE * vec4(NORMAL, 0.0)).xyz;
+	v_normal = (MODEL_INVERSE_TRANSPOSE * vec4(NORMAL, 0.0)).xyz;
 
 	#ifdef USES_TEXTURES
-	vuv = UV;
+	v_uv = UV;
+	#endif
+
+	#if defined(USES_NORMAL_MAP) || defined(USES_BUMP_MAP)
+	v_view_position = model_view_pos.xyz;
 	#endif
 
 	for (int i = 0; i < NUM_LIGHTS; i += 1) {
 		PointLight light = POINT_LIGHTS[i];
 
 		vec3 surface_world_position = (MODEL * pos).xyz;
-		vsurface_to_light[i] = light.location - surface_world_position;
-		vsurface_to_view[i] = CAMERA_WORLD_POSITION - surface_world_position;
+		v_surface_to_light[i] = light.location - surface_world_position;
+
+		#ifdef USES_SPECULARITY
+			v_surface_to_view[i] = CAMERA_WORLD_POSITION - surface_world_position;
+		#endif
 	}
 
-	gl_Position = PROJECTION * VIEW * MODEL * pos;
+	gl_Position = PROJECTION * model_view_pos;
 }

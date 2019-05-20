@@ -4,8 +4,7 @@
   "description": "A (very experimental) project to bring WebGL to Svelte",
   "main": "index.mjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "node scripts/build-shaders.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -26,8 +25,6 @@
   },
   "dependencies": {
     "gl-matrix": "^3.0.0",
-    "icosphere": "^1.0.0",
-    "normals": "^1.1.0",
-    "yootils": "0.0.15"
+    "yootils": "0.0.16"
   }
 }

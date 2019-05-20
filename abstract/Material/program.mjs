@@ -1,5 +1,5 @@
-import vert_builtin from './shaders/builtin/vert.glsl.mjs';
-import frag_builtin from './shaders/builtin/frag.glsl.mjs';
+import vert_builtin from './shaders/builtin/vert.glsl';
+import frag_builtin from './shaders/builtin/frag.glsl';
 
 const caches = new Map();
 
@@ -24,10 +24,13 @@ export function get_program(gl, material) {
 	if (!cache.has(material.hash)) {
 		const defines = [
 			`NUM_LIGHTS 2`, // TODO make this parameterisable
-			(material.map || material.specularityMap) && `USES_TEXTURES true`,
-			material.map && `USES_COLOR_MAP true`,
-			material.specularityMap && `USES_SPECULARITY_MAP true`,
-			material.alpha < 1 && `USES_ALPHA true`
+			(material._textures.map || material._textures.specMap || material._textures.bumpMap || material._textures.normalMap) && `USES_TEXTURES true`,
+			(material.specularity !== undefined || material._textures.specMap) && `USES_SPECULARITY true`,
+			material._textures.map && `USES_COLOR_MAP true`,
+			material._textures.specMap && `USES_SPEC_MAP true`,
+			material._textures.bumpMap && `USES_BUMP_MAP true`,
+			material._textures.normalMap && `USES_NORMAL_MAP true`,
+			material.alpha !== undefined && `USES_ALPHA true`
 		].filter(Boolean).map(x => `#define ${x}`).join('\n') + '\n\n';
 
 		const vert = defines + vert_builtin + '\n\n' + material.vert;

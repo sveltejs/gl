@@ -1,4 +1,19 @@
+import Attribute from './Attribute.mjs';
+import * as vec2 from 'gl-matrix/vec2';
+import * as vec3 from 'gl-matrix/vec3';
+
 const builtins = new Set(['position', 'normal', 'uv']);
+
+function copy3(to, from, offset = 0) {
+	to[0] = from[offset + 0];
+	to[1] = from[offset + 1];
+	to[2] = from[offset + 2];
+}
+
+function copy2(to, from, offset = 0) {
+	to[0] = from[offset + 0];
+	to[1] = from[offset + 1];
+}
 
 export default class Geometry {
 	constructor(attributes = {}, opts = {}) {
@@ -12,7 +27,7 @@ export default class Geometry {
 		this.buffers = {};
 	}
 
-	init(gl, program) {
+	_init(gl, program, material) {
 		this.program = program;
 
 		for (const key in this.attributes) {
@@ -36,7 +51,7 @@ export default class Geometry {
 	}
 
 	// TODO should this be a public method?
-	set_attributes(gl) {
+	_set_attributes(gl) {
 		for (const key in this.attributes) {
 			const attribute = this.attributes[key];
 
@@ -68,13 +83,5 @@ export default class Geometry {
 				offset
 			);
 		}
-	}
-
-	get_attribute(name) {
-		return this.attributes[name];
-	}
-
-	set_attribute(name, attribute) {
-		this.attributes[name] = attribute;
 	}
 }
