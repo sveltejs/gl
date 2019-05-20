@@ -22,6 +22,8 @@
 	const width = writable(1);
 	const height = writable(1);
 
+	$: console.log('dimensions', $width, $height);
+
 	const root_layer = create_layer(0, invalidate);
 
 	const default_camera = { /* TODO */ };
@@ -60,6 +62,8 @@
 		}
 	}
 
+	const targets = new Map();
+
 	const scene = {
 		add_camera: _camera => {
 			if (camera && camera !== default_camera) {
@@ -82,6 +86,11 @@
 		add_directional_light: add_to(lights.directional),
 		add_point_light: add_to(lights.point),
 		add_ambient_light: add_to(lights.ambient),
+
+		get_target(id) {
+			if (!targets.has(id)) targets.set(id, writable(null))
+			return targets.get(id);
+		},
 
 		invalidate,
 

@@ -21,6 +21,7 @@
 	export let bumpScale = undefined;
 	export let normalMap = undefined;
 	export let alpha = 1;
+	export let specularity;
 
 	// internal
 	let _material = material || new Material();
@@ -30,6 +31,7 @@
 
 	$: if (!material && color) _material.color = process_color(color);
 	$: if (!material && alpha) _material.alpha = alpha;
+	$: if (!material && specularity) _material.specularity = specularity;
 	$: if (!material && bumpScale !== undefined) _material.bumpScale = bumpScale;
 	$: if (!material && map) load_texture('map', map);
 	$: if (!material && specMap) load_texture('specMap', specMap);

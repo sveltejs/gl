@@ -51,7 +51,7 @@ void main () {
 			spec *= texture2D(SPEC_MAP, v_uv).r;
 			#endif
 
-			specularity += spec * light.color * light.intensity;
+			specularity += SPECULARITY * spec * light.color * light.intensity;
 		#endif
 	}
 

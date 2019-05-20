@@ -1,15 +1,17 @@
 <script>
+	import { writable } from 'svelte/store';
 	import { get_scene, get_parent } from '../../internal/index.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 
 	export let location = [0, 0, 0];
-	export let lookAt = [0, 0, 0];
+	export let rotation = [0, 0, 0];
+	export let lookAt = null;
 	export let up = [0, 1, 0];
 	export let fov = 60;
 	export let near = 1;
 	export let far = 20000;
 
-	const { add_camera, invalidate, width, height } = get_scene();
+	const { add_camera, invalidate, width, height, get_target } = get_scene();
 	const { ctm } = get_parent();
 
 	const matrix = mat4.create();
@@ -23,9 +25,12 @@
 		projection: mat4.create()
 	};
 
+	$: target = lookAt ? get_target(lookAt) : writable(null); // TODO share null writable between all occurrences
+
 	$: camera.matrix = (
 		mat4.translate(camera.matrix, $ctm, location),
-		mat4.targetTo(camera.matrix, location, lookAt, up)
+		$target && mat4.targetTo(camera.matrix, world_position, $target, up),
+		camera.matrix
 	);
 
 	$: camera.view = mat4.invert(camera.view, camera.matrix);
