@@ -4,6 +4,10 @@ varying vec3 v_normal;
 varying vec2 v_uv;
 #endif
 
+#ifdef USES_NORMAL_MAP
+vec3 v_view_position;
+#endif
+
 varying vec3 v_surface_to_light[NUM_LIGHTS];
 
 #ifdef USES_SPECULARITY
@@ -18,6 +22,10 @@ void main() {
 
 	#ifdef USES_TEXTURES
 	v_uv = UV;
+	#endif
+
+	#ifdef USES_NORMAL_MAP
+	v_view_position = -model_view_pos.xyz;
 	#endif
 
 	for (int i = 0; i < NUM_LIGHTS; i += 1) {

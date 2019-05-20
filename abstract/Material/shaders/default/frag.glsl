@@ -6,6 +6,10 @@ varying vec3 v_normal;
 // varying vec2 v_uv;
 // #endif
 
+#ifdef USES_NORMAL_MAP
+vec3 v_view_position;
+#endif
+
 varying vec3 v_surface_to_light[NUM_LIGHTS];
 varying vec3 v_surface_to_view[NUM_LIGHTS];
 
@@ -14,7 +18,9 @@ void main () {
 
 	#ifdef USES_NORMAL_MAP
 		// TODO transform from tangent to object space
-		normal = normalize(texture2D(NORMAL_MAP, v_uv).xyz);
+		// normal = normalize(texture2D(NORMAL_MAP, v_uv).xyz);
+
+		normal = perturbNormal2Arb(-v_view_position, normal);
 	#endif
 
 	vec3 lighting = vec3(0.0);

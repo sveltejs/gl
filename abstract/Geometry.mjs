@@ -2,7 +2,7 @@ import Attribute from './Attribute.mjs';
 import * as vec2 from 'gl-matrix/vec2';
 import * as vec3 from 'gl-matrix/vec3';
 
-const builtins = new Set(['position', 'normal', 'uv']);
+const builtins = new Set(['position', 'normal', 'uv', 'tangent']);
 
 function copy3(to, from, offset = 0) {
 	to[0] = from[offset + 0];
@@ -151,7 +151,10 @@ export default class Geometry {
 
 			// Gram-Schmidt orthogonalize
 			copy3(tmp, t);
-			vec3.sub(tmp, tmp, vec3.scale(tmp, n, vec3.dot(tmp, n, t)));
+
+			const tmp3 = vec3.create();
+			vec3.scale(tmp3, n, vec3.dot(n, t));
+			vec3.sub(tmp, tmp, tmp3);
 			vec3.normalize(tmp, tmp);
 
 			// Calculate handedness
@@ -170,8 +173,6 @@ export default class Geometry {
 			handle_vertex(index[i + 1]);
 			handle_vertex(index[i + 2]);
 		}
-
-		console.log(this.attributes.tangent);
 	}
 
 	// TODO should this be a public method?
