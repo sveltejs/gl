@@ -1,19 +1,4 @@
-import Attribute from './Attribute.mjs';
-import * as vec2 from 'gl-matrix/vec2';
-import * as vec3 from 'gl-matrix/vec3';
-
 const builtins = new Set(['position', 'normal', 'uv']);
-
-function copy3(to, from, offset = 0) {
-	to[0] = from[offset + 0];
-	to[1] = from[offset + 1];
-	to[2] = from[offset + 2];
-}
-
-function copy2(to, from, offset = 0) {
-	to[0] = from[offset + 0];
-	to[1] = from[offset + 1];
-}
 
 export default class Geometry {
 	constructor(attributes = {}, opts = {}) {
