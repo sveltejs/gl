@@ -1,6 +1,6 @@
 <script>
 	import { onDestroy } from 'svelte';
-	import { writable, derived } from 'svelte/store';
+	import { writable } from 'svelte/store';
 	import { get_scene, get_layer, get_parent } from '../internal/index.mjs';
 	import { process_color } from '../internal/utils.mjs';
 	import Material from '../abstract/Material/index.mjs';
@@ -9,7 +9,7 @@
 	import * as quat from 'gl-matrix/quat';
 
 	export let location = [0, 0, 0];
-	export let rotation = [0, 0, 0];
+	export let rotation = [0, 0, 0]; // TODO make it possible to set a quaternion as a prop?
 	export let scale = 1;
 	export let geometry;
 
@@ -51,26 +51,22 @@
 	const layer = get_layer();
 	const parent = get_parent();
 
-	// TODO make it possible to set a quaternion as a prop?
+	const { ctm } = parent;
+
 	const out = mat4.create();
 	const out2 = mat4.create();
-
-	const matrix = writable(null);
-	const ctm = derived([parent.ctm, matrix], ([$ctm, $matrix]) => {
-		// TODO reuse `out`, post-https://github.com/sveltejs/svelte/issues/2644
-		return $matrix && mat4.multiply(mat4.create(), $ctm, $matrix);
-	});
 
 	$: scale_array = typeof scale === 'number' ? [scale, scale, scale] : scale;
 
 	$: quaternion = quat.fromEuler(quaternion || quat.create(), ...rotation);
-	$: $matrix = mat4.fromRotationTranslationScale(out, quaternion, location, scale_array);
-	$: (geometry, material, _material, $ctm, scene.invalidate());
+	$: matrix = mat4.fromRotationTranslationScale(matrix || mat4.create(), quaternion, location, scale_array);
+	$: model = mat4.multiply(model || mat4.create(), $ctm, matrix);
+	$: (geometry, material, _material, model, scene.invalidate());
 
 	const mesh = {};
-	$: mesh.model = $ctm; // TODO do we need to use a store here?
+	$: mesh.model = model; // TODO do we need to use a store here?
 	$: mesh.model_inverse_transpose = (
-		mat4.invert(out2, $ctm),
+		mat4.invert(out2, model),
 		mat4.transpose(out2, out2)
 	);
 	$: mesh.geometry = geometry;

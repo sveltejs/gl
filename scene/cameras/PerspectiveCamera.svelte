@@ -3,7 +3,7 @@
 	import * as mat4 from 'gl-matrix/mat4';
 
 	export let location = [0, 0, 0];
-	export let target = [0, 0, 0];
+	export let lookAt = [0, 0, 0];
 	export let up = [0, 1, 0];
 	export let fov = 60;
 	export let near = 1;
@@ -25,7 +25,7 @@
 
 	$: camera.matrix = (
 		mat4.translate(camera.matrix, $ctm, location),
-		mat4.targetTo(camera.matrix, location, target, up)
+		mat4.targetTo(camera.matrix, location, lookAt, up)
 	);
 
 	$: camera.view = mat4.invert(camera.view, camera.matrix);
