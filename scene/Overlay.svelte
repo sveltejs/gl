@@ -51,6 +51,8 @@
 		position: absolute;
 		left: 0;
 		top: 0;
+		user-select: none;
+		-moz-user-select: none;
 	}
 </style>
 
