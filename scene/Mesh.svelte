@@ -22,6 +22,7 @@
 	export let normalMap = undefined;
 	export let alpha = 1;
 	export let specularity;
+	export let depthTest = true;
 
 	// internal
 	let _material = material || new Material();
@@ -29,10 +30,11 @@
 	// TODO why tf does this run multiple times?
 	// $: console.log('>>>!!material', !!material)
 
-	$: if (!material && color) _material.color = process_color(color);
-	$: if (!material && alpha) _material.alpha = alpha;
-	$: if (!material && specularity) _material.specularity = specularity;
-	$: if (!material && bumpScale !== undefined) _material.bumpScale = bumpScale;
+	$: if (!material) _material.color = process_color(color);
+	$: if (!material) _material.alpha = alpha;
+	$: if (!material) _material.specularity = specularity;
+	$: if (!material) _material.depthTest = depthTest;
+	$: if (!material) _material.bumpScale = bumpScale;
 	$: if (!material && map) load_texture('map', map);
 	$: if (!material && specMap) load_texture('specMap', specMap);
 	$: if (!material && bumpMap) load_texture('bumpMap', bumpMap);

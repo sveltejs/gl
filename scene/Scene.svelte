@@ -202,6 +202,12 @@
 			let previous_program_info;
 
 			function render_mesh({ model, model_inverse_transpose, geometry, material, program_info }) {
+				if (material.depthTest) {
+					gl.enable(gl.DEPTH_TEST);
+				} else {
+					gl.disable(gl.DEPTH_TEST);
+				}
+
 				// TODO...
 				if (material.blend === 'multiply') {
 					// gl.blendFuncSeparate(gl[blend.srgb], gl[blend.drgb], gl[blend.salpha], gl[blend.dalpha]);

@@ -29,6 +29,7 @@ export default class Material {
 		this.color = opts.color;
 		this.alpha = opts.alpha;
 		this.specularity = opts.specularity;
+		this.depthTest = opts.depthTest;
 
 		this._textures = {};
 
