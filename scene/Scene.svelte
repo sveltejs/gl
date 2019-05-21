@@ -210,7 +210,6 @@
 
 				// TODO...
 				if (material.blend === 'multiply') {
-					// gl.blendFuncSeparate(gl[blend.srgb], gl[blend.drgb], gl[blend.salpha], gl[blend.dalpha]);
 					gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 				} else {
 					gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
