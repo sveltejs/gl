@@ -2,10 +2,15 @@
 	import { setContext, onMount, onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { RENDERER, LAYER, PARENT, CAMERA, create_layer } from '../internal/index.mjs';
+	import { create_worker } from '../internal/utils.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as vec3 from 'gl-matrix/vec3';
 
 	export let background = [1, 1, 1, 1];
+	export let workerUrl = (typeof Blob !== 'undefined' && URL.createObjectURL(new Blob(
+		[`self.onmessage = e => { self.onmessage = null; eval(e.data); };`],
+		{ type: 'application/javascript' }
+	)));
 
 	let canvas;
 	let w;
@@ -21,8 +26,6 @@
 
 	const width = writable(1);
 	const height = writable(1);
-
-	$: console.log('dimensions', $width, $height);
 
 	const root_layer = create_layer(0, invalidate);
 
@@ -98,7 +101,45 @@
 		view: camera_stores.view,
 		projection: camera_stores.projection,
 		width,
-		height
+		height,
+
+		load_image(src) {
+			return new Promise((fulfil, reject) => {
+				if (typeof createImageBitmap !== 'undefined') {
+					// TODO pool workers?
+					const worker = create_worker(workerUrl, () => {
+						self.onmessage = e => {
+							fetch(e.data)
+								.then(response => response.blob())
+								.then(blobData => createImageBitmap(blobData))
+								.then(bitmap => {
+									self.postMessage({ bitmap }, [bitmap]);
+								})
+								.catch(error => {
+									self.postMessage({
+										error: {
+											message: error.message,
+											stack: error.stack
+										}
+									});
+								});
+						};
+					});
+
+					worker.onmessage = e => {
+						if (e.data.error) reject(e.data.error);
+						else fulfil(e.data.bitmap);
+					};
+
+					worker.postMessage(new URL(src, location.href).href);
+				} else {
+					const img = new Image();
+					img.onload = () => fulfil(img);
+					img.onerror = reject;
+					img.src = src;
+				}
+			});
+		}
 	};
 
 	setContext(RENDERER, scene);

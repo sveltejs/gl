@@ -40,13 +40,11 @@
 
 	// TODO put this logic inside the material class?
 	function load_texture(id, src) {
-		const img = new Image();
-		img.onload = () => {
-			_material.set_image(id, img);
+		scene.load_image(src).then(bitmap => {
+			_material.set_image(id, bitmap);
 			update_program(_material);
 			scene.invalidate();
-		}
-		img.src = src;
+		});
 	}
 
 	const scene = get_scene();
