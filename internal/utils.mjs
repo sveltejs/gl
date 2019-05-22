@@ -31,7 +31,7 @@ export function normalize(out, vector = out) {
 
 export function create_worker(url, fn) {
 	const worker = new Worker(url);
-	const code = fn.toString().replace(/^(function.+?|.+=>\s*)\{/g, '').slice(0, -1);
+	const code = fn.toString().replace(/^(function.+?|.+?=>\s*)\{/g, '').slice(0, -1);
 
 	worker.postMessage(code);
 
