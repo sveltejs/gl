@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.6
+
+* Fix serialization of minified code sent to workers
+
 ## 0.0.5
 
 * Add `<Target>` component
