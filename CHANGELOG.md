@@ -1,5 +1,12 @@
 # @sveltejs/gl changelog
 
+## 0.0.5
+
+* Add `<Target>` component
+* Add `user-select: none` on overlays
+* Load and decode images off the main thread
+* Allow depth testing to be disabled per-material
+
 ## 0.0.4
 
 * Bump mapping
