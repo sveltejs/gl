@@ -1,5 +1,11 @@
 # @sveltejs/gl changelog
 
+## 0.0.7
+
+* Default to `highp` floats
+* Work around some shader bug I don't understand
+* Depth test by default
+
 ## 0.0.6
 
 * Fix serialization of minified code sent to workers
