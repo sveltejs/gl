@@ -66,6 +66,12 @@ vec3 perturbNormal2Arb(vec3 eye_pos, vec3 surface_normal) {
 	vec2 st0 = dFdx(v_uv.st);
 	vec2 st1 = dFdy(v_uv.st);
 
+	// TODO derivative functions don't seem to work on some
+	// mobile phones - need to investigate
+	if (length(q0) == 0.0) {
+		return surface_normal;
+	}
+
 	float scale = sign(st1.t * st0.s - st0.t * st1.s); // we do not care about the magnitude
 
 	vec3 S = normalize((q0 * st1.t - q1 * st0.t) * scale);
