@@ -1,5 +1,5 @@
 /* start builtins */
-precision mediump float;
+precision highp float;
 
 #extension GL_OES_standard_derivatives : enable
 

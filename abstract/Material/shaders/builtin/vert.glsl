@@ -1,5 +1,5 @@
 /* start builtins */
-precision mediump float;
+precision highp float;
 
 uniform mat4 MODEL;
 uniform mat4 PROJECTION;
