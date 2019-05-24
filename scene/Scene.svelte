@@ -268,7 +268,7 @@
 					gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, geometry.buffers.__index);
 					gl.drawElements(gl[geometry.primitive], geometry.index.length, gl.UNSIGNED_INT, 0);
 				} else {
-					const primitiveType = gl.TRIANGLES;
+					const primitiveType = gl[geometry.primitive];
 					const offset = 0;
 					const { position } = geometry.attributes;
 					const count = position.count;

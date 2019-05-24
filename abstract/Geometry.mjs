@@ -1,4 +1,4 @@
-const builtins = new Set(['position', 'normal', 'uv']);
+const builtins = new Set(['POSITION', 'NORMAL', 'UV']);
 
 export default class Geometry {
 	constructor(attributes = {}, opts = {}) {
@@ -6,7 +6,7 @@ export default class Geometry {
 
 		const { index, primitive = 'TRIANGLES' } = opts;
 		this.index = index;
-		this.primitive = primitive;
+		this.primitive = primitive.toUpperCase();
 
 		this.locations = {};
 		this.buffers = {};
@@ -18,7 +18,8 @@ export default class Geometry {
 		for (const key in this.attributes) {
 			const attribute = this.attributes[key];
 
-			this.locations[key] = gl.getAttribLocation(program, builtins.has(key) ? key.toUpperCase() : key);
+			const upper = key.toUpperCase();
+			this.locations[key] = gl.getAttribLocation(program, builtins.has(upper) ? upper : key);
 
 			const buffer = gl.createBuffer();
 			if (!this.buffers[key]) this.buffers[key] = buffer;
