@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.10
+
+* Fix resize glitches
+
 ## 0.0.9
 
 * Support primitives other than lines
