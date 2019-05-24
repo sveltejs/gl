@@ -321,8 +321,10 @@
 
 		// for some wacky reason, Adblock Plus seems to prevent the
 		// initial dimensions from being correctly reported
-		$width = canvas.clientWidth;
-		$height = canvas.clientHeight;
+		setTimeout(() => {
+			$width = canvas.clientWidth;
+			$height = canvas.clientHeight;
+		});
 
 		draw();
 	});

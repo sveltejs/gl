@@ -1,6 +1,6 @@
 # @sveltejs/gl changelog
 
-## 0.0.10
+## 0.0.10-11
 
 * Fix resize glitches
 
