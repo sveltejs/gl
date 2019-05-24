@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.8
+
+* Fix blending formula
+
 ## 0.0.7
 
 * Default to `highp` floats
