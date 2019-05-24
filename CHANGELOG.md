@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.9
+
+* Support primitives other than lines
+
 ## 0.0.8
 
 * Fix blending formula
