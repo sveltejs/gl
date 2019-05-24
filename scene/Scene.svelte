@@ -175,6 +175,15 @@
 		draw = () => {
 			if (!camera) return; // TODO make this `!ready` or something instead
 
+			if (dimensions_need_update) {
+				const DPR = window.devicePixelRatio || 1;
+				canvas.width = $width * DPR;
+				canvas.height = $height * DPR;
+				gl.viewport(0, 0, $width * DPR, $height * DPR);
+
+				dimensions_need_update = false;
+			}
+
 			update_scheduled = false;
 
 			gl.clearColor(...background);
@@ -309,16 +318,23 @@
 
 			render_layer(root_layer);
 		};
+
+		// for some wacky reason, Adblock Plus seems to prevent the
+		// initial dimensions from being correctly reported
+		$width = canvas.clientWidth;
+		$height = canvas.clientHeight;
+
+		draw();
 	});
 
-	// TODO just set a dirty flag if dimensions change?
-	$: if (gl) {
-		const DPR = window.devicePixelRatio || 1;
-		canvas.width = $width * DPR;
-		canvas.height = $height * DPR;
-		gl.viewport(0, 0, $width * DPR, $height * DPR);
-		draw();
-	}
+	let dimensions_need_update = true;
+
+	const update_dimensions = () => {
+		dimensions_need_update = true;
+		invalidate();
+	};
+
+	$: ($width, $height, update_dimensions());
 </script>
 
 <style>
