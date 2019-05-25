@@ -11,6 +11,7 @@
 		[`self.onmessage = e => { self.onmessage = null; eval(e.data); };`],
 		{ type: 'application/javascript' }
 	)));
+	export let debug = true;
 
 	let canvas;
 	let w;
@@ -44,9 +45,21 @@
 
 	let update_scheduled = false;
 	let resolved = Promise.resolve();
+	let draw_count = 0;
+	let counting_draws = false;
 
 	function invalidate() {
+		if (debug && !counting_draws) {
+			counting_draws = true;
+			requestAnimationFrame(() => {
+				if (draw_count > 1) console.warn(`drew ${draw_count} times in one frame`);
+				draw_count = 0;
+				counting_draws = false;
+			});
+		}
+
 		if (!update_scheduled) {
+			if (debug) draw_count += 1;
 			update_scheduled = true;
 			resolved.then(draw);
 		}
