@@ -20,10 +20,29 @@
 	let gl;
 	let draw;
 	let camera_stores = {
-		matrix: writable(),
+		camera_matrix: writable(),
 		view: writable(),
 		projection: writable()
 	};
+
+	const invalidate = typeof window !== 'undefined'
+		? () => {
+			if (debug && !counting_draws) {
+				counting_draws = true;
+				requestAnimationFrame(() => {
+					if (draw_count > 1) console.warn(`drew ${draw_count} times in one frame`);
+					draw_count = 0;
+					counting_draws = false;
+				});
+			}
+
+			if (!update_scheduled) {
+				if (debug) draw_count += 1;
+				update_scheduled = true;
+				resolved.then(draw);
+			}
+		}
+		: () => {};
 
 	const width = writable(1);
 	const height = writable(1);
@@ -47,23 +66,6 @@
 	let resolved = Promise.resolve();
 	let draw_count = 0;
 	let counting_draws = false;
-
-	function invalidate() {
-		if (debug && !counting_draws) {
-			counting_draws = true;
-			requestAnimationFrame(() => {
-				if (draw_count > 1) console.warn(`drew ${draw_count} times in one frame`);
-				draw_count = 0;
-				counting_draws = false;
-			});
-		}
-
-		if (!update_scheduled) {
-			if (debug) draw_count += 1;
-			update_scheduled = true;
-			resolved.then(draw);
-		}
-	}
 
 	function add_to(array) {
 		return fn => {
@@ -90,6 +92,7 @@
 			invalidate();
 
 			// TODO this is garbage
+			camera_stores.camera_matrix.set(camera.matrix);
 			camera_stores.projection.set(camera.projection);
 			camera_stores.view.set(camera.view);
 
@@ -97,6 +100,13 @@
 				camera = default_camera;
 				invalidate();
 			});
+		},
+
+		update_camera: camera => {
+			// for overlays
+			camera_stores.camera_matrix.set(camera.matrix);
+			camera_stores.view.set(camera.view);
+			camera_stores.projection.set(camera.projection);
 		},
 
 		add_directional_light: add_to(lights.directional),
@@ -110,9 +120,8 @@
 
 		invalidate,
 
-		camera_matrix: camera_stores.matrix,
-		view: camera_stores.view,
-		projection: camera_stores.projection,
+		...camera_stores,
+
 		width,
 		height,
 
@@ -165,10 +174,6 @@
 		ctm: { subscribe: ctm.subscribe }
 	});
 
-	// TEMP
-	export let blend = undefined;
-	$: (blend, draw && invalidate());
-
 	onMount(() => {
 		scene.canvas = canvas;
 		gl = scene.gl = canvas.getContext('webgl');
@@ -204,11 +209,6 @@
 
 			gl.enable(gl.CULL_FACE);
 			gl.enable(gl.BLEND);
-
-			// for overlays
-			camera_stores.matrix.set(camera.matrix);
-			camera_stores.view.set(camera.view);
-			camera_stores.projection.set(camera.projection);
 
 			// calculate total ambient light
 			const ambient_light = lights.ambient.reduce((total, { color, intensity }) => {
@@ -345,6 +345,7 @@
 	let dimensions_need_update = true;
 
 	const update_dimensions = () => {
+		console.log('updating dimensions');
 		dimensions_need_update = true;
 		invalidate();
 	};
