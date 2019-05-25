@@ -21,7 +21,7 @@
 	export let bumpScale = undefined;
 	export let normalMap = undefined;
 	export let alpha = 1;
-	export let specularity;
+	export let specularity = undefined;
 	export let depthTest = true;
 
 	// internal
