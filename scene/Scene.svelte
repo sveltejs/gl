@@ -151,7 +151,7 @@
 					// TODO pool workers?
 					const worker = create_worker(workerUrl, () => {
 						self.onmessage = e => {
-							fetch(e.data)
+							fetch(e.data, { mode: 'cors' })
 								.then(response => response.blob())
 								.then(blobData => createImageBitmap(blobData))
 								.then(bitmap => {
