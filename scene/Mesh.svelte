@@ -43,7 +43,16 @@
 	// TODO put this logic inside the material class?
 	function load_texture(id, src) {
 		scene.load_image(src).then(bitmap => {
-			_material.set_image(id, bitmap);
+			try {
+				_material.set_image(id, bitmap);
+			} catch (err) {
+				console.log(`error loading ${src}`, err);
+
+				const img = new Image();
+				img.src = src;
+				_material.set_image(id, img);
+			}
+
 			update_program(_material);
 			scene.invalidate();
 		});
