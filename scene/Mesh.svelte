@@ -49,8 +49,12 @@
 				console.log(`error loading ${src}`, err);
 
 				const img = new Image();
+				img.crossOrigin = true;
 				img.src = src;
-				_material.set_image(id, img);
+
+				img.onload = () => {
+					_material.set_image(id, img);
+				};
 			}
 
 			update_program(_material);
