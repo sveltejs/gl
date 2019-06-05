@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.14
+
+* Allow `pixelRatio` to be specified
+
 ## 0.0.13
 
 * Fetch image data in `cors` mode
