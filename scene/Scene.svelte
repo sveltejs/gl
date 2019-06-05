@@ -7,6 +7,7 @@
 	import * as vec3 from 'gl-matrix/vec3';
 
 	export let background = [1, 1, 1, 1];
+	export let pixelRatio = undefined;
 	export let workerUrl = (typeof Blob !== 'undefined' && URL.createObjectURL(new Blob(
 		[`self.onmessage = e => { self.onmessage = null; eval(e.data); };`],
 		{ type: 'application/javascript' }
@@ -176,7 +177,7 @@
 			if (!camera) return; // TODO make this `!ready` or something instead
 
 			if (dimensions_need_update) {
-				const DPR = window.devicePixelRatio || 1;
+				const DPR = pixelRatio || window.devicePixelRatio || 1;
 				canvas.width = $width * DPR;
 				canvas.height = $height * DPR;
 				gl.viewport(0, 0, $width * DPR, $height * DPR);
