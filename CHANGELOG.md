@@ -1,5 +1,13 @@
 # @sveltejs/gl changelog
 
+## 0.0.13
+
+* Fetch image data in `cors` mode
+
+## 0.0.12
+
+* Only update when canvas is visible
+
 ## 0.0.10-11
 
 * Fix resize glitches

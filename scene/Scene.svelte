@@ -1,3 +1,35 @@
+<script context="module">
+	import { readable } from 'svelte/store';
+
+	function get_visibility(node) {
+		return readable(false, set => {
+			if (typeof IntersectionObserver !== 'undefined') {
+				const observer = new IntersectionObserver(entries => {
+					set(entries[0].isIntersecting);
+				});
+
+				observer.observe(node);
+				return () => observer.unobserve(node);
+			}
+
+			if (typeof window !== 'undefined') {
+				function handler() {
+					const { top, bottom } = node.getBoundingClientRect();
+					set(bottom > 0 && top < window.innerHeight);
+				}
+
+				window.addEventListener('scroll', handler);
+				window.addEventListener('resize', handler);
+
+				return () => {
+					window.removeEventListener('scroll', handler);
+					window.removeEventListener('resize', handler);
+				};
+			}
+		});
+	}
+</script>
+
 <script>
 	import { setContext, onMount, onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
@@ -14,16 +46,26 @@
 	)));
 
 	let canvas;
+	let visible = writable(false);
 	let w;
 	let h;
 
 	let gl;
 	let draw;
 	let camera_stores = {
-		matrix: writable(),
+		camera_matrix: writable(),
 		view: writable(),
 		projection: writable()
 	};
+
+	const invalidate = typeof window !== 'undefined'
+		? () => {
+			if (!update_scheduled) {
+				update_scheduled = true;
+				resolved.then(draw);
+			}
+		}
+		: () => {};
 
 	const width = writable(1);
 	const height = writable(1);
@@ -45,13 +87,6 @@
 
 	let update_scheduled = false;
 	let resolved = Promise.resolve();
-
-	function invalidate() {
-		if (!update_scheduled) {
-			update_scheduled = true;
-			resolved.then(draw);
-		}
-	}
 
 	function add_to(array) {
 		return fn => {
@@ -78,6 +113,7 @@
 			invalidate();
 
 			// TODO this is garbage
+			camera_stores.camera_matrix.set(camera.matrix);
 			camera_stores.projection.set(camera.projection);
 			camera_stores.view.set(camera.view);
 
@@ -85,6 +121,13 @@
 				camera = default_camera;
 				invalidate();
 			});
+		},
+
+		update_camera: camera => {
+			// for overlays
+			camera_stores.camera_matrix.set(camera.matrix);
+			camera_stores.view.set(camera.view);
+			camera_stores.projection.set(camera.projection);
 		},
 
 		add_directional_light: add_to(lights.directional),
@@ -98,9 +141,8 @@
 
 		invalidate,
 
-		camera_matrix: camera_stores.matrix,
-		view: camera_stores.view,
-		projection: camera_stores.projection,
+		...camera_stores,
+
 		width,
 		height,
 
@@ -110,7 +152,7 @@
 					// TODO pool workers?
 					const worker = create_worker(workerUrl, () => {
 						self.onmessage = e => {
-							fetch(e.data)
+							fetch(e.data, { mode: 'cors' })
 								.then(response => response.blob())
 								.then(blobData => createImageBitmap(blobData))
 								.then(bitmap => {
@@ -153,13 +195,10 @@
 		ctm: { subscribe: ctm.subscribe }
 	});
 
-	// TEMP
-	export let blend = undefined;
-	$: (blend, draw && invalidate());
-
 	onMount(() => {
 		scene.canvas = canvas;
 		gl = scene.gl = canvas.getContext('webgl');
+		visible = get_visibility(canvas);
 
 		const extensions = [
 			'OES_element_index_uint',
@@ -187,16 +226,13 @@
 
 			update_scheduled = false;
 
+			if (!$visible) return;
+
 			gl.clearColor(...background);
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 			gl.enable(gl.CULL_FACE);
 			gl.enable(gl.BLEND);
-
-			// for overlays
-			camera_stores.matrix.set(camera.matrix);
-			camera_stores.view.set(camera.view);
-			camera_stores.projection.set(camera.projection);
 
 			// calculate total ambient light
 			const ambient_light = lights.ambient.reduce((total, { color, intensity }) => {

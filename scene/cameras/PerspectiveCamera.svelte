@@ -11,7 +11,7 @@
 	export let near = 1;
 	export let far = 20000;
 
-	const { add_camera, invalidate, width, height, get_target } = get_scene();
+	const { add_camera, update_camera, width, height, get_target } = get_scene();
 	const { ctm } = get_parent();
 
 	const matrix = mat4.create();
@@ -43,7 +43,7 @@
 		far
 	);
 
-	$: (camera, invalidate());
+	$: update_camera(camera);
 
 	add_camera(camera);
 </script>
