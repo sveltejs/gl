@@ -1,7 +1,8 @@
+#extension GL_OES_standard_derivatives : enable
+
 /* start builtins */
 precision highp float;
 
-#extension GL_OES_standard_derivatives : enable
 
 #ifdef USES_TEXTURES
 varying vec2 v_uv;

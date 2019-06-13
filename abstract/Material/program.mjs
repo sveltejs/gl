@@ -118,7 +118,7 @@ function create_shader(gl, type, source, label) {
 
 			if (i === l) {
 				console.log('%c' + str, 'font-weight: bold; color: red');
-				console.log('%c' + indent + repeat(' ', c + 6) + '^', 'color: red');
+				console.log('%c' + (indent && indent[0] || '') + repeat(' ', c + 6) + '^', 'color: red');
 			} else {
 				console.log(str);
 			}
