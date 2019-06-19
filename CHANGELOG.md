@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.15
+
+* Declare extensions first, due to change in Chrome 75
+
 ## 0.0.14
 
 * Allow `pixelRatio` to be specified
