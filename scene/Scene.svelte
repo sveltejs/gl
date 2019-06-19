@@ -31,7 +31,7 @@
 </script>
 
 <script>
-	import { setContext, onMount, onDestroy } from 'svelte';
+	import { setContext, onMount, onDestroy, tick } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { RENDERER, LAYER, PARENT, CAMERA, create_layer } from '../internal/index.mjs';
 	import { create_worker } from '../internal/utils.mjs';
@@ -212,7 +212,7 @@
 			}
 		});
 
-		draw = () => {
+		draw = force => {
 			if (!camera) return; // TODO make this `!ready` or something instead
 
 			if (dimensions_need_update) {
@@ -226,7 +226,7 @@
 
 			update_scheduled = false;
 
-			if (!$visible) return;
+			if (!$visible && !force) return;
 
 			gl.clearColor(...background);
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -363,7 +363,7 @@
 			$height = canvas.clientHeight;
 		});
 
-		draw();
+		tick().then(() => draw(true));
 	});
 
 	let dimensions_need_update = true;
