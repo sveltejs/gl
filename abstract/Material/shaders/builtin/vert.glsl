@@ -11,9 +11,9 @@ uniform vec3 CAMERA_WORLD_POSITION;
 attribute vec3 POSITION;
 attribute vec3 NORMAL;
 
-#ifdef USES_TEXTURES
+// #ifdef USES_TEXTURES
 attribute vec2 UV;
-#endif
+// #endif
 
 struct PointLight {
 	vec3 location;

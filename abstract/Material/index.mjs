@@ -4,6 +4,7 @@ import { get_program } from './program.mjs';
 
 const methods = {
 	[5126]: 'uniform1f',
+	[35664]: 'uniform2fv',
 	[35665]: 'uniform3fv',
 	[35666]: 'uniform4fv',
 
@@ -38,6 +39,16 @@ export default class Material {
 		this._update_hash();
 	}
 
+	// TODO this feels a lil messy
+	oninvalid(callback) {
+		this._oninvalid = callback;
+		callback(this);
+	}
+
+	invalidate() {
+		this._oninvalid(this);
+	}
+
 	set_image(id, img) {
 		const { gl } = this;
 
@@ -54,6 +65,8 @@ export default class Material {
 		this._textures[id] = texture;
 
 		this._update_hash();
+
+		this.invalidate();
 	}
 
 	_update_hash() {

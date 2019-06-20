@@ -28,3 +28,6 @@ export { default as Cone } from './shapes/Cone.svelte';
 export { default as Plane } from './shapes/Plane.svelte';
 export { default as IcoSphere } from './shapes/IcoSphere.svelte';
 export { default as Sphere } from './shapes/Sphere.svelte';
+
+// utilities
+export { default as createImageLoader } from './utils/createImageLoader.mjs';

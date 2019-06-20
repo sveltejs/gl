@@ -4,18 +4,18 @@
 precision highp float;
 
 
-#ifdef USES_TEXTURES
+// #ifdef USES_TEXTURES
 varying vec2 v_uv;
-#endif
+// #endif
 
 // mesh uniforms
 #ifdef USES_SPECULARITY
 uniform float SPECULARITY;
 #endif
 
-#ifdef USES_COLOR_MAP
+// #ifdef USES_COLOR_MAP
 uniform sampler2D COLOR_MAP;
-#endif
+// #endif
 
 #ifdef USES_SPEC_MAP
 uniform sampler2D SPEC_MAP;

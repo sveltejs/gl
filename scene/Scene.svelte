@@ -128,6 +128,7 @@
 			camera_stores.camera_matrix.set(camera.matrix);
 			camera_stores.view.set(camera.view);
 			camera_stores.projection.set(camera.projection);
+			invalidate();
 		},
 
 		add_directional_light: add_to(lights.directional),

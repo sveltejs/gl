@@ -78,7 +78,7 @@
 
 	let previous_program_info;
 	function update_program(material) {
-		mesh.material = _material;
+		mesh.material = material;
 		const info = material._compile(scene.gl);
 
 		if (info !== previous_program_info) {
@@ -90,7 +90,7 @@
 		}
 	}
 
-	$: update_program(_material);
+	$: _material.oninvalid(update_program);
 
 	onDestroy(() => {
 		remove_program(mesh.program_info);
