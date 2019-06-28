@@ -177,6 +177,7 @@
 					worker.postMessage(new URL(src, location.href).href);
 				} else {
 					const img = new Image();
+					img.crossOrigin = '';
 					img.onload = () => fulfil(img);
 					img.onerror = reject;
 					img.src = src;
