@@ -1,8 +1,8 @@
 varying vec3 v_normal;
 
-#ifdef USES_TEXTURES
+// #ifdef USES_TEXTURES
 varying vec2 v_uv;
-#endif
+// #endif
 
 #if defined(USES_NORMAL_MAP) || defined(USES_BUMP_MAP)
 varying vec3 v_view_position;
