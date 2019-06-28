@@ -4,9 +4,9 @@
 precision highp float;
 
 
-#ifdef USES_TEXTURES
+// #ifdef USES_TEXTURES
 varying vec2 v_uv;
-#endif
+// #endif
 
 // mesh uniforms
 #ifdef USES_SPECULARITY

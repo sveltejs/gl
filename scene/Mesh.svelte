@@ -23,9 +23,12 @@
 	export let alpha = 1;
 	export let specularity = undefined;
 	export let depthTest = true;
+	export let vert;
+	export let frag;
+	export let blend;
 
 	// internal
-	let _material = material || new Material();
+	let _material = material || new Material({ vert, frag, blend });
 
 	// TODO why tf does this run multiple times?
 	// $: console.log('>>>!!material', !!material)
