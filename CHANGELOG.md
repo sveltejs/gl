@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.16
+
+* Allow meshes to receive frag, vert, blend properties
+
 ## 0.0.15
 
 * Declare extensions first, due to change in Chrome 75
