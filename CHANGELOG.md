@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.17
+
+* Default to crossOrigin images
+
 ## 0.0.16
 
 * Allow meshes to receive frag, vert, blend properties
