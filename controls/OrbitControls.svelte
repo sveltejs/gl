@@ -2,7 +2,6 @@
 	import * as yootils from 'yootils';
 	import { debounce } from './debounce.js';
 	import { onDestroy } from 'svelte';
-	import { writable } from 'svelte/store';
 	import { get_scene } from '../internal/index.mjs';
 	import { normalize } from '../internal/utils.mjs';
 
@@ -12,10 +11,6 @@
 	export let location = new Float32Array([1, 3, 5]);
 	export let target = new Float32Array([0, 1, 0]);
 	export let up = new Float32Array([0, 1, 0]);
-	export let lookAt;
-
-	$: _target = lookAt ? scene.get_target(lookAt) : writable(target);
-	$: if (target && !lookAt) _target.set(target);
 
 	export let minDistance = 0;
 	export let maxDistance = Infinity;
@@ -37,9 +32,9 @@
 
 	function rotate(x, y) {
 		// TODO handle the up vector. for now, just assume [0,1,0]
-		const vx = location[0] - $_target[0];
-		const vy = location[1] - $_target[1];
-		const vz = location[2] - $_target[2];
+		const vx = location[0] - target[0];
+		const vy = location[1] - target[1];
+		const vz = location[2] - target[2];
 
 		const radius = Math.sqrt(vx * vx + vy * vy + vz * vz);
 
@@ -56,16 +51,16 @@
 		const ny = Math.cos(phi) * radius;
 		const nz = sin_phi_radius * Math.cos(theta);
 
-		location[0] = $_target[0] + nx;
-		location[1] = $_target[1] + ny;
-		location[2] = $_target[2] + nz;
+		location[0] = target[0] + nx;
+		location[1] = target[1] + ny;
+		location[2] = target[2] + nz;
 	}
 
 	function pan(dx, dy) {
 		// TODO handle the up vector. for now, just assume [0,1,0]
-		const vx = location[0] - $_target[0];
-		const vy = location[1] - $_target[1];
-		const vz = location[2] - $_target[2];
+		const vx = location[0] - target[0];
+		const vy = location[1] - target[1];
+		const vz = location[2] - target[2];
 
 		// delta y = along xz
 		{
@@ -76,8 +71,8 @@
 			location[0] += x;
 			location[2] += z;
 
-			$_target[0] += x;
-			$_target[2] += z;
+			target[0] += x;
+			target[2] += z;
 		}
 
 		// delta x = tangent to xz
@@ -89,15 +84,15 @@
 			location[0] += x;
 			location[2] += z;
 
-			$_target[0] += x
-			$_target[2] += z;
+			target[0] += x
+			target[2] += z;
 		}
 	}
 
 	function zoom(amount) {
-		let vx = location[0] - $_target[0];
-		let vy = location[1] - $_target[1];
-		let vz = location[2] - $_target[2];
+		let vx = location[0] - target[0];
+		let vy = location[1] - target[1];
+		let vz = location[2] - target[2];
 
 		const mag = Math.sqrt(vx * vx + vy * vy + vz * vz);
 
@@ -111,9 +106,9 @@
 		vy /= amount;
 		vz /= amount;
 
-		location[0] = $_target[0] + vx;
-		location[1] = $_target[1] + vy;
-		location[2] = $_target[2] + vz;
+		location[0] = target[0] + vx;
+		location[1] = target[1] + vy;
+		location[2] = target[2] + vz;
 	}
 
 	function handle_mousedown(event) {
@@ -280,4 +275,4 @@
 	});
 </script>
 
-<slot {location} target={$_target}></slot>
+<slot {location} {target}></slot>
