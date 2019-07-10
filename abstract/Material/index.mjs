@@ -4,6 +4,7 @@ import { get_program } from './program.mjs';
 
 const methods = {
 	[5126]: 'uniform1f',
+	[35664]: 'uniform2fv',
 	[35665]: 'uniform3fv',
 	[35666]: 'uniform4fv',
 
