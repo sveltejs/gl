@@ -25,7 +25,13 @@
 		projection: mat4.create()
 	};
 
-	$: target = lookAt ? get_target(lookAt) : writable(null); // TODO share null writable between all occurrences
+	let target = writable(null);
+
+	$: if (typeof lookAt === 'string') {
+		target = get_target(lookAt);
+	} else {
+		target.set(lookAt);
+	}
 
 	$: camera.matrix = (
 		mat4.translate(camera.matrix, $ctm, location),
