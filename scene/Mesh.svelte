@@ -23,9 +23,9 @@
 	export let alpha = 1;
 	export let specularity = undefined;
 	export let depthTest = true;
-	export let vert;
-	export let frag;
-	export let blend;
+	export let vert = undefined;
+	export let frag = undefined;
+	export let blend = undefined;
 
 	// internal
 	let _material = material || new Material({ vert, frag, blend });
