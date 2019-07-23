@@ -156,7 +156,7 @@
 </script>
 
 <script>
-	import Mesh from '../scene/Mesh.svelte';
+	import Mesh from '../scene/Mesh/index.svelte';
 
 	export let subdivisions = 1;
 	export let shading = 'smooth';

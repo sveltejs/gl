@@ -7,7 +7,7 @@ export { default as Material } from './abstract/Material/index.mjs';
 export { default as Scene } from './scene/Scene.svelte';
 export { default as Group } from './scene/Group.svelte';
 export { default as Layer } from './scene/Layer.svelte';
-export { default as Mesh } from './scene/Mesh.svelte';
+export { default as Mesh } from './scene/Mesh/index.svelte';
 export { default as Overlay } from './scene/Overlay.svelte';
 export { default as Target } from './scene/Target.svelte';
 

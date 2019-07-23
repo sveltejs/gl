@@ -1,43 +1,11 @@
 const builtins = new Set(['POSITION', 'NORMAL', 'UV']);
 
-export default class Geometry {
-	constructor(attributes = {}, opts = {}) {
-		this.attributes = attributes;
+class GeometryInstance {
+	constructor() {
 
-		const { index, primitive = 'TRIANGLES' } = opts;
-		this.index = index;
-		this.primitive = primitive.toUpperCase();
-
-		this.locations = {};
-		this.buffers = {};
 	}
 
-	_init(gl, program, material) {
-		this.program = program;
-
-		for (const key in this.attributes) {
-			const attribute = this.attributes[key];
-
-			const upper = key.toUpperCase();
-			this.locations[key] = gl.getAttribLocation(program, builtins.has(upper) ? upper : key);
-
-			const buffer = gl.createBuffer();
-			if (!this.buffers[key]) this.buffers[key] = buffer;
-
-			gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-			gl.bufferData(gl.ARRAY_BUFFER, attribute.data, attribute.dynamic ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
-		}
-
-		if (this.index) {
-			const buffer = gl.createBuffer();
-			this.buffers.__index = buffer;
-			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
-			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.index, gl.STATIC_DRAW);
-		}
-	}
-
-	// TODO should this be a public method?
-	_set_attributes(gl) {
+	set_attributes(gl) {
 		for (const key in this.attributes) {
 			const attribute = this.attributes[key];
 
@@ -68,6 +36,43 @@ export default class Geometry {
 				stride,
 				offset
 			);
+		}
+	}
+}
+
+export default class Geometry {
+	constructor(attributes = {}, opts = {}) {
+		this.attributes = attributes;
+
+		const { index, primitive = 'TRIANGLES' } = opts;
+		this.index = index;
+		this.primitive = primitive.toUpperCase();
+
+		this.locations = {};
+		this.buffers = {};
+	}
+
+	_init(gl, program) {
+		this.program = program;
+
+		for (const key in this.attributes) {
+			const attribute = this.attributes[key];
+
+			const upper = key.toUpperCase();
+			this.locations[key] = gl.getAttribLocation(program, builtins.has(upper) ? upper : key);
+
+			const buffer = gl.createBuffer();
+			if (!this.buffers[key]) this.buffers[key] = buffer;
+
+			gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+			gl.bufferData(gl.ARRAY_BUFFER, attribute.data, attribute.dynamic ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
+		}
+
+		if (this.index) {
+			const buffer = gl.createBuffer();
+			this.buffers.__index = buffer;
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
+			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.index, gl.STATIC_DRAW);
 		}
 	}
 }

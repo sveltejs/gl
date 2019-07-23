@@ -1,7 +1,7 @@
 <script>
 	import Attribute from '../abstract/Attribute.mjs';
 	import Geometry from '../abstract/Geometry.mjs';
-	import Mesh from '../scene/Mesh.svelte';
+	import Mesh from '../scene/Mesh/index.svelte';
 
 	export let turns = 8;
 	export let bands = 6;

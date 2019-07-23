@@ -1,5 +1,5 @@
 <script>
-	import Mesh from '../scene/Mesh.svelte';
+	import Mesh from '../scene/Mesh/index.svelte';
 	import Geometry from '../abstract/Geometry.mjs';
 	import Attribute from '../abstract/Attribute.mjs';
 
