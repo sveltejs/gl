@@ -9,10 +9,10 @@
 <script>
 	import { onDestroy, beforeUpdate } from 'svelte';
 	import { writable } from 'svelte/store';
-	import { get_scene, get_layer, get_parent } from '../internal/index.mjs';
-	import { process_color } from '../internal/utils.mjs';
-	import Material from '../abstract/Material/index.mjs';
-	import { remove_program } from '../abstract/Material/program.mjs';
+	import { get_scene, get_layer, get_parent } from '../../internal/index.mjs';
+	import { process_color } from '../../internal/utils.mjs';
+	import Material from '../../abstract/Material/index.mjs';
+	import { remove_program } from '../../abstract/Material/program.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as quat from 'gl-matrix/quat';
 
@@ -39,10 +39,10 @@
 	$: matrix = mat4.fromRotationTranslationScale(matrix || mat4.create(), quaternion, location, scale_array);
 	$: model = mat4.multiply(model || mat4.create(), $ctm, matrix);
 
-	let program;
+	let material;
 	$: {
-		if (program) program.destroy();
-		program = create_program(scene, vert, frag);
+		if (material) material.destroy();
+		material = get_material(scene, vert, frag);
 	}
 
 	const mesh = {};
@@ -51,13 +51,13 @@
 		mat4.invert(out2, model),
 		mat4.transpose(out2, out2)
 	);
-	$: mesh.program = program;
-	$: mesh.geometry = geometry.instantiate(scene, program);
+	$: mesh.material = material;
+	$: mesh.geometry = geometry.instantiate(scene, material);
 
 	beforeUpdate(scene.invalidate);
 
 	onDestroy(() => {
-		if (mesh.program) mesh.program.destroy();
+		if (mesh.material) mesh.material.destroy();
 	});
 
 	layer.add_mesh(mesh);
