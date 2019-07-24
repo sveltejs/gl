@@ -308,7 +308,7 @@
 				gl.uniformMatrix4fv(material.uniform_locations.MODEL_INVERSE_TRANSPOSE, false, model_inverse_transpose);
 
 				// set material-specific built-in uniforms
-				material.set_uniforms(gl, props);
+				material.apply_uniforms(gl);
 
 				// set attributes
 				geometry.set_attributes(gl);

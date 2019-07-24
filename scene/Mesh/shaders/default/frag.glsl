@@ -1,4 +1,12 @@
 // mesh uniforms
+#if defined(has_colormap) || defined(has_specularitymap) || defined(has_normalmap) || defined(has_bumpmap)
+#define has_textures true
+#endif
+
+#ifdef has_textures
+varying vec2 v_uv;
+#endif
+
 #ifdef has_specularity
 uniform float specularity;
 #endif
@@ -148,7 +156,7 @@ void main () {
 	}
 
 	#if defined(has_colormap)
-	vec4 color = texture2D(colormap, v_uv);
+	gl_FragColor = texture2D(colormap, v_uv);
 	#elif defined(has_color)
 	gl_FragColor = vec4(color, 1.0);
 	#endif

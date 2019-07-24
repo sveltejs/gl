@@ -1,17 +1,9 @@
-<script context="module">
-	const geometry_instances = new Map();
-
-	function instantiate_geometry(scene, geometry) {
-
-	}
-</script>
-
 <script>
 	import { onDestroy, beforeUpdate } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { get_scene, get_layer, get_parent } from '../../internal/index.mjs';
 	import { process_color } from '../../internal/utils.mjs';
-	import get_material from './get_material.mjs';
+	import Material from './Material.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as quat from 'gl-matrix/quat';
 
@@ -38,21 +30,52 @@
 	$: matrix = mat4.fromRotationTranslationScale(matrix || mat4.create(), quaternion, location, scale_array);
 	$: model = mat4.multiply(model || mat4.create(), $ctm, matrix);
 
-	let material;
-	$: {
-		const old_material = material;
-		material = get_material(scene.gl, vert, frag, $$props);
-		if (old_material && old_material !== material) old_material.destroy();
-	}
-
 	const mesh = {};
 	$: mesh.model = model;
 	$: mesh.model_inverse_transpose = (mat4.invert(out2, model), mat4.transpose(out2, out2));
-	$: mesh.material = material;
-	$: mesh.geometry = geometry.instantiate(scene.gl, material.program);
-	$: mesh.props = $$props;
 
-	beforeUpdate(scene.invalidate);
+	let old_material;
+	let old_program;
+	let old_uniforms = {};
+	let old_hash;
+
+	beforeUpdate(() => {
+		const uniforms = {};
+		let dirty_uniforms = false;
+
+		let defines = '#define NUM_LIGHTS 2\n'; // TODO make this configurable
+
+		for (const k in $$props) {
+			const v = $$props[k];
+			if (k.startsWith('u-') && v != null) {
+				const n = k.slice(2);
+				defines += `#define has_${n} true\n`;
+				uniforms[n] = v;
+
+				if (v !== old_uniforms[n]) {
+					dirty_uniforms = true;
+				}
+			}
+		}
+
+		const hash = defines + vert + frag;
+
+		if (old_hash !== (old_hash = hash)) {
+			mesh.material = new Material(scene, defines, vert, frag);
+			mesh.geometry = geometry.instantiate(scene.gl, mesh.material.program);
+
+			if (old_material) old_material.destroy();
+			old_material = mesh.material;
+		}
+
+		if (dirty_uniforms) {
+			mesh.material.set_uniforms(uniforms);
+		}
+
+		scene.invalidate();
+
+		old_uniforms = uniforms;
+	});
 
 	onDestroy(() => {
 		if (mesh.material) mesh.material.destroy();

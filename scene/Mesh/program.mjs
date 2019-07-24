@@ -1,3 +1,22 @@
+import { process_color } from '../../internal/utils.mjs';
+
+const setters = {
+	[5126]:  (gl, loc, data) => gl.uniform1f(loc, data),
+	[35664]: (gl, loc, data) => gl.uniform2fv(loc, data),
+	[35665]: (gl, loc, data) => gl.uniform3fv(loc, data),
+	[35666]: (gl, loc, data) => gl.uniform4fv(loc, data),
+
+	[35674]: (gl, loc, data) => gl.uniformMatrix2fv(loc, false, data),
+	[35675]: (gl, loc, data) => gl.uniformMatrix3fv(loc, false, data),
+	[35676]: (gl, loc, data) => gl.uniformMatrix4fv(loc, false, data),
+
+	[35678]: (gl, loc, data) => {
+		gl.activeTexture(gl[data.constant]);
+		gl.bindTexture(gl.TEXTURE_2D, data.texture);
+		gl.uniform1i(loc, data.index);
+	}
+};
+
 export function remove_program(info) {
 	const cache = caches.get(info.gl);
 
@@ -84,8 +103,13 @@ export function get_uniforms(gl, program) {
 	for (let i = 0; i < n; i += 1) {
 		let { size, type, name } = gl.getActiveUniform(program, i);
 		const loc = gl.getUniformLocation(program, name);
+		const setter = setters[type];
 
-		uniforms.push({ size, type, name, u: `u-${name}`, loc });
+		if (!setter) {
+			throw new Error(`not implemented ${type} (${name})`);
+		}
+
+		uniforms.push({ size, type, name, setter, loc });
 	}
 
 	return uniforms;
