@@ -52,14 +52,7 @@
 	$: mesh.geometry = geometry.instantiate(scene.gl, material.program);
 	$: mesh.props = $$props;
 
-	$: console.log('>>>', $$props);
-
-	beforeUpdate(() => {
-		console.log('>>> beforeUpdate');
-		scene.invalidate();
-	});
-
-	// beforeUpdate(scene.invalidate);
+	beforeUpdate(scene.invalidate);
 
 	onDestroy(() => {
 		if (mesh.material) mesh.material.destroy();
