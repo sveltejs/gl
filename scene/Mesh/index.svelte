@@ -11,8 +11,7 @@
 	import { writable } from 'svelte/store';
 	import { get_scene, get_layer, get_parent } from '../../internal/index.mjs';
 	import { process_color } from '../../internal/utils.mjs';
-	import Material from '../../abstract/Material/index.mjs';
-	import { remove_program } from '../../abstract/Material/program.mjs';
+	import get_material from './get_material.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as quat from 'gl-matrix/quat';
 
@@ -22,10 +21,10 @@
 
 	export let geometry;
 
-	export let vert;
-	export let frag;
-	export let blend;
-	export let depthTest;
+	export let vert = undefined;
+	export let frag = undefined;
+	export let blend = undefined;
+	export let depthTest = undefined;
 
 	const scene = get_scene();
 	const layer = get_layer();
@@ -41,20 +40,26 @@
 
 	let material;
 	$: {
-		if (material) material.destroy();
-		material = get_material(scene, vert, frag);
+		const old_material = material;
+		material = get_material(scene.gl, vert, frag, $$props);
+		if (old_material && old_material !== material) old_material.destroy();
 	}
 
 	const mesh = {};
 	$: mesh.model = model;
-	$: mesh.model_inverse_transpose = (
-		mat4.invert(out2, model),
-		mat4.transpose(out2, out2)
-	);
+	$: mesh.model_inverse_transpose = (mat4.invert(out2, model), mat4.transpose(out2, out2));
 	$: mesh.material = material;
-	$: mesh.geometry = geometry.instantiate(scene, material);
+	$: mesh.geometry = geometry.instantiate(scene.gl, material.program);
+	$: mesh.props = $$props;
 
-	beforeUpdate(scene.invalidate);
+	$: console.log('>>>', $$props);
+
+	beforeUpdate(() => {
+		console.log('>>> beforeUpdate');
+		scene.invalidate();
+	});
+
+	// beforeUpdate(scene.invalidate);
 
 	onDestroy(() => {
 		if (mesh.material) mesh.material.destroy();

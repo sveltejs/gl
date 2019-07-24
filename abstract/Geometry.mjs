@@ -1,8 +1,32 @@
 const builtins = new Set(['POSITION', 'NORMAL', 'UV']);
 
 class GeometryInstance {
-	constructor() {
+	constructor(gl, program, attributes, index, primitive) {
+		this.attributes = attributes;
+		this.index = index;
+		this.primitive = primitive;
 
+		this.locations = {};
+		this.buffers = {};
+
+		for (const key in attributes) {
+			const attribute = attributes[key];
+
+			this.locations[key] = gl.getAttribLocation(program, key);
+
+			const buffer = gl.createBuffer();
+			this.buffers[key] = buffer;
+
+			gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+			gl.bufferData(gl.ARRAY_BUFFER, attribute.data, attribute.dynamic ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
+		}
+
+		if (index) {
+			const buffer = gl.createBuffer();
+			this.buffers.__index = buffer;
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
+			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, index, gl.STATIC_DRAW);
+		}
 	}
 
 	set_attributes(gl) {
@@ -48,31 +72,20 @@ export default class Geometry {
 		this.index = index;
 		this.primitive = primitive.toUpperCase();
 
-		this.locations = {};
-		this.buffers = {};
+		this.instances = new Map();
 	}
 
-	_init(gl, program) {
-		this.program = program;
-
-		for (const key in this.attributes) {
-			const attribute = this.attributes[key];
-
-			const upper = key.toUpperCase();
-			this.locations[key] = gl.getAttribLocation(program, builtins.has(upper) ? upper : key);
-
-			const buffer = gl.createBuffer();
-			if (!this.buffers[key]) this.buffers[key] = buffer;
-
-			gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-			gl.bufferData(gl.ARRAY_BUFFER, attribute.data, attribute.dynamic ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
+	instantiate(gl, program) {
+		if (!this.instances.has(program)) {
+			this.instances.set(program, new GeometryInstance(
+				gl,
+				program,
+				this.attributes,
+				this.index,
+				this.primitive
+			));
 		}
 
-		if (this.index) {
-			const buffer = gl.createBuffer();
-			this.buffers.__index = buffer;
-			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
-			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.index, gl.STATIC_DRAW);
-		}
+		return this.instances.get(program);
 	}
 }

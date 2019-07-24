@@ -128,6 +128,8 @@
 			camera_stores.camera_matrix.set(camera.matrix);
 			camera_stores.view.set(camera.view);
 			camera_stores.projection.set(camera.projection);
+
+			invalidate();
 		},
 
 		add_directional_light: add_to(lights.directional),
@@ -244,10 +246,10 @@
 				];
 			}, new Float32Array([0, 0, 0]));
 
-			let previous_program_info;
+			let previous_program;
 
-			function render_mesh({ model, model_inverse_transpose, geometry, material, program_info }) {
-				if (material.depthTest) {
+			function render_mesh({ model, model_inverse_transpose, geometry, material, props }) {
+				if (material.depthTest !== false) {
 					gl.enable(gl.DEPTH_TEST);
 				} else {
 					gl.disable(gl.DEPTH_TEST);
@@ -265,50 +267,51 @@
 					gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 				}
 
-				if (program_info !== previous_program_info) {
-					gl.useProgram(program_info.program);
+				if (material.program !== previous_program) {
+					previous_program = material.program;
+
+					// TODO move logic to the mesh/material?
+					gl.useProgram(material.program);
 
 					// set built-ins
-					gl.uniform3fv(program_info.uniform_locations.AMBIENT_LIGHT, ambient_light);
+					gl.uniform3fv(material.uniform_locations.AMBIENT_LIGHT, ambient_light);
 
-					if (program_info.uniform_locations.DIRECTIONAL_LIGHTS) {
+					if (material.uniform_locations.DIRECTIONAL_LIGHTS) {
 						for (let i = 0; i < num_lights; i += 1) {
 							const light = lights.directional[i];
 							if (!light) break;
 
-							gl.uniform3fv(program_info.uniform_locations.DIRECTIONAL_LIGHTS[i].direction, light.direction);
-							gl.uniform3fv(program_info.uniform_locations.DIRECTIONAL_LIGHTS[i].color, light.color);
-							gl.uniform1f(program_info.uniform_locations.DIRECTIONAL_LIGHTS[i].intensity, light.intensity);
+							gl.uniform3fv(material.uniform_locations.DIRECTIONAL_LIGHTS[i].direction, light.direction);
+							gl.uniform3fv(material.uniform_locations.DIRECTIONAL_LIGHTS[i].color, light.color);
+							gl.uniform1f(material.uniform_locations.DIRECTIONAL_LIGHTS[i].intensity, light.intensity);
 						}
 					}
 
-					if (program_info.uniform_locations.POINT_LIGHTS) {
+					if (material.uniform_locations.POINT_LIGHTS) {
 						for (let i = 0; i < num_lights; i += 1) {
 							const light = lights.point[i];
 							if (!light) break;
 
-							gl.uniform3fv(program_info.uniform_locations.POINT_LIGHTS[i].location, light.location);
-							gl.uniform3fv(program_info.uniform_locations.POINT_LIGHTS[i].color, light.color);
-							gl.uniform1f(program_info.uniform_locations.POINT_LIGHTS[i].intensity, light.intensity);
+							gl.uniform3fv(material.uniform_locations.POINT_LIGHTS[i].location, light.location);
+							gl.uniform3fv(material.uniform_locations.POINT_LIGHTS[i].color, light.color);
+							gl.uniform1f(material.uniform_locations.POINT_LIGHTS[i].intensity, light.intensity);
 						}
 					}
 
-					gl.uniform3fv(program_info.uniform_locations.CAMERA_WORLD_POSITION, camera.world_position);
-					gl.uniformMatrix4fv(program_info.uniform_locations.VIEW, false, camera.view);
-					gl.uniformMatrix4fv(program_info.uniform_locations.PROJECTION, false, camera.projection);
-
-					previous_program_info = program_info;
+					gl.uniform3fv(material.uniform_locations.CAMERA_WORLD_POSITION, camera.world_position);
+					gl.uniformMatrix4fv(material.uniform_locations.VIEW, false, camera.view);
+					gl.uniformMatrix4fv(material.uniform_locations.PROJECTION, false, camera.projection);
 				}
 
 				// set mesh-specific built-in uniforms
-				gl.uniformMatrix4fv(program_info.uniform_locations.MODEL, false, model);
-				gl.uniformMatrix4fv(program_info.uniform_locations.MODEL_INVERSE_TRANSPOSE, false, model_inverse_transpose);
+				gl.uniformMatrix4fv(material.uniform_locations.MODEL, false, model);
+				gl.uniformMatrix4fv(material.uniform_locations.MODEL_INVERSE_TRANSPOSE, false, model_inverse_transpose);
 
 				// set material-specific built-in uniforms
-				material._set_uniforms(gl, program_info.uniforms, program_info.uniform_locations);
+				material.set_uniforms(gl, props);
 
 				// set attributes
-				geometry._set_attributes(gl);
+				geometry.set_attributes(gl);
 
 				// draw
 				if (geometry.index) {
