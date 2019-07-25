@@ -57,7 +57,8 @@ export default class Material {
 			this.attribute_locations[attribute.name] = gl.getAttribLocation(this.program, attribute.name);
 		});
 
-		this.setters = [];
+		this.setter_lookup = new Map();
+		this.uniform_values = {};
 	}
 
 	set_uniforms(uniforms) {
@@ -68,7 +69,13 @@ export default class Material {
 
 		let texture_index = 0;
 
-		const add_image = (setter, loc, img) => {
+		const add_setter = (name, setter, loc, data) => {
+			const fn = () => setter(gl, loc, data);
+			this.setter_lookup.set(name, fn);
+			this.setters.push(fn);
+		};
+
+		const add_image = (name, setter, loc, img) => {
 			const data = {
 				constant: `TEXTURE${texture_index}`,
 				index: texture_index++,
@@ -83,22 +90,28 @@ export default class Material {
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-			this.setters.push(() => setter(gl, loc, data));
+			add_setter(name, setter, loc, data);
 		};
 
 		this.uniforms.forEach(({ name, type, loc, setter, processor }) => {
 			if (name in uniforms) {
 				let data = uniforms[name];
 
+				if (data === this.uniform_values[name]) {
+					this.setters.push(this.setter_lookup.get(name));
+					return;
+				}
+
 				if (type === 35678) {
 					// texture
 					if (typeof data === 'string') {
 						this.scene.load_image(data).then(data => {
 							if (token !== this.token) return;
-							add_image(setter, loc, data);
+							add_image(name, setter, loc, data);
+							this.scene.invalidate();
 						});
 					} else if (is_image_data(data)) {
-						add_image(setter, loc, data);
+						add_image(name, setter, loc, data);
 					} else {
 						// TODO figure out how to package up mipmap/type options etc
 						throw new Error(`TODO`);
@@ -113,12 +126,16 @@ export default class Material {
 					data = process_color(data);
 				}
 
-				this.setters.push(() => setter(gl, loc, data));
+				add_setter(name, setter, loc, data);
 			}
 		});
+
+		this.uniform_values = uniforms;
 	}
 
 	apply_uniforms(gl) {
+		// TODO if this is the only program, maybe
+		// we don't need to re-run this each time
 		this.setters.forEach(fn => fn());
 	}
 
