@@ -102,6 +102,7 @@
 	}
 
 	const targets = new Map();
+	const image_cache = new Map();
 
 	const scene = {
 		add_camera: _camera => {
@@ -149,42 +150,53 @@
 		height,
 
 		load_image(src) {
-			return new Promise((fulfil, reject) => {
-				if (typeof createImageBitmap !== 'undefined') {
-					// TODO pool workers?
-					const worker = create_worker(workerUrl, () => {
-						self.onmessage = e => {
-							fetch(e.data, { mode: 'cors' })
-								.then(response => response.blob())
-								.then(blobData => createImageBitmap(blobData))
-								.then(bitmap => {
-									self.postMessage({ bitmap }, [bitmap]);
-								})
-								.catch(error => {
-									self.postMessage({
-										error: {
-											message: error.message,
-											stack: error.stack
-										}
+			if (!image_cache.has(src)) {
+				image_cache.set(src, new Promise((fulfil, reject) => {
+					if (typeof createImageBitmap !== 'undefined') {
+						// TODO pool workers?
+						const worker = create_worker(workerUrl, () => {
+							self.onmessage = e => {
+								fetch(e.data, { mode: 'cors' })
+									.then(response => response.blob())
+									.then(blobData => createImageBitmap(blobData))
+									.then(bitmap => {
+										self.postMessage({ bitmap }, [bitmap]);
+									})
+									.catch(error => {
+										self.postMessage({
+											error: {
+												message: error.message,
+												stack: error.stack
+											}
+										});
 									});
-								});
+							};
+						});
+
+						worker.onmessage = e => {
+							if (e.data.error) {
+								image_cache.delete(src);
+								reject(e.data.error);
+							}
+
+							else fulfil(e.data.bitmap);
 						};
-					});
 
-					worker.onmessage = e => {
-						if (e.data.error) reject(e.data.error);
-						else fulfil(e.data.bitmap);
-					};
+						worker.postMessage(new URL(src, location.href).href);
+					} else {
+						const img = new Image();
+						img.crossOrigin = '';
+						img.onload = () => fulfil(img);
+						img.onerror = e => {
+							image_cache.delete(src);
+							reject(e);
+						};
+						img.src = src;
+					}
+				}));
+			}
 
-					worker.postMessage(new URL(src, location.href).href);
-				} else {
-					const img = new Image();
-					img.crossOrigin = '';
-					img.onload = () => fulfil(img);
-					img.onerror = reject;
-					img.src = src;
-				}
-			});
+			return image_cache.get(src);
 		}
 	};
 

@@ -32,6 +32,8 @@ function is_image_data(data) {
 
 export default class Material {
 	constructor(scene, defines, vert = vert_default, frag = frag_default) {
+		this.scene = scene;
+
 		const gl = scene.gl;
 		this.gl = gl;
 
@@ -59,61 +61,65 @@ export default class Material {
 	}
 
 	set_uniforms(uniforms) {
+		const { gl } = this;
+
+		const token = this.token = {};
 		this.setters = [];
 
 		let texture_index = 0;
+
+		const add_image = (setter, loc, img) => {
+			const data = {
+				constant: `TEXTURE${texture_index}`,
+				index: texture_index++,
+				texture: gl.createTexture()
+			};
+
+			gl.bindTexture(gl.TEXTURE_2D, data.texture);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+			gl.generateMipmap(gl.TEXTURE_2D);
+
+			// TODO make this configurable
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+			this.setters.push(() => setter(gl, loc, data));
+		};
 
 		this.uniforms.forEach(({ name, type, loc, setter, processor }) => {
 			if (name in uniforms) {
 				let data = uniforms[name];
 
+				if (type === 35678) {
+					// texture
+					if (typeof data === 'string') {
+						this.scene.load_image(data).then(data => {
+							if (token !== this.token) return;
+							add_image(setter, loc, data);
+						});
+					} else if (is_image_data(data)) {
+						add_image(setter, loc, data);
+					} else {
+						// TODO figure out how to package up mipmap/type options etc
+						throw new Error(`TODO`);
+					}
+
+					return;
+				}
+
 				if (typeof data === 'number' && type !== 5126) {
 					// data provided was a number like 0x123456,
 					// but it needs to be an array
 					data = process_color(data);
-				} else if (type === 35678) {
-					// texture
-					if (typeof data === 'string') {
-						// TODO load texture
-						throw new Error(`TODO load image from string`);
-
-						return;
-					}
-
-					else if (is_image_data(data)) {
-						const { gl } = this;
-						const img = data;
-
-						data = {
-							constant: `TEXTURE${texture_index}`,
-							index: texture_index++,
-							texture: gl.createTexture()
-						};
-
-						gl.bindTexture(gl.TEXTURE_2D, data.texture);
-						gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-						gl.generateMipmap(gl.TEXTURE_2D);
-
-						// TODO make this configurable
-						gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-						gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-					}
-
-					else {
-						// TODO figure out how to package up mipmap/type options etc
-						throw new Error(`TODO`);
-					}
 				}
 
-				this.setters.push({ setter, loc, data });
+				this.setters.push(() => setter(gl, loc, data));
 			}
 		});
 	}
 
 	apply_uniforms(gl) {
-		this.setters.forEach(({ setter, loc, data }) => {
-			setter(gl, loc, data);
-		});
+		this.setters.forEach(fn => fn());
 	}
 
 	destroy() {
