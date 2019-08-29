@@ -4,6 +4,8 @@
 	import { get_scene, get_layer, get_parent } from '../../internal/index.mjs';
 	import { process_color } from '../../internal/utils.mjs';
 	import Material from './Material.mjs';
+	import vert_default from './shaders/default/vert.glsl';
+	import frag_default from './shaders/default/frag.glsl';
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as quat from 'gl-matrix/quat';
 
@@ -13,8 +15,9 @@
 
 	export let geometry;
 
-	export let vert = undefined;
-	export let frag = undefined;
+	export let vert = vert_default;
+	export let frag = frag_default;
+	export let uniforms = {};
 	export let blend = undefined;
 	export let depthTest = undefined;
 
@@ -30,52 +33,21 @@
 	$: matrix = mat4.fromRotationTranslationScale(matrix || mat4.create(), quaternion, location, scale_array);
 	$: model = mat4.multiply(model || mat4.create(), $ctm, matrix);
 
+	$: defines = '#define NUM_LIGHTS 2\n' + ( // TODO make this configurable
+		Object.keys(uniforms)
+			.filter(k => uniforms[k] != null)
+			.map(k => `#define has_${k} true\n`)
+			.join('')
+	);
+	$: material_instance = new Material(scene, vert, frag, defines);
+	$: material_instance.set_uniforms(uniforms);
+	$: geometry_instance = geometry.instantiate(scene.gl, material_instance.program);
+
 	const mesh = {};
 	$: mesh.model = model;
 	$: mesh.model_inverse_transpose = (mat4.invert(out2, model), mat4.transpose(out2, out2));
-
-	let old_material;
-	let old_program;
-	let old_uniforms = {};
-	let old_hash;
-
-	beforeUpdate(() => {
-		const uniforms = {};
-		let dirty_uniforms = false;
-
-		let defines = '#define NUM_LIGHTS 2\n'; // TODO make this configurable
-
-		for (const k in $$props) {
-			const v = $$props[k];
-			if (k.startsWith('u-') && v != null) {
-				const n = k.slice(2);
-				defines += `#define has_${n} true\n`;
-				uniforms[n] = v;
-
-				if (v !== old_uniforms[n]) {
-					dirty_uniforms = true;
-				}
-			}
-		}
-
-		const hash = defines + vert + frag;
-
-		if (old_hash !== (old_hash = hash)) {
-			mesh.material = new Material(scene, defines, vert, frag);
-			mesh.geometry = geometry.instantiate(scene.gl, mesh.material.program);
-
-			if (old_material) old_material.destroy();
-			old_material = mesh.material;
-		}
-
-		if (dirty_uniforms) {
-			mesh.material.set_uniforms(uniforms);
-		}
-
-		scene.invalidate();
-
-		old_uniforms = uniforms;
-	});
+	$: mesh.material = material_instance;
+	$: mesh.geometry = geometry_instance;
 
 	onDestroy(() => {
 		if (mesh.material) mesh.material.destroy();

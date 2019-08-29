@@ -1,5 +1,3 @@
-const builtins = new Set(['POSITION', 'NORMAL', 'UV']);
-
 class GeometryInstance {
 	constructor(gl, program, attributes, index, primitive) {
 		this.attributes = attributes;

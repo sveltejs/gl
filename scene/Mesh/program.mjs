@@ -1,5 +1,7 @@
 import { process_color } from '../../internal/utils.mjs';
 
+const caches = new Map();
+
 const setters = {
 	[5126]:  (gl, loc, data) => gl.uniform1f(loc, data),
 	[35664]: (gl, loc, data) => gl.uniform2fv(loc, data),
@@ -16,6 +18,22 @@ const setters = {
 		gl.uniform1i(loc, data.index);
 	}
 };
+
+export function compile(gl, vert, frag) {
+	if (!caches.has(gl)) caches.set(gl, new Map());
+	const cache = caches.get(gl);
+
+	const hash = vert + frag;
+	if (!cache.has(hash)) {
+		const program = create_program(gl, vert, frag);
+		const uniforms = get_uniforms(gl, program);
+		const attributes = get_attributes(gl, program);
+
+		cache.set(hash, { program, uniforms, attributes });
+	}
+
+	return cache.get(hash);
+}
 
 export function remove_program(info) {
 	const cache = caches.get(info.gl);
@@ -79,7 +97,7 @@ function create_shader(gl, type, source, label) {
 	throw new Error(`Failed to compile ${label} shader:\n${log}`);
 }
 
-export function create_program(gl, vert, frag) {
+function create_program(gl, vert, frag) {
 	const program = gl.createProgram();
 
 	gl.attachShader(program, create_shader(gl, gl.VERTEX_SHADER, vert, 'vertex'));
@@ -95,7 +113,7 @@ export function create_program(gl, vert, frag) {
 	return program;
 }
 
-export function get_uniforms(gl, program) {
+function get_uniforms(gl, program) {
 	const uniforms = [];
 
 	const n = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
@@ -115,7 +133,7 @@ export function get_uniforms(gl, program) {
 	return uniforms;
 }
 
-export function get_attributes(gl, program) {
+function get_attributes(gl, program) {
 	const attributes = [];
 
 	const n = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
