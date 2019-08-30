@@ -1,8 +1,3 @@
-// abstract
-export { default as Attribute } from './abstract/Attribute.mjs';
-export { default as Geometry } from './abstract/Geometry.mjs';
-// export { default as Material } from './abstract/Material/index.mjs';
-
 // scene
 export { default as Scene } from './scene/Scene.svelte';
 export { default as Group } from './scene/Group.svelte';
@@ -22,9 +17,10 @@ export { default as OrbitControls } from './controls/OrbitControls.svelte';
 // cameras
 export { default as PerspectiveCamera } from './scene/cameras/PerspectiveCamera.svelte';
 
-// shapes
-export { default as Box } from './shapes/Box.svelte';
-export { default as Cone } from './shapes/Cone.svelte';
-export { default as Plane } from './shapes/Plane.svelte';
-export { default as IcoSphere } from './shapes/IcoSphere.svelte';
-export { default as Sphere } from './shapes/Sphere.svelte';
+// geometry
+export { default as Geometry } from './geometry/Geometry.mjs';
+export { default as box } from './geometry/box.mjs';
+export { default as cone } from './geometry/cone.mjs';
+export { default as plane } from './geometry/plane.mjs';
+export { default as icosphere } from './geometry/icosphere.mjs';
+export { default as sphere } from './geometry/sphere.mjs';

@@ -181,7 +181,7 @@ export default class Material {
 		// we don't need to re-run this each time
 		this.uniforms.forEach(uniform => {
 			if (uniform.name in this.values) {
-				console.log('applying', uniform);
+				uniform.setter(gl, uniform.loc, this.values[uniform.name]);
 			}
 		});
 	}

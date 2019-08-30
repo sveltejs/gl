@@ -176,7 +176,6 @@
 						worker.onmessage = e => {
 							if (e.data.error) {
 								image_cache.delete(src);
-								console.log(src);
 								reject(e.data.error);
 							}
 
@@ -324,7 +323,6 @@
 				material.apply_uniforms(gl);
 
 				// set attributes
-				console.log(geometry);
 				geometry.set_attributes(gl);
 
 				// draw
