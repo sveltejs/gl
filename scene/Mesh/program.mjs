@@ -1,5 +1,3 @@
-import { process_color } from '../../internal/utils.mjs';
-
 const caches = new Map();
 
 const setters = {
@@ -13,7 +11,7 @@ const setters = {
 	[35676]: (gl, loc, data) => gl.uniformMatrix4fv(loc, false, data),
 
 	[35678]: (gl, loc, data) => {
-		gl.activeTexture(gl[data.constant]);
+		gl.activeTexture(gl[`TEXTURE${data.index}`]);
 		gl.bindTexture(gl.TEXTURE_2D, data.texture);
 		gl.uniform1i(loc, data.index);
 	}

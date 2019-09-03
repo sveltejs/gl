@@ -62,6 +62,8 @@ export default class Material {
 	set_uniforms(raw_values) {
 		const token = this.token = {};
 
+		let texture_index = 0;
+
 		this.uniforms.forEach(({ name, type, loc, setter, processor }) => {
 			if (name in raw_values) {
 				let data = raw_values[name];
@@ -70,20 +72,10 @@ export default class Material {
 
 				if (type === 35678) {
 					// texture
-					if (typeof data === 'string') {
-						this.values[name] = null; // TODO replace with blank texture
-
-						this.scene.load_image(data).then(data => {
-							if (token !== this.token) return;
-							this.values[name] = data;
-							this.scene.invalidate();
-						});
-					} else if (is_image_data(data)) {
-						this.values[name] = data;
-					} else {
-						// TODO figure out how to package up mipmap/type options etc
-						throw new Error(`TODO`);
-					}
+					this.values[name] = {
+						texture: data.instantiate(this.scene)._,
+						index: texture_index++
+					};
 
 					return;
 				}
