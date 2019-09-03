@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.18
+
+* Overhaul ([#22](https://github.com/sveltejs/gl/pull/22))
+
 ## 0.0.17
 
 * Default to crossOrigin images
