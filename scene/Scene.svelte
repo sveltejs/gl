@@ -102,6 +102,7 @@
 	}
 
 	const targets = new Map();
+	const image_cache = new Map();
 
 	const scene = {
 		add_camera: _camera => {
@@ -128,6 +129,8 @@
 			camera_stores.camera_matrix.set(camera.matrix);
 			camera_stores.view.set(camera.view);
 			camera_stores.projection.set(camera.projection);
+
+			invalidate();
 		},
 
 		add_directional_light: add_to(lights.directional),
@@ -147,42 +150,53 @@
 		height,
 
 		load_image(src) {
-			return new Promise((fulfil, reject) => {
-				if (typeof createImageBitmap !== 'undefined') {
-					// TODO pool workers?
-					const worker = create_worker(workerUrl, () => {
-						self.onmessage = e => {
-							fetch(e.data, { mode: 'cors' })
-								.then(response => response.blob())
-								.then(blobData => createImageBitmap(blobData))
-								.then(bitmap => {
-									self.postMessage({ bitmap }, [bitmap]);
-								})
-								.catch(error => {
-									self.postMessage({
-										error: {
-											message: error.message,
-											stack: error.stack
-										}
+			if (!image_cache.has(src)) {
+				image_cache.set(src, new Promise((fulfil, reject) => {
+					if (typeof createImageBitmap !== 'undefined') {
+						// TODO pool workers?
+						const worker = create_worker(workerUrl, () => {
+							self.onmessage = e => {
+								fetch(e.data, { mode: 'cors' })
+									.then(response => response.blob())
+									.then(blobData => createImageBitmap(blobData))
+									.then(bitmap => {
+										self.postMessage({ bitmap }, [bitmap]);
+									})
+									.catch(error => {
+										self.postMessage({
+											error: {
+												message: error.message,
+												stack: error.stack
+											}
+										});
 									});
-								});
+							};
+						});
+
+						worker.onmessage = e => {
+							if (e.data.error) {
+								image_cache.delete(src);
+								reject(e.data.error);
+							}
+
+							else fulfil(e.data.bitmap);
 						};
-					});
 
-					worker.onmessage = e => {
-						if (e.data.error) reject(e.data.error);
-						else fulfil(e.data.bitmap);
-					};
+						worker.postMessage(new URL(src, location.href).href);
+					} else {
+						const img = new Image();
+						img.crossOrigin = '';
+						img.onload = () => fulfil(img);
+						img.onerror = e => {
+							image_cache.delete(src);
+							reject(e);
+						};
+						img.src = src;
+					}
+				}));
+			}
 
-					worker.postMessage(new URL(src, location.href).href);
-				} else {
-					const img = new Image();
-					img.crossOrigin = '';
-					img.onload = () => fulfil(img);
-					img.onerror = reject;
-					img.src = src;
-				}
-			});
+			return image_cache.get(src);
 		}
 	};
 
@@ -244,10 +258,10 @@
 				];
 			}, new Float32Array([0, 0, 0]));
 
-			let previous_program_info;
+			let previous_program;
 
-			function render_mesh({ model, model_inverse_transpose, geometry, material, program_info }) {
-				if (material.depthTest) {
+			function render_mesh({ model, model_inverse_transpose, geometry, material, props }) {
+				if (material.depthTest !== false) {
 					gl.enable(gl.DEPTH_TEST);
 				} else {
 					gl.disable(gl.DEPTH_TEST);
@@ -265,50 +279,51 @@
 					gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 				}
 
-				if (program_info !== previous_program_info) {
-					gl.useProgram(program_info.program);
+				if (material.program !== previous_program) {
+					previous_program = material.program;
+
+					// TODO move logic to the mesh/material?
+					gl.useProgram(material.program);
 
 					// set built-ins
-					gl.uniform3fv(program_info.uniform_locations.AMBIENT_LIGHT, ambient_light);
+					gl.uniform3fv(material.uniform_locations.AMBIENT_LIGHT, ambient_light);
 
-					if (program_info.uniform_locations.DIRECTIONAL_LIGHTS) {
+					if (material.uniform_locations.DIRECTIONAL_LIGHTS) {
 						for (let i = 0; i < num_lights; i += 1) {
 							const light = lights.directional[i];
 							if (!light) break;
 
-							gl.uniform3fv(program_info.uniform_locations.DIRECTIONAL_LIGHTS[i].direction, light.direction);
-							gl.uniform3fv(program_info.uniform_locations.DIRECTIONAL_LIGHTS[i].color, light.color);
-							gl.uniform1f(program_info.uniform_locations.DIRECTIONAL_LIGHTS[i].intensity, light.intensity);
+							gl.uniform3fv(material.uniform_locations.DIRECTIONAL_LIGHTS[i].direction, light.direction);
+							gl.uniform3fv(material.uniform_locations.DIRECTIONAL_LIGHTS[i].color, light.color);
+							gl.uniform1f(material.uniform_locations.DIRECTIONAL_LIGHTS[i].intensity, light.intensity);
 						}
 					}
 
-					if (program_info.uniform_locations.POINT_LIGHTS) {
+					if (material.uniform_locations.POINT_LIGHTS) {
 						for (let i = 0; i < num_lights; i += 1) {
 							const light = lights.point[i];
 							if (!light) break;
 
-							gl.uniform3fv(program_info.uniform_locations.POINT_LIGHTS[i].location, light.location);
-							gl.uniform3fv(program_info.uniform_locations.POINT_LIGHTS[i].color, light.color);
-							gl.uniform1f(program_info.uniform_locations.POINT_LIGHTS[i].intensity, light.intensity);
+							gl.uniform3fv(material.uniform_locations.POINT_LIGHTS[i].location, light.location);
+							gl.uniform3fv(material.uniform_locations.POINT_LIGHTS[i].color, light.color);
+							gl.uniform1f(material.uniform_locations.POINT_LIGHTS[i].intensity, light.intensity);
 						}
 					}
 
-					gl.uniform3fv(program_info.uniform_locations.CAMERA_WORLD_POSITION, camera.world_position);
-					gl.uniformMatrix4fv(program_info.uniform_locations.VIEW, false, camera.view);
-					gl.uniformMatrix4fv(program_info.uniform_locations.PROJECTION, false, camera.projection);
-
-					previous_program_info = program_info;
+					gl.uniform3fv(material.uniform_locations.CAMERA_WORLD_POSITION, camera.world_position);
+					gl.uniformMatrix4fv(material.uniform_locations.VIEW, false, camera.view);
+					gl.uniformMatrix4fv(material.uniform_locations.PROJECTION, false, camera.projection);
 				}
 
 				// set mesh-specific built-in uniforms
-				gl.uniformMatrix4fv(program_info.uniform_locations.MODEL, false, model);
-				gl.uniformMatrix4fv(program_info.uniform_locations.MODEL_INVERSE_TRANSPOSE, false, model_inverse_transpose);
+				gl.uniformMatrix4fv(material.uniform_locations.MODEL, false, model);
+				gl.uniformMatrix4fv(material.uniform_locations.MODEL_INVERSE_TRANSPOSE, false, model_inverse_transpose);
 
 				// set material-specific built-in uniforms
-				material._set_uniforms(gl, program_info.uniforms, program_info.uniform_locations);
+				material.apply_uniforms(gl);
 
 				// set attributes
-				geometry._set_attributes(gl);
+				geometry.set_attributes(gl);
 
 				// draw
 				if (geometry.index) {

@@ -8,13 +8,6 @@ uniform mat4 MODEL_INVERSE_TRANSPOSE;
 
 uniform vec3 CAMERA_WORLD_POSITION;
 
-attribute vec3 POSITION;
-attribute vec3 NORMAL;
-
-#ifdef USES_TEXTURES
-attribute vec2 UV;
-#endif
-
 struct PointLight {
 	vec3 location;
 	vec3 color;

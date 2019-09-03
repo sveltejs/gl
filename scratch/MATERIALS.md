@@ -45,7 +45,7 @@ It's possible that a material could be shared between multiple scenes. We might 
 For that reason, it might make sense to think in terms of material *instances*:
 
 ```html
-// Mesh.svelte
+// Mesh/index.svelte
 <script>
 	// ...
 	import { get_scene, get_layer, get_parent } from '../internal/index.mjs';

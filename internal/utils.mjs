@@ -37,3 +37,12 @@ export function create_worker(url, fn) {
 
 	return worker;
 }
+
+export function memoize(fn) {
+	const cache = new Map();
+	return (...args) => {
+		const hash = JSON.stringify(args);
+		if (!cache.has(hash)) cache.set(hash, fn(...args));
+		return cache.get(hash);
+	};
+}

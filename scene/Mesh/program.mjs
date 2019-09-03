@@ -1,71 +1,36 @@
-import vert_builtin from './shaders/builtin/vert.glsl';
-import frag_builtin from './shaders/builtin/frag.glsl';
-
 const caches = new Map();
 
-function deep_set(obj, path, value) {
-	const parts = path.replace(/\]$/, '').split(/\[|\]\.|\./);
+const setters = {
+	[5126]:  (gl, loc, data) => gl.uniform1f(loc, data),
+	[35664]: (gl, loc, data) => gl.uniform2fv(loc, data),
+	[35665]: (gl, loc, data) => gl.uniform3fv(loc, data),
+	[35666]: (gl, loc, data) => gl.uniform4fv(loc, data),
 
-	while (parts.length > 1) {
-		const part = parts.shift();
-		const next = parts[0];
+	[35674]: (gl, loc, data) => gl.uniformMatrix2fv(loc, false, data),
+	[35675]: (gl, loc, data) => gl.uniformMatrix3fv(loc, false, data),
+	[35676]: (gl, loc, data) => gl.uniformMatrix4fv(loc, false, data),
 
-		if (!obj[part]) obj[part] = /^\d+$/.test(next) ? [] : {};
-		obj = obj[part];
+	[35678]: (gl, loc, data) => {
+		gl.activeTexture(gl[`TEXTURE${data.index}`]);
+		gl.bindTexture(gl.TEXTURE_2D, data.texture);
+		gl.uniform1i(loc, data.index);
 	}
+};
 
-	obj[parts[0]] = value;
-}
-
-export function get_program(gl, material) {
-	if (!caches.get(gl)) caches.set(gl, new Map());
+export function compile(gl, vert, frag) {
+	if (!caches.has(gl)) caches.set(gl, new Map());
 	const cache = caches.get(gl);
 
-	if (!cache.has(material.hash)) {
-		const defines = [
-			`NUM_LIGHTS 2`, // TODO make this parameterisable
-			(material._textures.map || material._textures.specMap || material._textures.bumpMap || material._textures.normalMap) && `USES_TEXTURES true`,
-			(material.specularity !== undefined || material._textures.specMap) && `USES_SPECULARITY true`,
-			material._textures.map && `USES_COLOR_MAP true`,
-			material._textures.specMap && `USES_SPEC_MAP true`,
-			material._textures.bumpMap && `USES_BUMP_MAP true`,
-			material._textures.normalMap && `USES_NORMAL_MAP true`,
-			material.alpha !== undefined && `USES_ALPHA true`
-		].filter(Boolean).map(x => `#define ${x}`).join('\n') + '\n\n';
-
-		const vert = defines + vert_builtin + '\n\n' + material.vert;
-		const frag = defines + frag_builtin + '\n\n' + material.frag;
-
+	const hash = vert + frag;
+	if (!cache.has(hash)) {
 		const program = create_program(gl, vert, frag);
 		const uniforms = get_uniforms(gl, program);
 		const attributes = get_attributes(gl, program);
 
-		const uniform_locations = {};
-		uniforms.forEach(uniform => {
-			deep_set(uniform_locations, uniform.name, gl.getUniformLocation(program, uniform.name));
-		});
-
-		const attribute_locations = {};
-		attributes.forEach(attribute => {
-			attribute_locations[attribute.name] = gl.getAttribLocation(program, attribute.name);
-		});
-
-		cache.set(material.hash, {
-			users: 0,
-			hash: material.hash,
-			gl,
-			program,
-			uniforms,
-			attributes,
-			uniform_locations,
-			attribute_locations
-		});
+		cache.set(hash, { program, uniforms, attributes });
 	}
 
-	const info = cache.get(material.hash);
-	info.users += 1;
-
-	return info;
+	return cache.get(hash);
 }
 
 export function remove_program(info) {
@@ -154,8 +119,13 @@ function get_uniforms(gl, program) {
 	for (let i = 0; i < n; i += 1) {
 		let { size, type, name } = gl.getActiveUniform(program, i);
 		const loc = gl.getUniformLocation(program, name);
+		const setter = setters[type];
 
-		uniforms.push({ size, type, name, loc });
+		if (!setter) {
+			throw new Error(`not implemented ${type} (${name})`);
+		}
+
+		uniforms.push({ size, type, name, setter, loc });
 	}
 
 	return uniforms;

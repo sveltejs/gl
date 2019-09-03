@@ -54,6 +54,8 @@ An attribute is a typed array (normally a Float32Array, I think?) plus a size.
 
 A material is a combination of a WebGL *program* and a number of uniforms that pertain to that program. Some of those uniforms are 'well known', such as alpha, specularity, colorMap and so on. Some may be specific to the program's shader, if it's not using a default shader.
 
+Each mesh has its own material. Many materials can share the same program.
+
 
 ## Open questions
 

@@ -5,7 +5,7 @@
 	import * as quat from 'gl-matrix/quat';
 
 	export let location = [0, 0, 0];
-	export let lookAt;
+	export let lookAt = undefined;
 	export let up = [0, 1, 0];
 	export let rotation = [0, 0, 0]; // TODO make it possible to set a quaternion as a prop?
 	export let scale = 1;
