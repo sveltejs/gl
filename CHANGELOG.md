@@ -1,5 +1,11 @@
 # @sveltejs/gl changelog
 
+## 0.0.20
+
+* Add `fog` property to `<Scene>`
+* `background` property on `<Scene>` now takes an `[r,g,b]` array or `0xrrggbb` value
+* `backgroundOpacity` property controls background opacity
+
 ## 0.0.19
 
 * Pass through `depthTest` and `blend`
