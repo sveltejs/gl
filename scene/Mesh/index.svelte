@@ -39,7 +39,7 @@
 			.map(k => `#define has_${k} true\n`)
 			.join('')
 	);
-	$: material_instance = new Material(scene, vert, frag, defines);
+	$: material_instance = new Material(scene, vert, frag, defines, blend, depthTest);
 	$: material_instance.set_uniforms(uniforms);
 	$: geometry_instance = geometry.instantiate(scene.gl, material_instance.program);
 

@@ -17,23 +17,15 @@ function deep_set(obj, path, value) {
 	obj[parts[0]] = value;
 }
 
-function is_image_data(data) {
-	return (
-		data instanceof HTMLImageElement ||
-		data instanceof HTMLCanvasElement ||
-		data instanceof HTMLVideoElement ||
-		data instanceof ImageBitmap ||
-		data instanceof ImageData ||
-		ArrayBuffer.isView(data)
-	);
-}
-
 export default class Material {
-	constructor(scene, vert, frag, defines) {
+	constructor(scene, vert, frag, defines, blend, depthTest) {
 		this.scene = scene;
 
 		const gl = scene.gl;
 		this.gl = gl;
+
+		this.blend = blend;
+		this.depthTest = depthTest;
 
 		const { program, uniforms, attributes } = compile(
 			gl,
@@ -60,8 +52,6 @@ export default class Material {
 	}
 
 	set_uniforms(raw_values) {
-		const token = this.token = {};
-
 		let texture_index = 0;
 
 		this.uniforms.forEach(({ name, type, loc, setter, processor }) => {
@@ -92,80 +82,6 @@ export default class Material {
 		});
 
 		this.raw_values = raw_values;
-
-		// const { gl } = this;
-
-		// const token = this.token = {};
-		// this.setters = [];
-
-		// let texture_index = 0;
-
-		// const add_setter = (name, setter, loc, data) => {
-		// 	const fn = () => setter(gl, loc, data);
-		// 	this.setter_lookup.set(name, fn);
-		// 	this.setters.push(fn);
-		// };
-
-		// const add_image = (name, setter, loc, img) => {
-		// 	const data = {
-		// 		constant: `TEXTURE${texture_index}`,
-		// 		index: texture_index++,
-		// 		texture: gl.createTexture()
-		// 	};
-
-		// 	gl.bindTexture(gl.TEXTURE_2D, data.texture);
-
-		// 	// TODO make all this configurable
-		// 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-		// 	gl.generateMipmap(gl.TEXTURE_2D);
-
-		// 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-		// 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		// 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		// 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-		// 	add_setter(name, setter, loc, data);
-		// };
-
-		// this.uniforms.forEach(({ name, type, loc, setter, processor }) => {
-		// 	if (name in uniforms) {
-		// 		let data = uniforms[name];
-
-		// 		if (data === this.uniform_values[name]) {
-		// 			this.setters.push(this.setter_lookup.get(name));
-		// 			return;
-		// 		}
-
-		// 		if (type === 35678) {
-		// 			// texture
-		// 			if (typeof data === 'string') {
-		// 				this.scene.load_image(data).then(data => {
-		// 					if (token !== this.token) return;
-		// 					add_image(name, setter, loc, data);
-		// 					this.scene.invalidate();
-		// 				});
-		// 			} else if (is_image_data(data)) {
-		// 				add_image(name, setter, loc, data);
-		// 			} else {
-		// 				// TODO figure out how to package up mipmap/type options etc
-		// 				throw new Error(`TODO`);
-		// 			}
-
-		// 			return;
-		// 		}
-
-		// 		if (typeof data === 'number' && type !== 5126) {
-		// 			// data provided was a number like 0x123456,
-		// 			// but it needs to be an array. for now,
-		// 			// assume it's a color, i.e. vec3
-		// 			data = process_color(data);
-		// 		}
-
-		// 		add_setter(name, setter, loc, data);
-		// 	}
-		// });
-
-		// this.uniform_values = uniforms;
 	}
 
 	apply_uniforms(gl, builtins) {
