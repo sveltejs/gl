@@ -104,6 +104,12 @@ uniform vec3 color;
 uniform float alpha;
 #endif
 
+#ifdef USE_FOG
+uniform vec3 FOG_COLOR;
+uniform float FOG_DENSITY;
+varying float v_fog_depth;
+#endif
+
 varying vec3 v_normal;
 
 #if defined(has_normalmap) || defined(has_bumpmap)
@@ -167,4 +173,12 @@ void main () {
 
 	gl_FragColor.rgb *= mix(AMBIENT_LIGHT, vec3(1.0, 1.0, 1.0), lighting);
 	gl_FragColor.rgb += spec_amount;
+
+	#ifdef USE_FOG
+	gl_FragColor.rgb = mix(
+		gl_FragColor.rgb,
+		FOG_COLOR,
+		1.0 - exp(-FOG_DENSITY * FOG_DENSITY * v_fog_depth * v_fog_depth)
+	);
+	#endif
 }

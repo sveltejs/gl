@@ -22,6 +22,10 @@ varying vec3 v_surface_to_light[NUM_LIGHTS];
 varying vec3 v_surface_to_view[NUM_LIGHTS];
 #endif
 
+#ifdef USE_FOG
+varying float v_fog_depth;
+#endif
+
 void main() {
 	vec4 pos = vec4(position, 1.0);
 	vec4 model_view_pos = VIEW * MODEL * pos;
@@ -34,6 +38,10 @@ void main() {
 
 	#if defined(has_normalmap) || defined(has_bumpmap)
 	v_view_position = model_view_pos.xyz;
+	#endif
+
+	#ifdef USE_FOG
+	v_fog_depth = -model_view_pos.z;
 	#endif
 
 	for (int i = 0; i < NUM_LIGHTS; i += 1) {

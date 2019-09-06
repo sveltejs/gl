@@ -29,8 +29,8 @@ export default class Material {
 
 		const { program, uniforms, attributes } = compile(
 			gl,
-			defines + '\n\n' + vert_builtin + '\n\n' + vert,
-			defines + '\n\n' + frag_builtin + '\n\n' + frag
+			scene.defines + defines + '\n\n' + vert_builtin + '\n\n' + vert,
+			scene.defines + defines + '\n\n' + frag_builtin + '\n\n' + frag
 		);
 
 		this.program = program;

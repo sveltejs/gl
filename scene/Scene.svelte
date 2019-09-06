@@ -34,16 +34,22 @@
 	import { setContext, onMount, onDestroy, tick } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { RENDERER, LAYER, PARENT, CAMERA, create_layer } from '../internal/index.mjs';
-	import { create_worker } from '../internal/utils.mjs';
+	import { create_worker, process_color } from '../internal/utils.mjs';
 	import * as mat4 from 'gl-matrix/mat4';
 	import * as vec3 from 'gl-matrix/vec3';
 
-	export let background = [1, 1, 1, 1];
+	export let background = [1, 1, 1];
+	export let backgroundOpacity = 1;
+	export let fog = undefined;
 	export let pixelRatio = undefined;
 	export let workerUrl = (typeof Blob !== 'undefined' && URL.createObjectURL(new Blob(
 		[`self.onmessage = e => { self.onmessage = null; eval(e.data); };`],
 		{ type: 'application/javascript' }
 	)));
+
+	const use_fog = 'fog' in $$props;
+
+	$: bg = process_color(background);
 
 	let canvas;
 	let visible = writable(false);
@@ -105,6 +111,11 @@
 	const image_cache = new Map();
 
 	const scene = {
+		defines: [
+			`#define NUM_LIGHTS 2\n` + // TODO configure this
+			`#define USE_FOG ${use_fog}\n`
+		].join(''),
+
 		add_camera: _camera => {
 			if (camera && camera !== default_camera) {
 				throw new Error(`A scene can only have one camera`);
@@ -200,6 +211,8 @@
 		}
 	};
 
+	console.log(scene.defines);
+
 	setContext(RENDERER, scene);
 	setContext(LAYER, root_layer);
 
@@ -243,7 +256,7 @@
 
 			if (!$visible && !force) return;
 
-			gl.clearColor(...background);
+			gl.clearColor(...bg, backgroundOpacity);
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 			gl.enable(gl.CULL_FACE);
@@ -287,6 +300,11 @@
 
 					// set built-ins
 					gl.uniform3fv(material.uniform_locations.AMBIENT_LIGHT, ambient_light);
+
+					if (use_fog) {
+						gl.uniform3fv(material.uniform_locations.FOG_COLOR, bg);
+						gl.uniform1f(material.uniform_locations.FOG_DENSITY, fog);
+					}
 
 					if (material.uniform_locations.DIRECTIONAL_LIGHTS) {
 						for (let i = 0; i < num_lights; i += 1) {
@@ -390,6 +408,7 @@
 	};
 
 	$: ($width, $height, update_dimensions());
+	$: (background, backgroundOpacity, fog, scene.invalidate());
 </script>
 
 <style>

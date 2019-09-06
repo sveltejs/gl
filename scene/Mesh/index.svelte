@@ -33,12 +33,10 @@
 	$: matrix = mat4.fromRotationTranslationScale(matrix || mat4.create(), quaternion, location, scale_array);
 	$: model = mat4.multiply(model || mat4.create(), $ctm, matrix);
 
-	$: defines = '#define NUM_LIGHTS 2\n' + ( // TODO make this configurable
-		Object.keys(uniforms)
-			.filter(k => uniforms[k] != null)
-			.map(k => `#define has_${k} true\n`)
-			.join('')
-	);
+	$: defines = Object.keys(uniforms)
+		.filter(k => uniforms[k] != null)
+		.map(k => `#define has_${k} true\n`)
+		.join('');
 	$: material_instance = new Material(scene, vert, frag, defines, blend, depthTest);
 	$: material_instance.set_uniforms(uniforms);
 	$: geometry_instance = geometry.instantiate(scene.gl, material_instance.program);
