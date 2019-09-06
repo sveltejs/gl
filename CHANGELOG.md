@@ -1,5 +1,10 @@
 # @sveltejs/gl changelog
 
+## 0.0.19
+
+* Pass through `depthTest` and `blend`
+* Allow more than one texture
+
 ## 0.0.18
 
 * Overhaul ([#22](https://github.com/sveltejs/gl/pull/22))
