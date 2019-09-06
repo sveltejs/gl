@@ -83,8 +83,8 @@ export default class Texture {
 		if (!caches.has(scene)) caches.set(scene, new Map());
 		const a = caches.get(scene);
 
-		if (!a.has(this.id)) a.set(this.id, new Map());
-		const b = a.get(this.id);
+		if (!a.has(this.data)) a.set(this.data, new Map());
+		const b = a.get(this.data);
 
 		if (!b.has(this.hash)) b.set(this.hash, new TextureInstance(scene, this, index));
 		return b.get(this.hash);
