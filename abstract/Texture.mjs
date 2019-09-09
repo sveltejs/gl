@@ -1,4 +1,5 @@
 import * as constants from '../internal/constants.mjs';
+import { load_image } from '../internal/image.mjs';
 
 const is_power_of_two = n => (n & (n - 1)) === 0;
 
@@ -13,14 +14,12 @@ class TextureInstance {
 		if (typeof texture.data === 'string') {
 			this.bind(gl, texture, black_pixel);
 
-			scene.load_image(texture.data).then(img => {
-				console.log(img);
-				this.bind(gl, texture, img);
+			this.ready.then(() => {
+				this.bind(gl, texture, texture.data);
 				scene.invalidate();
-			}).catch(err => {
-				console.error(err);
 			});
 		} else {
+			this.ready = resolved || (resolved = Promise.resolve());
 			this.bind(gl, texture, texture.data);
 		}
 	}
@@ -56,6 +55,7 @@ class TextureInstance {
 }
 
 const caches = new Map();
+let resolved;
 
 export default class Texture {
 	constructor(data, opts = {}) {
@@ -76,7 +76,11 @@ export default class Texture {
 
 		this.hash = JSON.stringify(this.opts);
 
-		this.ready = typeof data !== 'string';
+		this.ready = typeof data === 'string'
+			? load_image(data).then(img => {
+				this.data = img;
+			})
+			: resolved || (resolved = Promise.resolve());
 	}
 
 	instantiate(scene, index) {

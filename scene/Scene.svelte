@@ -42,10 +42,6 @@
 	export let backgroundOpacity = 1;
 	export let fog = undefined;
 	export let pixelRatio = undefined;
-	export let workerUrl = (typeof Blob !== 'undefined' && URL.createObjectURL(new Blob(
-		[`self.onmessage = e => { self.onmessage = null; eval(e.data); };`],
-		{ type: 'application/javascript' }
-	)));
 
 	const use_fog = 'fog' in $$props;
 
@@ -108,7 +104,6 @@
 	}
 
 	const targets = new Map();
-	const image_cache = new Map();
 
 	const scene = {
 		defines: [
@@ -158,57 +153,7 @@
 		...camera_stores,
 
 		width,
-		height,
-
-		load_image(src) {
-			if (!image_cache.has(src)) {
-				image_cache.set(src, new Promise((fulfil, reject) => {
-					if (typeof createImageBitmap !== 'undefined') {
-						// TODO pool workers?
-						const worker = create_worker(workerUrl, () => {
-							self.onmessage = e => {
-								fetch(e.data, { mode: 'cors' })
-									.then(response => response.blob())
-									.then(blobData => createImageBitmap(blobData))
-									.then(bitmap => {
-										self.postMessage({ bitmap }, [bitmap]);
-									})
-									.catch(error => {
-										self.postMessage({
-											error: {
-												message: error.message,
-												stack: error.stack
-											}
-										});
-									});
-							};
-						});
-
-						worker.onmessage = e => {
-							if (e.data.error) {
-								image_cache.delete(src);
-								reject(e.data.error);
-							}
-
-							else fulfil(e.data.bitmap);
-						};
-
-						worker.postMessage(new URL(src, location.href).href);
-					} else {
-						const img = new Image();
-						img.crossOrigin = '';
-						img.onload = () => fulfil(img);
-						img.onerror = e => {
-							image_cache.delete(src);
-							reject(e);
-						};
-						img.src = src;
-					}
-				}));
-			}
-
-			return image_cache.get(src);
-		}
+		height
 	};
 
 	console.log(scene.defines);

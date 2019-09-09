@@ -47,7 +47,7 @@
 	$: mesh.material = material_instance;
 	$: mesh.geometry = geometry_instance;
 
-	$: (geometry_instance, model, scene.invalidate());
+	$: (geometry_instance, model, uniforms, scene.invalidate());
 
 	onDestroy(() => {
 		if (mesh.material) mesh.material.destroy();
