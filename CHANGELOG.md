@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.21
+
+* Make image loading scene-independent
+
 ## 0.0.20
 
 * Add `fog` property to `<Scene>`
