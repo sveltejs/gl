@@ -1,5 +1,11 @@
 # @sveltejs/gl changelog
 
+## 0.0.22
+
+* Add an orthographic camera
+* Pass width and height into scene
+* Sort transparent objects
+
 ## 0.0.21
 
 * Make image loading scene-independent
