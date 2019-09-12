@@ -16,6 +16,7 @@ export { default as OrbitControls } from './controls/OrbitControls.svelte';
 
 // cameras
 export { default as PerspectiveCamera } from './scene/cameras/PerspectiveCamera.svelte';
+export { default as OrthoCamera } from './scene/cameras/OrthoCamera.svelte';
 
 // geometry
 export { default as Geometry } from './geometry/Geometry.mjs';
