@@ -20,6 +20,7 @@
 	export let uniforms = {};
 	export let blend = undefined;
 	export let depthTest = undefined;
+	export let transparent = false;
 
 	const scene = get_scene();
 	const layer = get_layer();
@@ -46,6 +47,7 @@
 	$: mesh.model_inverse_transpose = (mat4.invert(out2, model), mat4.transpose(out2, out2));
 	$: mesh.material = material_instance;
 	$: mesh.geometry = geometry_instance;
+	$: mesh.transparent = transparent;
 
 	$: (geometry_instance, model, uniforms, scene.invalidate());
 

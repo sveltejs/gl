@@ -316,7 +316,7 @@
 				for (let i = 0; i < layer.meshes.length; i += 1) {
 					const mesh = layer.meshes[i];
 
-					if (mesh.material.alpha < 1) {
+					if (mesh.transparent) {
 						transparent.push(mesh);
 					} else {
 						render_mesh(mesh);
@@ -325,7 +325,7 @@
 
 				// TODO sort transparent meshes, furthest to closest
 				gl.depthMask(false);
-				transparent.forEach(render_mesh);
+				transparent.sort(furthest_first).forEach(render_mesh);
 
 				for (let i = 0; i < layer.child_layers.length; i += 1) {
 					render_layer(layer.child_layers[i]);
@@ -344,6 +344,9 @@
 
 		tick().then(() => draw(true));
 	});
+
+	// element 14 represents the z position of the model
+	const furthest_first = (a, b) => a.model[14] - b.model[14];
 
 	let dimensions_need_update = true;
 
