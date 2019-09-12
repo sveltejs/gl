@@ -373,6 +373,6 @@
 	<canvas bind:this={canvas}></canvas>
 
 	{#if gl}
-		<slot></slot>
+		<slot width={$width} height={$height}></slot>
 	{/if}
 </div>
