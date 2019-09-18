@@ -49,6 +49,7 @@
 
 	let canvas;
 	let visible = writable(false);
+	let pending = false;
 	let w;
 	let h;
 
@@ -156,8 +157,6 @@
 		height
 	};
 
-	console.log(scene.defines);
-
 	setContext(RENDERER, scene);
 	setContext(LAYER, root_layer);
 
@@ -199,7 +198,12 @@
 
 			update_scheduled = false;
 
-			if (!$visible && !force) return;
+			if (!$visible && !force) {
+				pending = true;
+				return;
+			};
+
+			pending = false;
 
 			gl.clearColor(...bg, backgroundOpacity);
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -357,6 +361,7 @@
 
 	$: ($width, $height, update_dimensions());
 	$: (background, backgroundOpacity, fog, scene.invalidate());
+	$: if ($visible && pending) scene.invalidate();
 </script>
 
 <style>

@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.23
+
+* Render on entering viewport
+
 ## 0.0.22
 
 * Add an orthographic camera
