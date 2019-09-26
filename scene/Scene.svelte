@@ -356,12 +356,17 @@
 
 		// for some wacky reason, Adblock Plus seems to prevent the
 		// initial dimensions from being correctly reported
-		setTimeout(() => {
+		const timeout = setTimeout(() => {
 			$width = canvas.clientWidth;
 			$height = canvas.clientHeight;
 		});
 
 		tick().then(() => draw(true));
+
+		return () => {
+			gl.getExtension('WEBGL_lose_context').loseContext();
+			clearTimeout(timeout);
+		};
 	});
 
 	// element 14 represents the z position of the model
