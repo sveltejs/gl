@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.25
+
+* Lose context when scene is destroyed
+
 ## 0.0.24
 
 * Work around apparent IntersectionObserver bug
