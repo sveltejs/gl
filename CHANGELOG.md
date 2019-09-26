@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.24
+
+* Work around apparent IntersectionObserver bug
+
 ## 0.0.23
 
 * Render on entering viewport
