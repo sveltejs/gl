@@ -1,11 +1,26 @@
 <script context="module">
 	import { readable } from 'svelte/store';
 
+	function is_intersecting(el) {
+		// TODO this shouldn't be necessary. But the initial value
+		// of entry.isIntersecting in an IO can be incorrect, it
+		// turns out? need to investigate further
+		const bcr = el.getBoundingClientRect();
+
+		return (
+			bcr.bottom > 0 &&
+			bcr.right  > 0 &&
+			bcr.top    < window.innerHeight &&
+			bcr.left   < window.innerWidth
+		);
+	}
+
 	function get_visibility(node) {
 		return readable(false, set => {
 			if (typeof IntersectionObserver !== 'undefined') {
 				const observer = new IntersectionObserver(entries => {
-					set(entries[0].isIntersecting);
+					// set(entries[0].isIntersecting);
+					set(is_intersecting(node));
 				});
 
 				observer.observe(node);
