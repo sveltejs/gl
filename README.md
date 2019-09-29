@@ -34,7 +34,7 @@ Meanwhile, [A-Frame](https://aframe.io/) — which is a web component wrapper ar
 
 ## How can I use it?
 
-Check out [this demo](https://svelte-gl-demo.surge.sh) to get started. There's not much point writing docs until things are a bit more settled.
+Check out [this demo](https://svelte.dev/repl/8d6d139a3d634c2fb1e1ff107c123dd5) to get started. There's not much point writing docs until things are a bit more settled.
 
 
 ## Ideas for future development
