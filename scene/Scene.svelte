@@ -238,6 +238,9 @@
 			let previous_program;
 
 			function render_mesh({ model, model_inverse_transpose, geometry, material, props }) {
+				// TODO should this even be possible?
+				if (!material) return;
+
 				if (material.depthTest !== false) {
 					gl.enable(gl.DEPTH_TEST);
 				} else {

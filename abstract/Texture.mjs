@@ -14,12 +14,11 @@ class TextureInstance {
 		if (typeof texture.data === 'string') {
 			this.bind(gl, texture, black_pixel);
 
-			this.ready.then(() => {
+			texture.ready.then(() => {
 				this.bind(gl, texture, texture.data);
 				scene.invalidate();
 			});
 		} else {
-			this.ready = resolved || (resolved = Promise.resolve());
 			this.bind(gl, texture, texture.data);
 		}
 	}
