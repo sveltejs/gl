@@ -120,6 +120,7 @@
 	}
 
 	const targets = new Map();
+	let camera_position_changed_since_last_render = true;
 
 	const scene = {
 		defines: [
@@ -152,6 +153,7 @@
 			camera_stores.view.set(camera.view);
 			camera_stores.projection.set(camera.projection);
 
+			camera_position_changed_since_last_render = true;
 			invalidate();
 		},
 
@@ -333,21 +335,21 @@
 				gl.clearDepth(1.0);
 				gl.clear(gl.DEPTH_BUFFER_BIT);
 
-				const transparent = [];
-
 				for (let i = 0; i < layer.meshes.length; i += 1) {
-					const mesh = layer.meshes[i];
-
-					if (mesh.transparent) {
-						transparent.push(mesh);
-					} else {
-						render_mesh(mesh);
-					}
+					render_mesh(layer.meshes[i]);
 				}
 
 				// TODO sort transparent meshes, furthest to closest
 				gl.depthMask(false);
-				transparent.sort(furthest_first).forEach(render_mesh);
+
+				if (camera_position_changed_since_last_render || layer.needs_transparency_sort) {
+					sort_transparent_meshes(layer.transparent_meshes);
+					layer.needs_transparency_sort = false;
+				}
+
+				for (let i = 0; i < layer.transparent_meshes.length; i += 1) {
+					render_mesh(layer.transparent_meshes[i]);
+				}
 
 				for (let i = 0; i < layer.child_layers.length; i += 1) {
 					render_layer(layer.child_layers[i]);
@@ -355,6 +357,7 @@
 			}
 
 			render_layer(root_layer);
+			camera_position_changed_since_last_render = false;
 		};
 
 		// for some wacky reason, Adblock Plus seems to prevent the
@@ -372,8 +375,19 @@
 		};
 	});
 
-	// element 14 represents the z position of the model
-	const furthest_first = (a, b) => a.model[14] - b.model[14];
+	const sort_transparent_meshes = meshes => {
+		if (meshes.length < 2) return;
+
+		const lookup = new Map();
+		const out = new Float32Array(16);
+
+		meshes.forEach(mesh => {
+			const z = mat4.multiply(out, camera.view, mesh.model)[14];
+			lookup.set(mesh, z);
+		});
+
+		meshes.sort((a, b) => lookup.get(a) - lookup.get(b));
+	};
 
 	let dimensions_need_update = true;
 

@@ -49,11 +49,17 @@
 	$: mesh.geometry = geometry_instance;
 	$: mesh.transparent = transparent;
 
+	let existing = true; // track if we've previously added this mesh
+	const add_mesh = () => {
+		layer.add_mesh(mesh, existing);
+		existing = false;
+	};
+
+	$: (transparent, add_mesh());
+	$: (model, transparent && (layer.needs_transparency_sort = true));
 	$: (geometry_instance, model, uniforms, scene.invalidate());
 
 	onDestroy(() => {
 		if (mesh.material) mesh.material.destroy();
 	});
-
-	layer.add_mesh(mesh);
 </script>
