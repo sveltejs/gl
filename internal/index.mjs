@@ -43,18 +43,31 @@ export function create_layer(index, invalidate) {
 	let child_index = 0;
 
 	const meshes = [];
+	const transparent_meshes = [];
 	const child_layers = [];
 
 	const layer = {
 		index: 0,
 		meshes,
+		transparent_meshes,
 		child_layers,
 		needs_sort: false,
-		add_mesh: mesh => {
-			meshes.push(mesh);
+		needs_transparency_sort: true,
+		add_mesh: (mesh, existing) => {
+			if (existing) {
+				remove_item(mesh.transparent ? meshes : transparent_meshes, mesh);
+			}
+
+			if (mesh.transparent) {
+				transparent_meshes.push(mesh);
+				layer.needs_transparency_sort = true;
+			} else {
+				meshes.push(mesh);
+			}
 
 			onDestroy(() => {
 				remove_item(meshes, mesh);
+				remove_item(transparent_meshes, mesh);
 				invalidate();
 			});
 		},
