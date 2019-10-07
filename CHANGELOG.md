@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.26
+
+* Fix sorting of transparent meshes ([#16](https://github.com/sveltejs/gl/issues/16))
+
 ## 0.0.25
 
 * Lose context when scene is destroyed
