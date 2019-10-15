@@ -4,6 +4,7 @@ export { default as Group } from './scene/Group.svelte';
 export { default as Layer } from './scene/Layer.svelte';
 export { default as Mesh } from './scene/Mesh/index.svelte';
 export { default as Overlay } from './scene/Overlay.svelte';
+export { default as Point } from './scene/Point.svelte';
 export { default as Target } from './scene/Target.svelte';
 
 // lights
