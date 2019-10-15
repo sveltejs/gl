@@ -1,5 +1,10 @@
 # @sveltejs/gl changelog
 
+## 0.0.28
+
+* Fix `alpha` uniform behaviour in default shader when using `colormap`
+* Fix rendering of non-indexed geometry
+
 ## 0.0.27
 
 * Add `<GL.Point>` component
