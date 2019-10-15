@@ -239,7 +239,7 @@
 
 			let previous_program;
 
-			function render_mesh({ model, model_inverse_transpose, geometry, material, props }) {
+			function render_mesh({ model, model_inverse_transpose, geometry, material }) {
 				// TODO should this even be possible?
 				if (!material) return;
 
