@@ -249,17 +249,12 @@
 					gl.disable(gl.DEPTH_TEST);
 				}
 
-				// TODO...
-				if (material.blend === 'multiply') {
-					gl.blendFuncSeparate(
-						gl.SRC_ALPHA, // source rgb
-						gl.ONE_MINUS_SRC_ALPHA, // dest rgb
-						gl.SRC_ALPHA, // source alpha
-						gl.ONE // dest alpha
-					);
-				} else {
-					gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-				}
+				gl.blendFuncSeparate(
+					gl.SRC_ALPHA, // source rgb
+					gl.ONE_MINUS_SRC_ALPHA, // dest rgb
+					gl.SRC_ALPHA, // source alpha
+					gl.ONE // dest alpha
+				);
 
 				if (material.program !== previous_program) {
 					previous_program = material.program;
