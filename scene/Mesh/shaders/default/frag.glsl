@@ -176,7 +176,7 @@ void main () {
 	#endif
 
 	#ifdef has_alpha
-	gl_FragColor.a = alpha;
+	gl_FragColor.a *= alpha;
 	#endif
 
 	gl_FragColor.rgb *= mix(AMBIENT_LIGHT, vec3(1.0, 1.0, 1.0), lighting);
