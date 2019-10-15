@@ -1,5 +1,5 @@
 // mesh uniforms
-#if defined(has_colormap) || defined(has_specularitymap) || defined(has_normalmap) || defined(has_bumpmap)
+#if defined(has_colormap) || defined(has_specularitymap) || defined(has_normalmap) || defined(has_bumpmap) || defined(has_emissivemap)
 #define has_textures true
 #endif
 
@@ -13,6 +13,10 @@ uniform float specularity;
 
 #ifdef has_colormap
 uniform sampler2D colormap;
+#endif
+
+#ifdef has_emissivemap
+uniform sampler2D emissivemap;
 #endif
 
 #ifdef has_specularitymap
@@ -100,6 +104,10 @@ vec3 perturbNormal2Arb(vec3 eye_pos, vec3 surface_normal) {
 uniform vec3 color;
 #endif
 
+#ifdef has_emissive
+uniform vec3 emissive;
+#endif
+
 #ifdef has_alpha
 uniform float alpha;
 #endif
@@ -173,6 +181,12 @@ void main () {
 
 	gl_FragColor.rgb *= mix(AMBIENT_LIGHT, vec3(1.0, 1.0, 1.0), lighting);
 	gl_FragColor.rgb += spec_amount;
+
+	#if defined(has_emissivemap)
+	gl_FragColor.rgb += texture2D(emissivemap, v_uv);
+	#elif defined(has_emissive)
+	gl_FragColor.rgb += emissive;
+	#endif
 
 	#ifdef USE_FOG
 	gl_FragColor.rgb = mix(
