@@ -1,5 +1,10 @@
 # @sveltejs/gl changelog
 
+## 0.0.27
+
+* Add `<GL.Point>` component
+* Add `emissive` and `emissivemap` uniforms to default material
+
 ## 0.0.26
 
 * Fix sorting of transparent meshes ([#16](https://github.com/sveltejs/gl/issues/16))
