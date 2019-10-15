@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.29
+
+* Default to sensible blending
+
 ## 0.0.28
 
 * Fix `alpha` uniform behaviour in default shader when using `colormap`
