@@ -1,8 +1,9 @@
 class GeometryInstance {
-	constructor(gl, program, attributes, index, primitive) {
+	constructor(gl, program, attributes, index, primitive, count) {
 		this.attributes = attributes;
 		this.index = index;
 		this.primitive = primitive;
+		this.count = count;
 
 		this.locations = {};
 		this.buffers = {};
@@ -70,6 +71,17 @@ export default class Geometry {
 		this.index = index;
 		this.primitive = primitive.toUpperCase();
 
+		this.count = Infinity;
+		for (const k in attributes) {
+			const count = attributes[k].data.length / attributes[k].size;
+			console.log({ count });
+			if (count < this.count) this.count = count;
+		}
+
+		if (this.count === Infinity) {
+			throw new Error(`GL.Geometry must be instantiated with one or more { data, size } attributes`);
+		}
+
 		this.instances = new Map();
 	}
 
@@ -80,7 +92,8 @@ export default class Geometry {
 				program,
 				this.attributes,
 				this.index,
-				this.primitive
+				this.primitive,
+				this.count
 			));
 		}
 

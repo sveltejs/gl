@@ -318,10 +318,7 @@
 					gl.drawElements(gl[geometry.primitive], geometry.index.length, gl.UNSIGNED_INT, 0);
 				} else {
 					const primitiveType = gl[geometry.primitive];
-					const offset = 0;
-					const { position } = geometry.attributes;
-					const count = position.count;
-					gl.drawArrays(primitiveType, offset, count);
+					gl.drawArrays(primitiveType, 0, geometry.count);
 				}
 			}
 
