@@ -74,7 +74,6 @@ export default class Geometry {
 		this.count = Infinity;
 		for (const k in attributes) {
 			const count = attributes[k].data.length / attributes[k].size;
-			console.log({ count });
 			if (count < this.count) this.count = count;
 		}
 
