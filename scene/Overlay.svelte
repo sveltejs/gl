@@ -3,10 +3,16 @@
 
 	export let location;
 	export let direction;
+	export let snap;
+
+	$: px = n => `${snap ? Math.round(n) : n}px`;
 </script>
 
 <Point {location} {direction} let:x let:y let:vector>
-	<span class="overlay" style="transform: translate({x}px, {y}px)">
+	<span
+		class="overlay"
+		style="transform: translate({px(x)}, {px(y)})"
+	>
 		<slot vector={vector}></slot>
 	</span>
 </Point>
