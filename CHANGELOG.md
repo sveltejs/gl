@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.30
+
+* Add `snap` prop to `<Overlay>` components, to snap to pixel
+
 ## 0.0.29
 
 * Default to sensible blending
