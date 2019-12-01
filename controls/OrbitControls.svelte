@@ -10,7 +10,7 @@
 
 	export let location = new Float32Array([1, 3, 5]);
 	export let target = new Float32Array([0, 1, 0]);
-	export let up = new Float32Array([0, 1, 0]);
+	// export let up = new Float32Array([0, 1, 0]);
 
 	export let minDistance = 0;
 	export let maxDistance = Infinity;
@@ -22,11 +22,11 @@
 
 	// How far you can orbit horizontally, upper and lower limits.
 	// If set, must be a sub-interval of the interval [ - Math.PI, Math.PI ].
-	export let minAzimuthAngle = - Infinity; // radians
-	export let maxAzimuthAngle = Infinity; // radians
+	// export let minAzimuthAngle = - Infinity; // radians
+	// export let maxAzimuthAngle = Infinity; // radians
 
 	// Enable damping (inertia). falsy == no damping
-	export let damping = false;
+	// export let damping = false;
 
 	const EPSILON = 0.000001;
 

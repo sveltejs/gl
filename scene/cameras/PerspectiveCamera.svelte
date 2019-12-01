@@ -4,7 +4,6 @@
 	import * as mat4 from 'gl-matrix/mat4';
 
 	export let location = [0, 0, 0];
-	export let rotation = [0, 0, 0];
 	export let lookAt = null;
 	export let up = [0, 1, 0];
 	export let fov = 60;
