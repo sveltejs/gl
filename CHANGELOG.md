@@ -1,5 +1,10 @@
 # @sveltejs/gl changelog
 
+## 0.0.31
+
+* Squelch some prop warnings
+* Add `GL.dodecahedron` geometry
+
 ## 0.0.30
 
 * Add `snap` prop to `<Overlay>` components, to snap to pixel
