@@ -23,6 +23,7 @@ export { default as OrthoCamera } from './scene/cameras/OrthoCamera.svelte';
 export { default as Geometry } from './geometry/Geometry.mjs';
 export { default as box } from './geometry/box.mjs';
 export { default as cone } from './geometry/cone.mjs';
+export { default as dodecahedron } from './geometry/dodecahedron.mjs';
 export { default as plane } from './geometry/plane.mjs';
 export { default as icosphere } from './geometry/icosphere.mjs';
 export { default as sphere } from './geometry/sphere.mjs';
