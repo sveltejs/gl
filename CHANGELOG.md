@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.32
+
+* Add `geometry.update(key, data)` method
+
 ## 0.0.31
 
 * Squelch some prop warnings
