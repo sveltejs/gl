@@ -40,7 +40,7 @@
 		.join('');
 	$: material_instance = new Material(scene, vert, frag, defines, blend, depthTest);
 	$: material_instance.set_uniforms(uniforms);
-	$: geometry_instance = geometry.instantiate(scene.gl, material_instance.program);
+	$: geometry_instance = geometry.instantiate(scene, material_instance.program);
 
 	const mesh = {};
 	$: mesh.model = model;
