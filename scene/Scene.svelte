@@ -65,11 +65,12 @@
 	let canvas;
 	let visible = writable(false);
 	let pending = false;
+	let update_scheduled = false;
 	let w;
 	let h;
 
 	let gl;
-	let draw;
+	let draw = () => {};
 	let camera_stores = {
 		camera_matrix: writable(),
 		view: writable(),
@@ -80,7 +81,7 @@
 		? () => {
 			if (!update_scheduled) {
 				update_scheduled = true;
-				resolved.then(draw);
+				requestAnimationFrame(draw);
 			}
 		}
 		: () => {};
@@ -102,9 +103,6 @@
 		directional: [],
 		point: []
 	};
-
-	let update_scheduled = false;
-	let resolved = Promise.resolve();
 
 	function add_to(array) {
 		return fn => {
