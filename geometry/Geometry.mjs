@@ -1,5 +1,8 @@
 class GeometryInstance {
-	constructor(gl, program, attributes, index, primitive, count) {
+	constructor(scene, program, attributes, index, primitive, count) {
+		this.scene = scene;
+		const gl = scene.gl;
+
 		this.attributes = attributes;
 		this.index = index;
 		this.primitive = primitive;
@@ -61,6 +64,19 @@ class GeometryInstance {
 			);
 		}
 	}
+
+	update(k, data) {
+		const scene = this.scene;
+		const { gl } = scene;
+
+		const attribute = this.attributes[k];
+		const buffer = this.buffers[k];
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, attribute.data = data, attribute.dynamic ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
+
+		scene.invalidate();
+	}
 }
 
 export default class Geometry {
@@ -84,10 +100,10 @@ export default class Geometry {
 		this.instances = new Map();
 	}
 
-	instantiate(gl, program) {
+	instantiate(scene, program) {
 		if (!this.instances.has(program)) {
 			this.instances.set(program, new GeometryInstance(
-				gl,
+				scene,
 				program,
 				this.attributes,
 				this.index,
@@ -97,5 +113,13 @@ export default class Geometry {
 		}
 
 		return this.instances.get(program);
+	}
+
+	update(k, data) {
+		this.attributes[k].data = data;
+
+		this.instances.forEach(instance => {
+			instance.update(k, data);
+		});
 	}
 }

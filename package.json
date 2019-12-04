@@ -1,6 +1,6 @@
 {
   "name": "@sveltejs/gl",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "description": "A (very experimental) project to bring WebGL to Svelte",
   "main": "index.mjs",
   "scripts": {
