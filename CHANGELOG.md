@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.33
+
+* Use `requestAnimationFrame` to batch renders
+
 ## 0.0.32
 
 * Add `geometry.update(key, data)` method
