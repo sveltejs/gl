@@ -19,7 +19,7 @@ Someone once described the DOM as 'an API that only a mother could love'. Clearl
 
 Because of that, people typically reach for libraries like [Three.js](https://threejs.org/) and [regl](http://regl.party/). I use and love both, but they each have characteristics that make them unsuitable for certain tasks:
 
-* Three is comfortably over half a megabyte minified, making it less than idea for *casual* or *whimsical* graphics — especially on low-powered devices where your JS budget is small. Typically, when you encounter Three in the wild, it's used for a standalone set-piece interactive
+* Three is comfortably over half a megabyte minified, making it less than ideal for *casual* or *whimsical* graphics — especially on low-powered devices where your JS budget is small. Typically, when you encounter Three in the wild, it's used for a standalone set-piece interactive
 * regl is intentionally low-level. I've found it to be difficult to use for quickly iterating on an idea, because you're thinking in terms of *draw calls* rather than a *scene graph*
 
 Meanwhile, [A-Frame](https://aframe.io/) — which is a web component wrapper around Three — has demonstrated that a declarative markup-driven approach provides a great authoring experience, particularly for certain kinds of scenes. Since it builds on top of Three, it inherits its strengths and weaknesses.
