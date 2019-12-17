@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.34
+
+* Add `doubleSided` property to meshes
+
 ## 0.0.33
 
 * Use `requestAnimationFrame` to batch renders

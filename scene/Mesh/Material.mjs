@@ -18,14 +18,11 @@ function deep_set(obj, path, value) {
 }
 
 export default class Material {
-	constructor(scene, vert, frag, defines, blend, depthTest) {
+	constructor(scene, vert, frag, defines) {
 		this.scene = scene;
 
 		const gl = scene.gl;
 		this.gl = gl;
-
-		this.blend = blend;
-		this.depthTest = depthTest;
 
 		const { program, uniforms, attributes } = compile(
 			gl,

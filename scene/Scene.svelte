@@ -237,15 +237,33 @@
 
 			let previous_program;
 
-			function render_mesh({ model, model_inverse_transpose, geometry, material }) {
+			let previous_state = {
+				[gl.DEPTH_TEST]: null,
+				[gl.CULL_FACE]: null
+			};
+
+			const enable = (key, enabled) => {
+				if (previous_state[key] !== enabled) {
+					if (enabled) gl.enable(key);
+					else gl.disable(key);
+
+					previous_state[key] = enabled;
+				}
+			};
+
+			function render_mesh({
+				model,
+				model_inverse_transpose,
+				geometry,
+				material,
+				depthTest,
+				doubleSided
+			}) {
 				// TODO should this even be possible?
 				if (!material) return;
 
-				if (material.depthTest !== false) {
-					gl.enable(gl.DEPTH_TEST);
-				} else {
-					gl.disable(gl.DEPTH_TEST);
-				}
+				enable(gl.DEPTH_TEST, depthTest !== false);
+				enable(gl.CULL_FACE, doubleSided !== true);
 
 				gl.blendFuncSeparate(
 					gl.SRC_ALPHA, // source rgb

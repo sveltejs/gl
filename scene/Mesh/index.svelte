@@ -18,8 +18,8 @@
 	export let vert = vert_default;
 	export let frag = frag_default;
 	export let uniforms = {};
-	export let blend = undefined;
 	export let depthTest = undefined;
+	export let doubleSided = undefined;
 	export let transparent = false;
 
 	const scene = get_scene();
@@ -38,7 +38,7 @@
 		.filter(k => uniforms[k] != null)
 		.map(k => `#define has_${k} true\n`)
 		.join('');
-	$: material_instance = new Material(scene, vert, frag, defines, blend, depthTest);
+	$: material_instance = new Material(scene, vert, frag, defines);
 	$: material_instance.set_uniforms(uniforms);
 	$: geometry_instance = geometry.instantiate(scene, material_instance.program);
 
@@ -47,6 +47,8 @@
 	$: mesh.model_inverse_transpose = (mat4.invert(out2, model), mat4.transpose(out2, out2));
 	$: mesh.material = material_instance;
 	$: mesh.geometry = geometry_instance;
+	$: mesh.depthTest = depthTest;
+	$: mesh.doubleSided = doubleSided;
 	$: mesh.transparent = transparent;
 
 	let existing = true; // track if we've previously added this mesh
