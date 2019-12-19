@@ -3,7 +3,7 @@
 
 	export let location;
 	export let direction;
-	export let snap;
+	export let snap = false;
 
 	$: px = n => `${snap ? Math.round(n) : n}px`;
 </script>
