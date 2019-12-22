@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.36
+
+* Squelch missing prop warning
+
 ## 0.0.35
 
 * Use `translate3d` with overlays, add `will-change: transform`

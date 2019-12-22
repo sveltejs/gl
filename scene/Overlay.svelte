@@ -2,7 +2,7 @@
 	import Point from './Point.svelte';
 
 	export let location;
-	export let direction;
+	export let direction = undefined;
 	export let snap = false;
 
 	$: px = n => `${snap ? Math.round(n) : n}px`;
