@@ -11,7 +11,7 @@
 <Point {location} {direction} let:x let:y let:vector>
 	<span
 		class="overlay"
-		style="transform: translate({px(x)}, {px(y)})"
+		style="transform: translate3d({px(x)}, {px(y)}, 0)"
 	>
 		<slot vector={vector}></slot>
 	</span>
@@ -24,5 +24,6 @@
 		top: 0;
 		user-select: none;
 		-moz-user-select: none;
+		will-change: transform;
 	}
 </style>
