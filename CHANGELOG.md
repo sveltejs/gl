@@ -1,5 +1,9 @@
 # @sveltejs/gl changelog
 
+## 0.0.37
+
+* Fix `geometry.update(...)` when length changes
+
 ## 0.0.36
 
 * Squelch missing prop warning

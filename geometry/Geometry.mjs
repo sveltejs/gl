@@ -65,7 +65,7 @@ class GeometryInstance {
 		}
 	}
 
-	update(k, data) {
+	update(k, data, count) {
 		const scene = this.scene;
 		const { gl } = scene;
 
@@ -74,6 +74,12 @@ class GeometryInstance {
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 		gl.bufferData(gl.ARRAY_BUFFER, attribute.data = data, attribute.dynamic ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
+
+		this.count = count;
+
+		if (count === Infinity) {
+			throw new Error(`GL.Geometry must be instantiated with one or more { data, size } attributes`);
+		}
 
 		scene.invalidate();
 	}
@@ -86,16 +92,7 @@ export default class Geometry {
 		const { index, primitive = 'TRIANGLES' } = opts;
 		this.index = index;
 		this.primitive = primitive.toUpperCase();
-
-		this.count = Infinity;
-		for (const k in attributes) {
-			const count = attributes[k].data.length / attributes[k].size;
-			if (count < this.count) this.count = count;
-		}
-
-		if (this.count === Infinity) {
-			throw new Error(`GL.Geometry must be instantiated with one or more { data, size } attributes`);
-		}
+		this.count = get_count(attributes);
 
 		this.instances = new Map();
 	}
@@ -117,9 +114,21 @@ export default class Geometry {
 
 	update(k, data) {
 		this.attributes[k].data = data;
+		this.count = get_count(this.attributes);
 
 		this.instances.forEach(instance => {
-			instance.update(k, data);
+			instance.update(k, data, this.count);
 		});
 	}
+}
+
+function get_count(attributes) {
+	let min = Infinity;
+
+	for (const k in attributes) {
+		const count = attributes[k].data.length / attributes[k].size;
+		if (count < min) min = count;
+	}
+
+	return min;
 }
