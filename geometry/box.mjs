@@ -2,7 +2,7 @@ import Geometry from './Geometry.mjs';
 import { memoize } from '../internal/utils.mjs';
 
 export default memoize((obj = null, x=-0.5, y=-0.5, z=-0.5, w=1.0, h=1.0, d=1.0) => {
-	console.log(x, y, z, w, h, d);
+	// console.log(x, y, z, w, h, d);
 
 	const verts = [
 		[ (x + w), 	(y + h), 	(z + d) ], 	// 0
@@ -15,7 +15,7 @@ export default memoize((obj = null, x=-0.5, y=-0.5, z=-0.5, w=1.0, h=1.0, d=1.0)
 		[ (x + w), 	y, 			z ] 		// 7
 	];
 
-	console.log(verts);
+	// console.log(verts);
 
 	const vertices = [
 
@@ -57,7 +57,7 @@ export default memoize((obj = null, x=-0.5, y=-0.5, z=-0.5, w=1.0, h=1.0, d=1.0)
 
 	].flat(Infinity);
 
-	console.log("box vertices: ", vertices);
+	// console.log("box vertices: ", vertices);
 
 	return new Geometry({
 		position: {
