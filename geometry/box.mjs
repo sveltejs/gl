@@ -1,9 +1,15 @@
 import Geometry from './Geometry.mjs';
 import { memoize } from '../internal/utils.mjs';
 
-export default memoize((obj = {
-	x:-0.5, y:-0.5, z:-0.5, w:1.0, h:1.0, d:1.0
-}) => {
+export default memoize((obj = {}) => {
+	const def = { // default box dimensions
+		x:-0.5, y:-0.5, z:-0.5, w:1.0, h:1.0, d:1.0
+	};
+	for (const p in def) {
+		if (!(p in obj)) {
+			obj[p] = def[p];
+		}
+	}
 	console.log(obj.x, obj.y, obj.z, obj.w, obj.h, obj.d);
 
 	const verts = [
