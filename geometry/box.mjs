@@ -5,14 +5,14 @@ export default memoize((x=-0.5, y=0.0, z=0.5, w=1.0, h=1.0, d=1.0) => {
 	let pos = 0.5;
 	let neg = -0.5;
 	let verts = [
-		pos, pos, pos, 	// 0
-		neg, pos, pos, 	// 1
-		pos, neg, pos, 	// 2
-		neg, neg, pos, 	// 3
-		neg, pos, neg, 	// 4
-		pos, pos, neg, 	// 5
-		neg, neg, neg, 	// 6
-		pos, neg, neg 	// 7
+		[ pos, pos, pos ], 	// 0
+		[ neg, pos, pos ], 	// 1
+		[ pos, neg, pos ], 	// 2
+		[ neg, neg, pos ], 	// 3
+		[ neg, pos, neg ], 	// 4
+		[ pos, pos, neg ], 	// 5
+		[ neg, neg, neg ], 	// 6
+		[ pos, neg, neg ] 	// 7
 	]
 
 	return new Geometry({
@@ -53,7 +53,7 @@ export default memoize((x=-0.5, y=0.0, z=0.5, w=1.0, h=1.0, d=1.0) => {
 				verts[6],
 				verts[2],
 				verts[7]
-			]),
+			].flat(Infinity)),
 			size: 3
 		},
 
