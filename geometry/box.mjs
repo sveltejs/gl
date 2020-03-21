@@ -3,7 +3,7 @@ import { memoize } from '../internal/utils.mjs';
 
 export default memoize((x=-0.5, y=-0.5, z=-0.5, w=1.0, h=1.0, d=1.0) => {
 	console.log(x, y, z, w, h, d);
-	
+
 	const verts = [
 		[ (x + w), 	(y + h), 	(z + d) ], 	// 0
 		[ x, 		(y + h), 	(z + d) ], 	// 1
