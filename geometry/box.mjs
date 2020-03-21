@@ -2,7 +2,7 @@ import Geometry from './Geometry.mjs';
 import { memoize } from '../internal/utils.mjs';
 
 export default memoize((x=-0.5, y=-0.5, z=-0.5, w=1.0, h=1.0, d=1.0) => {
-	let verts = [
+	const verts = [
 		[ (x + w), 	(y + h), 	(z + d) ], 	// 0
 		[ x, 		(y + h), 	(z + d) ], 	// 1
 		[ (x + w), 	y, 			(z + d) ], 	// 2
@@ -11,49 +11,55 @@ export default memoize((x=-0.5, y=-0.5, z=-0.5, w=1.0, h=1.0, d=1.0) => {
 		[ (x + w), 	(y + h), 	z ], 		// 5
 		[ x, 		y, 			z ], 		// 6
 		[ (x + w), 	y, 			z ] 		// 7
-	]
+	];
+
+	console.log(verts);
+
+	const vertices = [
+
+		// front
+		verts[0],
+		verts[1],
+		verts[2],
+		verts[3],
+
+		// left
+		verts[1],
+		verts[4],
+		verts[3],
+		verts[6],
+
+		// back
+		verts[4],
+		verts[5],
+		verts[6],
+		verts[7],
+
+		// right
+		verts[5],
+		verts[0],
+		verts[7],
+		verts[2],
+
+		// top
+		verts[4],
+		verts[1],
+		verts[5],
+		verts[0],
+
+		// bottom
+		verts[3],
+		verts[6],
+		verts[2],
+		verts[7]
+
+	].flat(Infinity);
+
+	console.log("box vertices: ", vertices);
 
 	return new Geometry({
 		position: {
-			data: new Float32Array([
-
-				// front
-				verts[0],
-				verts[1],
-				verts[2],
-				verts[3],
-
-				// left
-				verts[1],
-				verts[4],
-				verts[3],
-				verts[6],
-
-				// back
-				verts[4],
-				verts[5],
-				verts[6],
-				verts[7],
-
-				// right
-				verts[5],
-				verts[0],
-				verts[7],
-				verts[2],
-
-				// top
-				verts[4],
-				verts[1],
-				verts[5],
-				verts[0],
-
-				// bottom
-				verts[3],
-				verts[6],
-				verts[2],
-				verts[7]
-
-			].flat(Infinity)),
+			data: new Float32Array(vertices),
 			size: 3
 		},
 
