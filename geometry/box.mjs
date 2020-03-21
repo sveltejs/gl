@@ -1,23 +1,22 @@
 import Geometry from './Geometry.mjs';
 import { memoize } from '../internal/utils.mjs';
 
-export default memoize((x=-0.5, y=0.0, z=0.5, w=1.0, h=1.0, d=1.0) => {
-	let pos = 0.5;
-	let neg = -0.5;
+export default memoize((x=-0.5, y=-0.5, z=-0.5, w=1.0, h=1.0, d=1.0) => {
 	let verts = [
-		[ pos, pos, pos ], 	// 0
-		[ neg, pos, pos ], 	// 1
-		[ pos, neg, pos ], 	// 2
-		[ neg, neg, pos ], 	// 3
-		[ neg, pos, neg ], 	// 4
-		[ pos, pos, neg ], 	// 5
-		[ neg, neg, neg ], 	// 6
-		[ pos, neg, neg ] 	// 7
+		[ (x + w), 	(y + h), 	(z + d) ], 	// 0
+		[ x, 		(y + h), 	(z + d) ], 	// 1
+		[ (x + w), 	y, 			(z + d) ], 	// 2
+		[ x, 		y, 			(z + d) ], 	// 3
+		[ x, 		(y + h), 	z ], 		// 4
+		[ (x + w), 	(y + h), 	z ], 		// 5
+		[ x, 		y, 			z ], 		// 6
+		[ (x + w), 	y, 			z ] 		// 7
 	]
 
 	return new Geometry({
 		position: {
 			data: new Float32Array([
+
 				// front
 				verts[0],
 				verts[1],
@@ -53,6 +52,7 @@ export default memoize((x=-0.5, y=0.0, z=0.5, w=1.0, h=1.0, d=1.0) => {
 				verts[6],
 				verts[2],
 				verts[7]
+
 			].flat(Infinity)),
 			size: 3
 		},
