@@ -10,7 +10,7 @@ export default memoize((obj = {}) => {
 			obj[p] = def[p];
 		}
 	}
-	console.log(obj.x, obj.y, obj.z, obj.w, obj.h, obj.d);
+	// console.log(obj.x, obj.y, obj.z, obj.w, obj.h, obj.d);
 
 	const verts = [
 		[ (obj.x + obj.w), 	(obj.y + obj.h), 	(obj.z + obj.d) ], 	// 0
