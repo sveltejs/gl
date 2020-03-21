@@ -1,48 +1,58 @@
 import Geometry from './Geometry.mjs';
 import { memoize } from '../internal/utils.mjs';
 
-export default memoize(() => {
+export default memoize((x=-0.5, y=0.0, z=0.5, w=1.0, h=1.0, d=1.0) => {
 	let pos = 0.5;
 	let neg = -0.5;
+	let verts = [
+		pos, pos, pos, 	// 0
+		neg, pos, pos, 	// 1
+		pos, neg, pos, 	// 2
+		neg, neg, pos, 	// 3
+		neg, pos, neg, 	// 4
+		pos, pos, neg, 	// 5
+		neg, neg, neg, 	// 6
+		pos, neg, neg 	// 7
+	]
 
 	return new Geometry({
 		position: {
 			data: new Float32Array([
 				// front
-				pos, pos, pos,
-				neg, pos, pos,
-				pos, neg, pos,
-				neg, neg, pos,
+				verts[0],
+				verts[1],
+				verts[2],
+				verts[3],
 
 				// left
-				neg, pos, pos,
-				neg, pos, neg,
-				neg, neg, pos,
-				neg, neg, neg,
+				verts[1],
+				verts[4],
+				verts[3],
+				verts[6],
 
 				// back
-				neg, pos, neg,
-				pos, pos, neg,
-				neg, neg, neg,
-				pos, neg, neg,
+				verts[4],
+				verts[5],
+				verts[6],
+				verts[7],
 
 				// right
-				pos, pos, neg,
-				pos, pos, pos,
-				pos, neg, neg,
-				pos, neg, pos,
+				verts[5],
+				verts[0],
+				verts[7],
+				verts[2],
 
 				// top
-				neg, pos, neg,
-				neg, pos, pos,
-				pos, pos, neg,
-				pos, pos, pos,
+				verts[4],
+				verts[1],
+				verts[5],
+				verts[0],
 
 				// bottom
-				neg, neg, pos,
-				neg, neg, neg,
-				pos, neg, pos,
-				pos, neg, neg
+				verts[3],
+				verts[6],
+				verts[2],
+				verts[7]
 			]),
 			size: 3
 		},
