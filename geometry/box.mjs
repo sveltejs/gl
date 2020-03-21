@@ -1,18 +1,20 @@
 import Geometry from './Geometry.mjs';
 import { memoize } from '../internal/utils.mjs';
 
-export default memoize((obj = null, x=-0.5, y=-0.5, z=-0.5, w=1.0, h=1.0, d=1.0) => {
-	// console.log(x, y, z, w, h, d);
+export default memoize((obj = {
+	x:-0.5, y:-0.5, z:-0.5, w:1.0, h:1.0, d:1.0
+}) => {
+	console.log(obj.x, obj.y, obj.z, obj.w, obj.h, obj.d);
 
 	const verts = [
-		[ (x + w), 	(y + h), 	(z + d) ], 	// 0
-		[ x, 		(y + h), 	(z + d) ], 	// 1
-		[ (x + w), 	y, 			(z + d) ], 	// 2
-		[ x, 		y, 			(z + d) ], 	// 3
-		[ x, 		(y + h), 	z ], 		// 4
-		[ (x + w), 	(y + h), 	z ], 		// 5
-		[ x, 		y, 			z ], 		// 6
-		[ (x + w), 	y, 			z ] 		// 7
+		[ (obj.x + obj.w), 	(obj.y + obj.h), 	(obj.z + obj.d) ], 	// 0
+		[ obj.x, 			(obj.y + obj.h), 	(obj.z + obj.d) ], 	// 1
+		[ (obj.x + obj.w), 	obj.y, 				(obj.z + obj.d) ], 	// 2
+		[ obj.x, 			obj.y, 				(obj.z + obj.d) ], 	// 3
+		[ obj.x, 			(obj.y + obj.h), 	obj.z ], 			// 4
+		[ (obj.x + obj.w), 	(obj.y + obj.h), 	obj.z ], 			// 5
+		[ obj.x, 			obj.y, 				obj.z ], 			// 6
+		[ (obj.x + obj.w), 	obj.y, 				obj.z ] 			// 7
 	];
 
 	// console.log(verts);
