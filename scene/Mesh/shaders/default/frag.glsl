@@ -4,7 +4,7 @@
 #endif
 
 #ifdef has_textures
-varying vec2 v_uv;
+in vec2 v_uv;
 #endif
 
 #ifdef has_specularity
@@ -115,17 +115,19 @@ uniform float alpha;
 #ifdef USE_FOG
 uniform vec3 FOG_COLOR;
 uniform float FOG_DENSITY;
-varying float v_fog_depth;
+in float v_fog_depth;
 #endif
 
-varying vec3 v_normal;
+in vec3 v_normal;
 
 #if defined(has_normalmap) || defined(has_bumpmap)
-varying vec3 v_view_position;
+in vec3 v_view_position;
 #endif
 
-varying vec3 v_surface_to_light[NUM_LIGHTS];
-varying vec3 v_surface_to_view[NUM_LIGHTS];
+in vec3 v_surface_to_light[NUM_LIGHTS];
+in vec3 v_surface_to_view[NUM_LIGHTS];
+
+out mediump vec4 fragColor;
 
 void main () {
 	vec3 normal = normalize(v_normal);
@@ -170,27 +172,27 @@ void main () {
 	}
 
 	#if defined(has_colormap)
-	gl_FragColor = texture2D(colormap, v_uv);
+	fragColor = texture2D(colormap, v_uv);
 	#elif defined(has_color)
-	gl_FragColor = vec4(color, 1.0);
+	fragColor = vec4(color, 1.0);
 	#endif
 
 	#ifdef has_alpha
-	gl_FragColor.a *= alpha;
+	fragColor.a *= alpha;
 	#endif
 
-	gl_FragColor.rgb *= mix(AMBIENT_LIGHT, vec3(1.0, 1.0, 1.0), lighting);
-	gl_FragColor.rgb += spec_amount;
+	fragColor.rgb *= mix(AMBIENT_LIGHT, vec3(1.0, 1.0, 1.0), lighting);
+	fragColor.rgb += spec_amount;
 
 	#if defined(has_emissivemap)
-	gl_FragColor.rgb += texture2D(emissivemap, v_uv);
+	fragColor.rgb += texture2D(emissivemap, v_uv);
 	#elif defined(has_emissive)
-	gl_FragColor.rgb += emissive;
+	fragColor.rgb += emissive;
 	#endif
 
 	#ifdef USE_FOG
-	gl_FragColor.rgb = mix(
-		gl_FragColor.rgb,
+	fragColor.rgb = mix(
+		fragColor.rgb,
 		FOG_COLOR,
 		1.0 - exp(-FOG_DENSITY * FOG_DENSITY * v_fog_depth * v_fog_depth)
 	);
