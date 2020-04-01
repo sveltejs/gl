@@ -69,7 +69,7 @@
 	let w;
 	let h;
 
-	let gl;
+	export let gl; // WebGL2RenderingContext
 	let draw = () => {};
 	let camera_stores = {
 		camera_matrix: writable(),
@@ -160,7 +160,7 @@
 		add_ambient_light: add_to(lights.ambient),
 
 		get_target(id) {
-			if (!targets.has(id)) targets.set(id, writable(null))
+			if (!targets.has(id)) targets.set(id, writable(null));
 			return targets.get(id);
 		},
 
@@ -184,20 +184,20 @@
 
 	onMount(() => {
 		scene.canvas = canvas;
-		gl = scene.gl = canvas.getContext('webgl');
+		gl = scene.gl = canvas.getContext('webgl2');
 		visible = get_visibility(canvas);
 
-		const extensions = [
-			'OES_element_index_uint',
-			'OES_standard_derivatives'
-		];
-
-		extensions.forEach(name => {
-			const ext = gl.getExtension(name);
-			if (!ext) {
-				throw new Error(`Unsupported extension: ${name}`);
-			}
-		});
+		// const extensions = [
+		// 	'OES_element_index_uint',
+		// 	'OES_standard_derivatives'
+		// ];
+		//
+		// extensions.forEach(name => {
+		// 	const ext = gl.getExtension(name);
+		// 	if (!ext) {
+		// 		throw new Error(`Unsupported extension: ${name}`);
+		// 	}
+		// });
 
 		draw = force => {
 			if (!camera) return; // TODO make this `!ready` or something instead

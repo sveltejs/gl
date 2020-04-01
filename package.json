@@ -1,30 +1,59 @@
 {
-  "name": "@sveltejs/gl",
-  "version": "0.0.37",
-  "description": "A (very experimental) project to bring WebGL to Svelte",
-  "main": "index.mjs",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Rich-Harris/gl.git"
-  },
-  "keywords": [
-    "Svelte",
-    "WebGL"
+  "_args": [
+    [
+      "git+https://github.com/Real-Currents/SvelteGL.git#real/currents",
+      "/home/revlin/Public/sveltr"
+    ]
   ],
-  "author": "Rich Harris",
-  "license": "MIT",
+  "_development": true,
+  "_from": "git+https://github.com/Real-Currents/SvelteGL.git#real/currents",
+  "_id": "@sveltejs/gl@git+https://github.com/Real-Currents/SvelteGL.git#fb90b9cd802fa6137f83ab5e1e7d84d01b01e163",
+  "_inBundle": false,
+  "_integrity": "",
+  "_location": "/@sveltejs/gl",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "git",
+    "raw": "git+https://github.com/Real-Currents/SvelteGL.git#real/currents",
+    "rawSpec": "git+https://github.com/Real-Currents/SvelteGL.git#real/currents",
+    "saveSpec": "git+https://github.com/Real-Currents/SvelteGL.git#real/currents",
+    "fetchSpec": "https://github.com/Real-Currents/SvelteGL.git",
+    "gitCommittish": "real/currents"
+  },
+  "_requiredBy": [
+    "#DEV:/"
+  ],
+  "_resolved": "git+https://github.com/Real-Currents/SvelteGL.git#fb90b9cd802fa6137f83ab5e1e7d84d01b01e163",
+  "_spec": "git+https://github.com/Real-Currents/SvelteGL.git#real/currents",
+  "_where": "/home/revlin/Public/sveltr",
+  "author": {
+    "name": "Rich Harris"
+  },
   "bugs": {
     "url": "https://github.com/Rich-Harris/gl/issues"
-  },
-  "homepage": "https://github.com/Rich-Harris/gl#readme",
-  "devDependencies": {
-    "tiny-glob": "^0.2.6"
   },
   "dependencies": {
     "gl-matrix": "^3.0.0",
     "yootils": "0.0.16"
-  }
+  },
+  "description": "A (very experimental) project to bring WebGL to Svelte",
+  "devDependencies": {
+    "tiny-glob": "^0.2.6"
+  },
+  "homepage": "https://github.com/Rich-Harris/gl#readme",
+  "keywords": [
+    "Svelte",
+    "WebGL"
+  ],
+  "license": "MIT",
+  "main": "index.mjs",
+  "name": "@sveltejs/gl",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rich-Harris/gl.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "0.0.37"
 }
