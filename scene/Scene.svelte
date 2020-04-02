@@ -70,6 +70,7 @@
 	let h;
 
 	export let gl; // WebGL2RenderingContext
+	export let process_extra_shader_components; // (gl, material) => {}
 	let draw = () => {};
 	let camera_stores = {
 		camera_matrix: writable(),
@@ -187,6 +188,8 @@
 		gl = scene.gl = canvas.getContext('webgl2');
 		visible = get_visibility(canvas);
 
+		gl.clearColor(0.0, 0.0, 0.0, 0.0);
+
 		// const extensions = [
 		// 	'OES_element_index_uint',
 		// 	'OES_standard_derivatives'
@@ -220,11 +223,17 @@
 
 			pending = false;
 
-			gl.clearColor(...bg, backgroundOpacity);
-			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+			// gl.clearColor(...bg, backgroundOpacity);
+			// gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-			gl.enable(gl.CULL_FACE);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			gl.enable(gl.BLEND);
+			gl.enable(gl.CULL_FACE);
+			gl.enable(gl.DEPTH_TEST);                               // Enable depth testing
+			gl.depthFunc(gl.LEQUAL);                                // Near things obscure far things
+
+			// Clear the canvas before we start drawing on it.
+			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 			// calculate total ambient light
 			const ambient_light = lights.ambient.reduce((total, { color, intensity }) => {
@@ -272,6 +281,9 @@
 					gl.ONE // dest alpha
 				);
 
+				// set attributes
+				geometry.set_attributes(gl);
+
 				if (material.program !== previous_program) {
 					previous_program = material.program;
 
@@ -317,11 +329,14 @@
 				gl.uniformMatrix4fv(material.uniform_locations.MODEL, false, model);
 				gl.uniformMatrix4fv(material.uniform_locations.MODEL_INVERSE_TRANSPOSE, false, model_inverse_transpose);
 
-				// set material-specific built-in uniforms
-				material.apply_uniforms(gl);
+				if (typeof process_extra_shader_components == 'function') {
+					// set material-specific built-in uniforms
+					material.apply_uniforms(gl, null, model, process_extra_shader_components);
 
-				// set attributes
-				geometry.set_attributes(gl);
+				} else {
+					// set material-specific built-in uniforms
+					material.apply_uniforms(gl);
+				}
 
 				// draw
 				if (geometry.index) {

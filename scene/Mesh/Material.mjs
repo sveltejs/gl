@@ -30,6 +30,16 @@ export default class Material {
 			'#version 300 es' + '\n\n' + scene.defines + defines + '\n\n' + frag_builtin + '\n\n' + frag
 		);
 
+		console.log(vert.match(/(?:NAME\s)(.+)/g));
+
+		this.vertName = (vert.match(/(?:NAME\s)(.+)/g) !== null) ?
+			vert.match(/(?:NAME\s)(.+)/g)[0].substr(5) :
+			"default";
+
+		this.fragName = (frag.match(/(?:NAME\s)(.+)/g) !== null) ?
+			frag.match(/(?:NAME\s)(.+)/g)[0].substr(5) :
+			"default";
+
 		this.program = program;
 		this.uniforms = uniforms;
 		this.attributes = attributes;
@@ -81,7 +91,7 @@ export default class Material {
 		this.raw_values = raw_values;
 	}
 
-	apply_uniforms(gl, builtins) {
+	apply_uniforms(gl, builtins, model, process_extra_shader_components) {
 		// TODO if this is the only program, maybe
 		// we don't need to re-run this each time
 		this.uniforms.forEach(uniform => {
@@ -89,6 +99,10 @@ export default class Material {
 				uniform.setter(gl, uniform.loc, this.values[uniform.name]);
 			}
 		});
+
+		if (typeof process_extra_shader_components === 'function') {
+			process_extra_shader_components(gl, this, model)
+		}
 	}
 
 	destroy() {

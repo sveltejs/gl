@@ -15,6 +15,12 @@ const setters = {
 		gl.bindTexture(gl.TEXTURE_2D, data.texture);
 		gl.uniform1i(loc, data.index);
 	}
+	//,
+	// TEXTURE_CUBE_MAP
+	// [35680]: (gl, loc, data) => {
+	// 	gl.bindTexture(gl.TEXTURE_CUBE_MAP, data.texture);
+	// 	gl.uniform1i(loc, data.index);
+	// }
 };
 
 export function compile(gl, vert, frag) {
@@ -121,9 +127,9 @@ function get_uniforms(gl, program) {
 		const loc = gl.getUniformLocation(program, name);
 		const setter = setters[type];
 
-		if (!setter) {
-			throw new Error(`not implemented ${type} (${name})`);
-		}
+		// if (!setter) {
+		// 	throw new Error(`not implemented ${type} (${name})`);
+		// }
 
 		uniforms.push({ size, type, name, setter, loc });
 	}
