@@ -343,10 +343,10 @@
 					gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, geometry.buffers.__index);
 					gl.drawElements(gl[geometry.primitive], geometry.index.length, gl.UNSIGNED_INT, 0);
 				} else {
-					if (geometry.primitive === 'POINTS') {
-						console.log("If ", (gl[geometry.primitive] === gl.POINTS));
-						console.log("Draw ", gl[geometry.primitive], " for " + geometry.count + " point(s)" );
-					}
+					// if (geometry.primitive === 'POINTS') {
+					// 	console.log("If ", (gl[geometry.primitive] === gl.POINTS));
+					// 	console.log("Draw gl.POINTS for " + geometry.count + " point(s)" );
+					// }
 					const primitiveType = gl[geometry.primitive];
 					gl.drawArrays(primitiveType, 0, geometry.count);
 				}
