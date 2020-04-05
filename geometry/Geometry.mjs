@@ -54,7 +54,7 @@ class GeometryInstance {
 			// Bind the position buffer.
 			const buffer = this.buffers[key];
 			
-			if (this.primitive = 'POINTS') console.log("enableVertexAttribArray on location ", key);
+			// if (this.primitive = 'POINTS') console.log("enableVertexAttribArray on location ", key);
 
 			gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 
