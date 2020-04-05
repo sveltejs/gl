@@ -25,6 +25,7 @@ export { default as box } from './geometry/box.mjs';
 export { default as cone } from './geometry/cone.mjs';
 export { default as dodecahedron } from './geometry/dodecahedron.mjs';
 export { default as plane } from './geometry/plane.mjs';
+export { default as sprite } from './geometry/sprite.mjs';
 export { default as terrain } from './geometry/terrain.mjs';
 export { default as icosphere } from './geometry/icosphere.mjs';
 export { default as sphere } from './geometry/sphere.mjs';
