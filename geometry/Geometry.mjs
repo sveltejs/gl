@@ -15,20 +15,25 @@ class GeometryInstance {
 			const attribute = attributes[key];
 
 			this.locations[key] = gl.getAttribLocation(program, key);
+			if (this.primitive === 'POINTS') console.log(key, ":", attribute);
 
 			const buffer = gl.createBuffer();
-			this.buffers[key] = buffer;
 
 			gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 			gl.bufferData(gl.ARRAY_BUFFER, attribute.data, attribute.dynamic ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
+			this.buffers[key] = buffer;
 		}
 
 		if (index) {
 			const buffer = gl.createBuffer();
-			this.buffers.__index = buffer;
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
 			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, index, gl.STATIC_DRAW);
+			this.buffers.__index = buffer;
 		}
+		
+		// Un-bind buffers
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 	}
 
 	set_attributes(gl) {
@@ -48,6 +53,8 @@ class GeometryInstance {
 
 			// Bind the position buffer.
 			const buffer = this.buffers[key];
+			
+			if (this.primitive = 'POINTS') console.log("enableVertexAttribArray on location ", key);
 
 			gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 
