@@ -25,7 +25,7 @@ class TextureInstance {
 
 	bind(gl, texture, data) {
 		gl.bindTexture(constants.TEXTURE_2D, this._);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 
 		if (ArrayBuffer.isView(data)) {
 			// TODO figure out where this goes
