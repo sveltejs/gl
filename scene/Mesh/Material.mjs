@@ -30,7 +30,7 @@ export default class Material {
 			'#version 300 es' + '\n\n' + scene.defines + defines + '\n\n' + frag_builtin + '\n\n' + frag
 		);
 
-		console.log(vert.match(/(?:NAME\s)(.+)/g));
+		// console.log(vert.match(/(?:NAME\s)(.+)/g));
 
 		this.vertName = (vert.match(/(?:NAME\s)(.+)/g) !== null) ?
 			vert.match(/(?:NAME\s)(.+)/g)[0].substr(5) :
