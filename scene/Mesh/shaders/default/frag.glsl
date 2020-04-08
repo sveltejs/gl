@@ -32,9 +32,9 @@ vec2 dHdxy_fwd() {
 	vec2 dSTdx = dFdx(v_uv);
 	vec2 dSTdy = dFdy(v_uv);
 
-	float Hll = texture2D(bumpmap, v_uv).x;
-	float dBx = texture2D(bumpmap, v_uv + dSTdx).x - Hll;
-	float dBy = texture2D(bumpmap, v_uv + dSTdy).x - Hll;
+	float Hll = texture(bumpmap, v_uv).x;
+	float dBx = texture(bumpmap, v_uv + dSTdx).x - Hll;
+	float dBy = texture(bumpmap, v_uv + dSTdy).x - Hll;
 
 	#ifdef has_bumpscale
 	Hll *= bumpscale;
@@ -90,7 +90,7 @@ vec3 perturbNormal2Arb(vec3 eye_pos, vec3 surface_normal) {
 	vec3 T = normalize((-q0 * st1.s + q1 * st0.s) * scale);
 	vec3 N = normalize(surface_normal);
 	mat3 tsn = mat3(S, T, N);
-	vec3 mapN = texture2D(normalmap, v_uv).xyz * 2.0 - 1.0;
+	vec3 mapN = texture(normalmap, v_uv).xyz * 2.0 - 1.0;
 
 	// TODO
 	// mapN.xy *= NORMAL_SCALE;
@@ -164,7 +164,7 @@ void main () {
 			float spec = clamp(dot(normal, half_vector), 0.0, 1.0);
 
 			#ifdef has_specularitymap
-			spec *= texture2D(specularitymap, v_uv).r;
+			spec *= texture(specularitymap, v_uv).r;
 			#endif
 
 			spec_amount += specularity * spec * light.color * light.intensity;
@@ -172,7 +172,7 @@ void main () {
 	}
 
 	#if defined(has_colormap)
-	fragColor = texture2D(colormap, v_uv);
+	fragColor = texture(colormap, v_uv);
 	#elif defined(has_color)
 	fragColor = vec4(color, 1.0);
 	#endif
@@ -185,7 +185,7 @@ void main () {
 	fragColor.rgb += spec_amount;
 
 	#if defined(has_emissivemap)
-	fragColor.rgb += texture2D(emissivemap, v_uv);
+	fragColor.rgb += texture(emissivemap, v_uv);
 	#elif defined(has_emissive)
 	fragColor.rgb += emissive;
 	#endif
