@@ -3,6 +3,8 @@
   "version": "0.0.37",
   "description": "A (very experimental) project to bring WebGL to Svelte",
   "main": "index.mjs",
+  "module": "index.mjs",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
