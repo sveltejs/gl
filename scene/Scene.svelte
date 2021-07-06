@@ -69,7 +69,8 @@
 	let w;
 	let h;
 
-	let gl;
+	export let gl; // WebGL2RenderingContext
+	export let process_extra_shader_components; // (gl, material) => {}
 	let draw = () => {};
 	let camera_stores = {
 		camera_matrix: writable(),
@@ -160,7 +161,7 @@
 		add_ambient_light: add_to(lights.ambient),
 
 		get_target(id) {
-			if (!targets.has(id)) targets.set(id, writable(null))
+			if (!targets.has(id)) targets.set(id, writable(null));
 			return targets.get(id);
 		},
 
@@ -184,20 +185,22 @@
 
 	onMount(() => {
 		scene.canvas = canvas;
-		gl = scene.gl = canvas.getContext('webgl');
+		gl = scene.gl = canvas.getContext('webgl2');
 		visible = get_visibility(canvas);
 
-		const extensions = [
-			'OES_element_index_uint',
-			'OES_standard_derivatives'
-		];
+		gl.clearColor(0.0, 0.0, 0.0, 0.0);
 
-		extensions.forEach(name => {
-			const ext = gl.getExtension(name);
-			if (!ext) {
-				throw new Error(`Unsupported extension: ${name}`);
-			}
-		});
+		// const extensions = [
+		// 	'OES_element_index_uint',
+		// 	'OES_standard_derivatives'
+		// ];
+		//
+		// extensions.forEach(name => {
+		// 	const ext = gl.getExtension(name);
+		// 	if (!ext) {
+		// 		throw new Error(`Unsupported extension: ${name}`);
+		// 	}
+		// });
 
 		draw = force => {
 			if (!camera) return; // TODO make this `!ready` or something instead
@@ -220,11 +223,17 @@
 
 			pending = false;
 
-			gl.clearColor(...bg, backgroundOpacity);
-			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+			// gl.clearColor(...bg, backgroundOpacity);
+			// gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-			gl.enable(gl.CULL_FACE);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 			gl.enable(gl.BLEND);
+			gl.enable(gl.CULL_FACE);
+			gl.enable(gl.DEPTH_TEST);                               // Enable depth testing
+			gl.depthFunc(gl.LEQUAL);                                // Near things obscure far things
+
+			// Clear the canvas before we start drawing on it.
+			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 			// calculate total ambient light
 			const ambient_light = lights.ambient.reduce((total, { color, intensity }) => {
@@ -272,6 +281,9 @@
 					gl.ONE // dest alpha
 				);
 
+				// set attributes
+				geometry.set_attributes(gl);
+
 				if (material.program !== previous_program) {
 					previous_program = material.program;
 
@@ -317,17 +329,24 @@
 				gl.uniformMatrix4fv(material.uniform_locations.MODEL, false, model);
 				gl.uniformMatrix4fv(material.uniform_locations.MODEL_INVERSE_TRANSPOSE, false, model_inverse_transpose);
 
-				// set material-specific built-in uniforms
-				material.apply_uniforms(gl);
+				if (typeof process_extra_shader_components == 'function') {
+					// set material-specific built-in uniforms
+					material.apply_uniforms(gl, null, model, process_extra_shader_components);
 
-				// set attributes
-				geometry.set_attributes(gl);
+				} else {
+					// set material-specific built-in uniforms
+					material.apply_uniforms(gl);
+				}
 
 				// draw
 				if (geometry.index) {
 					gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, geometry.buffers.__index);
 					gl.drawElements(gl[geometry.primitive], geometry.index.length, gl.UNSIGNED_INT, 0);
 				} else {
+					// if (geometry.primitive === 'POINTS') {
+					// 	console.log("If ", (gl[geometry.primitive] === gl.POINTS));
+					// 	console.log("Draw gl.POINTS for " + geometry.count + " point(s)" );
+					// }
 					const primitiveType = gl[geometry.primitive];
 					gl.drawArrays(primitiveType, 0, geometry.count);
 				}

@@ -8,7 +8,7 @@
 	// TODO check we're not inside a group?
 	const scene = get_scene();
 
-	export let location = new Float32Array([1, 3, 5]);
+	export let location = new Float32Array([1, 3, 1]);
 	export let target = new Float32Array([0, 1, 0]);
 	// export let up = new Float32Array([0, 1, 0]);
 

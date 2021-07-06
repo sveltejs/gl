@@ -1,29 +1,29 @@
-attribute vec3 position;
-attribute vec3 normal;
+in vec3 position;
+in vec3 normal;
 
-varying vec3 v_normal;
+out vec3 v_normal;
 
 #if defined(has_colormap) || defined(has_specularitymap) || defined(has_normalmap) || defined(has_bumpmap)
 #define has_textures true
 #endif
 
 #ifdef has_textures
-attribute vec2 uv;
-varying vec2 v_uv;
+in vec2 uv;
+out vec2 v_uv;
 #endif
 
 #if defined(has_normalmap) || defined(has_bumpmap)
-varying vec3 v_view_position;
+out vec3 v_view_position;
 #endif
 
-varying vec3 v_surface_to_light[NUM_LIGHTS];
+out vec3 v_surface_to_light[NUM_LIGHTS];
 
 #ifdef has_specularity
-varying vec3 v_surface_to_view[NUM_LIGHTS];
+out vec3 v_surface_to_view[NUM_LIGHTS];
 #endif
 
 #ifdef USE_FOG
-varying float v_fog_depth;
+out float v_fog_depth;
 #endif
 
 void main() {

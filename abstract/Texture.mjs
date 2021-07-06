@@ -25,6 +25,7 @@ class TextureInstance {
 
 	bind(gl, texture, data) {
 		gl.bindTexture(constants.TEXTURE_2D, this._);
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 
 		if (ArrayBuffer.isView(data)) {
 			// TODO figure out where this goes
@@ -35,13 +36,13 @@ class TextureInstance {
 		} else {
 			gl.texImage2D(constants.TEXTURE_2D, 0, constants.RGBA, constants.RGBA, constants.UNSIGNED_BYTE, data);
 		}
-
+		
+		gl.generateMipmap(constants.TEXTURE_2D);
+		
 		const width  = 'naturalWidth'  in data ? data.naturalWidth  : data.width;
 		const height = 'naturalHeight' in data ? data.naturalHeight : data.height;
 
 		if (is_power_of_two(width) && is_power_of_two(height)) {
-			gl.generateMipmap(constants.TEXTURE_2D);
-
 			gl.texParameteri(constants.TEXTURE_2D, constants.TEXTURE_WRAP_S, texture.opts.wrapS);
 			gl.texParameteri(constants.TEXTURE_2D, constants.TEXTURE_WRAP_T, texture.opts.wrapT);
 			gl.texParameteri(constants.TEXTURE_2D, constants.TEXTURE_MIN_FILTER, texture.opts.minFilter);
