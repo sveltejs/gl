@@ -13,14 +13,14 @@ export default memoize((obj = {}) => {
     // console.log(obj.x, obj.y, obj.z, obj.w, obj.h, obj.d);
 
     const verts = [
-        [ (obj.x + obj.w), 	(obj.y + obj.h), 	  (obj.z + obj.d) ],    // 0
-        [ obj.x,            (obj.y + obj.h),      (obj.z + obj.d) ],    // 1
-        [ (obj.x + obj.w), 	obj.y,                (obj.z + obj.d) ],    // 2
-        [ obj.x,            obj.y,                (obj.z + obj.d) ],    // 3
-        [ obj.x,            (obj.y + obj.h),      obj.z ],              // 4
-        [ (obj.x + obj.w), 	(obj.y + obj.h),      obj.z ],              // 5
-        [ obj.x,            obj.y,                obj.z ],              // 6
-        [ (obj.x + obj.w),  obj.y,                obj.z ]               // 7
+        [ (obj.x + obj.w), (obj.y + obj.h), (obj.z + obj.d) ],    // 0
+        [ obj.x,           (obj.y + obj.h), (obj.z + obj.d) ],    // 1
+        [ (obj.x + obj.w), obj.y,           (obj.z + obj.d) ],    // 2
+        [ obj.x,           obj.y,           (obj.z + obj.d) ],    // 3
+        [ obj.x,           (obj.y + obj.h), obj.z           ],    // 4
+        [ (obj.x + obj.w), (obj.y + obj.h), obj.z           ],    // 5
+        [ obj.x,           obj.y,           obj.z           ],    // 6
+        [ (obj.x + obj.w), obj.y,           obj.z           ]     // 7
     ];
 
     // console.log(verts);
