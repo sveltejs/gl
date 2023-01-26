@@ -1,3 +1,7 @@
+# This project is deprecated — we recommend https://threlte.xyz/
+
+---
+
 # @sveltejs/gl
 
 Declarative WebGL scene graphs inside [Svelte](https://svelte.dev).
